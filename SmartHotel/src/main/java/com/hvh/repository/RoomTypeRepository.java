@@ -4,7 +4,7 @@
  */
 package com.hvh.repository;
 
-import com.hvh.pojo.RoomTypes;
+import com.hvh.pojo.RoomType;
 import java.util.List;
 
 /**
@@ -12,5 +12,5 @@ import java.util.List;
  * @author 03358
  */
 public interface RoomTypeRepository {
-    public List<RoomTypes> getTypes();
+    public List<RoomType> getType();
 }

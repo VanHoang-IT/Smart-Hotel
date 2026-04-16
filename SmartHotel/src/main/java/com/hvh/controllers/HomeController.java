@@ -31,13 +31,13 @@ public class HomeController {
     
     @ModelAttribute
     public void commonResponse(Model model){
-        model.addAttribute("roomTypes", this.typeService.getTypes());
+        model.addAttribute("roomType", this.typeService.getType());
     }
     
     @RequestMapping("/")
     public String index(Model model, @RequestParam Map<String, String> params){
-        model.addAttribute("roomTypes", this.typeService.getTypes());
-        model.addAttribute("rooms", this.roomService.getRooms(params));
+        model.addAttribute("roomType", this.typeService.getType());
+        model.addAttribute("room", this.roomService.getRooms(params));
         return "index";
     }
 }

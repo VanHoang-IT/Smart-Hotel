@@ -4,7 +4,7 @@
  */
 package com.hvh.controllers;
 
-import com.hvh.pojo.Rooms;
+import com.hvh.pojo.Room;
 import com.hvh.service.RoomService;
 import com.hvh.service.RoomTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,28 +30,28 @@ public class RoomController {
     @Autowired
     private RoomTypeService typeService;
 
-    @GetMapping("/rooms")
+    @GetMapping("/room")
     public String createView(Model model) {
-        model.addAttribute("rooms", new Rooms());
-        return "rooms";
+        model.addAttribute("room", new Room());
+        return "room";
     }
 
-    @PostMapping("/rooms")
-    public String createView(Model model, @ModelAttribute(value = "rooms") Rooms r) {
+    @PostMapping("/room")
+    public String createView(Model model, @ModelAttribute(value = "room") Room r) {
         try {
             this.roomService.addOrUpdateRoom(r);
             return "redirect:/";
         } catch (Exception ex) {
             model.addAttribute("errMsg", "Lỗi: Số phòng '" + r.getRoomNumber() + "' đã tồn tại trong hệ thống!");
 
-            model.addAttribute("roomTypes", this.typeService.getTypes());
-            return "rooms";
+            model.addAttribute("roomType", this.typeService.getType());
+            return "room";
         }
     }
     
-    @GetMapping("/rooms/{roomId}")
+    @GetMapping("/room/{roomId}")
     public String updateView(Model model, @PathVariable(value = "roomId") int id){
-       model.addAttribute("rooms", this.roomService.getRoomById(id));
-       return "rooms";
+       model.addAttribute("room", this.roomService.getRoomById(id));
+       return "room";
     }
 }

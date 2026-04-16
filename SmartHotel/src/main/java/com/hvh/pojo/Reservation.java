@@ -33,17 +33,17 @@ import java.util.Set;
  * @author 03358
  */
 @Entity
-@Table(name = "reservations")
+@Table(name = "reservation")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Reservations.findAll", query = "SELECT r FROM Reservations r"),
-    @NamedQuery(name = "Reservations.findById", query = "SELECT r FROM Reservations r WHERE r.id = :id"),
-    @NamedQuery(name = "Reservations.findByCheckIn", query = "SELECT r FROM Reservations r WHERE r.checkIn = :checkIn"),
-    @NamedQuery(name = "Reservations.findByCheckOut", query = "SELECT r FROM Reservations r WHERE r.checkOut = :checkOut"),
-    @NamedQuery(name = "Reservations.findByStatus", query = "SELECT r FROM Reservations r WHERE r.status = :status"),
-    @NamedQuery(name = "Reservations.findByCreatedAt", query = "SELECT r FROM Reservations r WHERE r.createdAt = :createdAt"),
-    @NamedQuery(name = "Reservations.findByUpdatedAt", query = "SELECT r FROM Reservations r WHERE r.updatedAt = :updatedAt")})
-public class Reservations implements Serializable {
+    @NamedQuery(name = "Reservation.findAll", query = "SELECT r FROM Reservation r"),
+    @NamedQuery(name = "Reservation.findById", query = "SELECT r FROM Reservation r WHERE r.id = :id"),
+    @NamedQuery(name = "Reservation.findByCheckIn", query = "SELECT r FROM Reservation r WHERE r.checkIn = :checkIn"),
+    @NamedQuery(name = "Reservation.findByCheckOut", query = "SELECT r FROM Reservation r WHERE r.checkOut = :checkOut"),
+    @NamedQuery(name = "Reservation.findByStatus", query = "SELECT r FROM Reservation r WHERE r.status = :status"),
+    @NamedQuery(name = "Reservation.findByCreatedAt", query = "SELECT r FROM Reservation r WHERE r.createdAt = :createdAt"),
+    @NamedQuery(name = "Reservation.findByUpdatedAt", query = "SELECT r FROM Reservation r WHERE r.updatedAt = :updatedAt")})
+public class Reservation implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -71,30 +71,30 @@ public class Reservations implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "reservationId")
-    private Set<ReservationRooms> reservationRoomsSet;
+    private Set<ReservationRoom> reservationRoomSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "reservationId")
-    private Set<Payments> paymentsSet;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "reservationId")
-    private Invoices invoices;
+    private Set<ServiceOrder> serviceOrderSet;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "reservationId")
+    private Set<Review> reviewSet;
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private CustomerProfiles customerId;
+    private CustomerProfile customerId;
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     @ManyToOne
-    private Users createdBy;
+    private User createdBy;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "reservationId")
-    private Set<Reviews> reviewsSet;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "reservationId")
-    private Set<ServiceOrders> serviceOrdersSet;
+    private Set<Payment> paymentSet;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "reservationId")
+    private Invoice invoice;
 
-    public Reservations() {
+    public Reservation() {
     }
 
-    public Reservations(Long id) {
+    public Reservation(Long id) {
         this.id = id;
     }
 
-    public Reservations(Long id, Date checkIn, Date checkOut) {
+    public Reservation(Long id, Date checkIn, Date checkOut) {
         this.id = id;
         this.checkIn = checkIn;
         this.checkOut = checkOut;
@@ -149,63 +149,63 @@ public class Reservations implements Serializable {
     }
 
     @XmlTransient
-    public Set<ReservationRooms> getReservationRoomsSet() {
-        return reservationRoomsSet;
+    public Set<ReservationRoom> getReservationRoomSet() {
+        return reservationRoomSet;
     }
 
-    public void setReservationRoomsSet(Set<ReservationRooms> reservationRoomsSet) {
-        this.reservationRoomsSet = reservationRoomsSet;
+    public void setReservationRoomSet(Set<ReservationRoom> reservationRoomSet) {
+        this.reservationRoomSet = reservationRoomSet;
     }
 
     @XmlTransient
-    public Set<Payments> getPaymentsSet() {
-        return paymentsSet;
+    public Set<ServiceOrder> getServiceOrderSet() {
+        return serviceOrderSet;
     }
 
-    public void setPaymentsSet(Set<Payments> paymentsSet) {
-        this.paymentsSet = paymentsSet;
+    public void setServiceOrderSet(Set<ServiceOrder> serviceOrderSet) {
+        this.serviceOrderSet = serviceOrderSet;
     }
 
-    public Invoices getInvoices() {
-        return invoices;
+    @XmlTransient
+    public Set<Review> getReviewSet() {
+        return reviewSet;
     }
 
-    public void setInvoices(Invoices invoices) {
-        this.invoices = invoices;
+    public void setReviewSet(Set<Review> reviewSet) {
+        this.reviewSet = reviewSet;
     }
 
-    public CustomerProfiles getCustomerId() {
+    public CustomerProfile getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(CustomerProfiles customerId) {
+    public void setCustomerId(CustomerProfile customerId) {
         this.customerId = customerId;
     }
 
-    public Users getCreatedBy() {
+    public User getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Users createdBy) {
+    public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
     }
 
     @XmlTransient
-    public Set<Reviews> getReviewsSet() {
-        return reviewsSet;
+    public Set<Payment> getPaymentSet() {
+        return paymentSet;
     }
 
-    public void setReviewsSet(Set<Reviews> reviewsSet) {
-        this.reviewsSet = reviewsSet;
+    public void setPaymentSet(Set<Payment> paymentSet) {
+        this.paymentSet = paymentSet;
     }
 
-    @XmlTransient
-    public Set<ServiceOrders> getServiceOrdersSet() {
-        return serviceOrdersSet;
+    public Invoice getInvoice() {
+        return invoice;
     }
 
-    public void setServiceOrdersSet(Set<ServiceOrders> serviceOrdersSet) {
-        this.serviceOrdersSet = serviceOrdersSet;
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
     }
 
     @Override
@@ -218,10 +218,10 @@ public class Reservations implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Reservations)) {
+        if (!(object instanceof Reservation)) {
             return false;
         }
-        Reservations other = (Reservations) object;
+        Reservation other = (Reservation) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -230,7 +230,7 @@ public class Reservations implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.Reservations[ id=" + id + " ]";
+        return "com.hvh.pojo.Reservation[ id=" + id + " ]";
     }
     
 }

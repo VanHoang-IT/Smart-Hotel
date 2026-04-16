@@ -30,16 +30,16 @@ import java.util.Date;
  * @author 03358
  */
 @Entity
-@Table(name = "service_orders")
+@Table(name = "service_order")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "ServiceOrders.findAll", query = "SELECT s FROM ServiceOrders s"),
-    @NamedQuery(name = "ServiceOrders.findById", query = "SELECT s FROM ServiceOrders s WHERE s.id = :id"),
-    @NamedQuery(name = "ServiceOrders.findByQty", query = "SELECT s FROM ServiceOrders s WHERE s.qty = :qty"),
-    @NamedQuery(name = "ServiceOrders.findByUnitPrice", query = "SELECT s FROM ServiceOrders s WHERE s.unitPrice = :unitPrice"),
-    @NamedQuery(name = "ServiceOrders.findByAmount", query = "SELECT s FROM ServiceOrders s WHERE s.amount = :amount"),
-    @NamedQuery(name = "ServiceOrders.findByOrderedAt", query = "SELECT s FROM ServiceOrders s WHERE s.orderedAt = :orderedAt")})
-public class ServiceOrders implements Serializable {
+    @NamedQuery(name = "ServiceOrder.findAll", query = "SELECT s FROM ServiceOrder s"),
+    @NamedQuery(name = "ServiceOrder.findById", query = "SELECT s FROM ServiceOrder s WHERE s.id = :id"),
+    @NamedQuery(name = "ServiceOrder.findByQty", query = "SELECT s FROM ServiceOrder s WHERE s.qty = :qty"),
+    @NamedQuery(name = "ServiceOrder.findByUnitPrice", query = "SELECT s FROM ServiceOrder s WHERE s.unitPrice = :unitPrice"),
+    @NamedQuery(name = "ServiceOrder.findByAmount", query = "SELECT s FROM ServiceOrder s WHERE s.amount = :amount"),
+    @NamedQuery(name = "ServiceOrder.findByOrderedAt", query = "SELECT s FROM ServiceOrder s WHERE s.orderedAt = :orderedAt")})
+public class ServiceOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -67,19 +67,19 @@ public class ServiceOrders implements Serializable {
     private String notes;
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Reservations reservationId;
+    private Reservation reservationId;
     @JoinColumn(name = "service_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Services serviceId;
+    private Service serviceId;
 
-    public ServiceOrders() {
+    public ServiceOrder() {
     }
 
-    public ServiceOrders(Long id) {
+    public ServiceOrder(Long id) {
         this.id = id;
     }
 
-    public ServiceOrders(Long id, BigDecimal unitPrice, BigDecimal amount) {
+    public ServiceOrder(Long id, BigDecimal unitPrice, BigDecimal amount) {
         this.id = id;
         this.unitPrice = unitPrice;
         this.amount = amount;
@@ -133,19 +133,19 @@ public class ServiceOrders implements Serializable {
         this.notes = notes;
     }
 
-    public Reservations getReservationId() {
+    public Reservation getReservationId() {
         return reservationId;
     }
 
-    public void setReservationId(Reservations reservationId) {
+    public void setReservationId(Reservation reservationId) {
         this.reservationId = reservationId;
     }
 
-    public Services getServiceId() {
+    public Service getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(Services serviceId) {
+    public void setServiceId(Service serviceId) {
         this.serviceId = serviceId;
     }
 
@@ -159,10 +159,10 @@ public class ServiceOrders implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof ServiceOrders)) {
+        if (!(object instanceof ServiceOrder)) {
             return false;
         }
-        ServiceOrders other = (ServiceOrders) object;
+        ServiceOrder other = (ServiceOrder) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -171,7 +171,7 @@ public class ServiceOrders implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.ServiceOrders[ id=" + id + " ]";
+        return "com.hvh.pojo.ServiceOrder[ id=" + id + " ]";
     }
     
 }

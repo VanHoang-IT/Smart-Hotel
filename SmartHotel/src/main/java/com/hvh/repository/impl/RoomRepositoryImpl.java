@@ -4,7 +4,7 @@
  */
 package com.hvh.repository.impl;
 
-import com.hvh.pojo.Rooms;
+import com.hvh.pojo.Room;
 import com.hvh.repository.RoomRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -39,11 +39,11 @@ public class RoomRepositoryImpl implements RoomRepository{
     
     
     @Override
-    public List<Rooms> getRooms(Map<String, String> params){
+    public List<Room> getRoom(Map<String, String> params){
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder b =  session.getCriteriaBuilder();
-        CriteriaQuery<Rooms> q = b.createQuery(Rooms.class);
-        Root root = q.from(Rooms.class);
+        CriteriaQuery<Room> q = b.createQuery(Room.class);
+        Root root = q.from(Room.class);
         q.select(root);
         
         if(params != null){
@@ -83,7 +83,7 @@ public class RoomRepositoryImpl implements RoomRepository{
     }
 
     @Override
-    public void addOrUpdateRoom(Rooms r) {
+    public void addOrUpdateRoom(Room r) {
         Session session = this.factory.getObject().getCurrentSession();
         if(r.getId() != null){
             session.merge(r);
@@ -94,15 +94,15 @@ public class RoomRepositoryImpl implements RoomRepository{
     }
 
     @Override
-    public Rooms getRoomById(int id) {
+    public Room getRoomById(long id) {
         Session session = this.factory.getObject().getCurrentSession();
-            return session.get(Rooms.class, id);
+            return session.get(Room.class, id);
     }
 
     @Override
-    public void deleteRoom(int id) {
+    public void deleteRoom(long id) {
         Session session = this.factory.getObject().getCurrentSession();
-        Rooms r = this.getRoomById(id);
+        Room r = this.getRoomById(id);
         session.remove(r);
     }
 }

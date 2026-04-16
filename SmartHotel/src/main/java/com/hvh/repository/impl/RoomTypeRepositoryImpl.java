@@ -4,7 +4,7 @@
  */
 package com.hvh.repository.impl;
 
-import com.hvh.pojo.RoomTypes;
+import com.hvh.pojo.RoomType;
 import com.hvh.repository.RoomTypeRepository;
 import java.util.List;
 import org.hibernate.Session;
@@ -26,9 +26,9 @@ public class RoomTypeRepositoryImpl implements RoomTypeRepository{
     private LocalSessionFactoryBean factory;
     
     @Override
-    public List<RoomTypes> getTypes(){
+    public List<RoomType> getType(){
         Session session = this.factory.getObject().getCurrentSession();
-            Query query = session.createQuery("FROM RoomTypes", RoomTypes.class);
+            Query query = session.createQuery("FROM RoomType", RoomType.class);
             return query.getResultList();
     }
 }

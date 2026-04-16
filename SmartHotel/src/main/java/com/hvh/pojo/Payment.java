@@ -29,18 +29,18 @@ import java.util.Date;
  * @author 03358
  */
 @Entity
-@Table(name = "payments")
+@Table(name = "payment")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Payments.findAll", query = "SELECT p FROM Payments p"),
-    @NamedQuery(name = "Payments.findById", query = "SELECT p FROM Payments p WHERE p.id = :id"),
-    @NamedQuery(name = "Payments.findByAmount", query = "SELECT p FROM Payments p WHERE p.amount = :amount"),
-    @NamedQuery(name = "Payments.findByMethod", query = "SELECT p FROM Payments p WHERE p.method = :method"),
-    @NamedQuery(name = "Payments.findByTransactionId", query = "SELECT p FROM Payments p WHERE p.transactionId = :transactionId"),
-    @NamedQuery(name = "Payments.findByStatus", query = "SELECT p FROM Payments p WHERE p.status = :status"),
-    @NamedQuery(name = "Payments.findByPaidAt", query = "SELECT p FROM Payments p WHERE p.paidAt = :paidAt"),
-    @NamedQuery(name = "Payments.findByCreatedAt", query = "SELECT p FROM Payments p WHERE p.createdAt = :createdAt")})
-public class Payments implements Serializable {
+    @NamedQuery(name = "Payment.findAll", query = "SELECT p FROM Payment p"),
+    @NamedQuery(name = "Payment.findById", query = "SELECT p FROM Payment p WHERE p.id = :id"),
+    @NamedQuery(name = "Payment.findByAmount", query = "SELECT p FROM Payment p WHERE p.amount = :amount"),
+    @NamedQuery(name = "Payment.findByMethod", query = "SELECT p FROM Payment p WHERE p.method = :method"),
+    @NamedQuery(name = "Payment.findByTransactionId", query = "SELECT p FROM Payment p WHERE p.transactionId = :transactionId"),
+    @NamedQuery(name = "Payment.findByStatus", query = "SELECT p FROM Payment p WHERE p.status = :status"),
+    @NamedQuery(name = "Payment.findByPaidAt", query = "SELECT p FROM Payment p WHERE p.paidAt = :paidAt"),
+    @NamedQuery(name = "Payment.findByCreatedAt", query = "SELECT p FROM Payment p WHERE p.createdAt = :createdAt")})
+public class Payment implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -72,16 +72,16 @@ public class Payments implements Serializable {
     private Date createdAt;
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Reservations reservationId;
+    private Reservation reservationId;
 
-    public Payments() {
+    public Payment() {
     }
 
-    public Payments(Long id) {
+    public Payment(Long id) {
         this.id = id;
     }
 
-    public Payments(Long id, BigDecimal amount, String method) {
+    public Payment(Long id, BigDecimal amount, String method) {
         this.id = id;
         this.amount = amount;
         this.method = method;
@@ -143,11 +143,11 @@ public class Payments implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public Reservations getReservationId() {
+    public Reservation getReservationId() {
         return reservationId;
     }
 
-    public void setReservationId(Reservations reservationId) {
+    public void setReservationId(Reservation reservationId) {
         this.reservationId = reservationId;
     }
 
@@ -161,10 +161,10 @@ public class Payments implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Payments)) {
+        if (!(object instanceof Payment)) {
             return false;
         }
-        Payments other = (Payments) object;
+        Payment other = (Payment) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -173,7 +173,7 @@ public class Payments implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.Payments[ id=" + id + " ]";
+        return "com.hvh.pojo.Payment[ id=" + id + " ]";
     }
     
 }

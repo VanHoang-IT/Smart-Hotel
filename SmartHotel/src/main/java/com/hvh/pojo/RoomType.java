@@ -4,6 +4,7 @@
  */
 package com.hvh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,7 +22,6 @@ import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Set;
 
 /**
@@ -29,15 +29,15 @@ import java.util.Set;
  * @author 03358
  */
 @Entity
-@Table(name = "services")
+@Table(name = "room_type")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Services.findAll", query = "SELECT s FROM Services s"),
-    @NamedQuery(name = "Services.findById", query = "SELECT s FROM Services s WHERE s.id = :id"),
-    @NamedQuery(name = "Services.findByName", query = "SELECT s FROM Services s WHERE s.name = :name"),
-    @NamedQuery(name = "Services.findByPrice", query = "SELECT s FROM Services s WHERE s.price = :price"),
-    @NamedQuery(name = "Services.findByActive", query = "SELECT s FROM Services s WHERE s.active = :active")})
-public class Services implements Serializable {
+    @NamedQuery(name = "RoomType.findAll", query = "SELECT r FROM RoomType r"),
+    @NamedQuery(name = "RoomType.findById", query = "SELECT r FROM RoomType r WHERE r.id = :id"),
+    @NamedQuery(name = "RoomType.findByName", query = "SELECT r FROM RoomType r WHERE r.name = :name"),
+    @NamedQuery(name = "RoomType.findByCapacity", query = "SELECT r FROM RoomType r WHERE r.capacity = :capacity"),
+    @NamedQuery(name = "RoomType.findByActive", query = "SELECT r FROM RoomType r WHERE r.active = :active")})
+public class RoomType implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -50,31 +50,31 @@ public class Services implements Serializable {
     @Size(min = 1, max = 120)
     @Column(name = "name")
     private String name;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @NotNull
-    @Column(name = "price")
-    private BigDecimal price;
+    @Column(name = "capacity")
+    private int capacity;
     @Lob
     @Size(max = 65535)
     @Column(name = "description")
     private String description;
     @Column(name = "active")
     private Boolean active;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceId")
-    private Set<ServiceOrders> serviceOrdersSet;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "roomTypeId")
+    @JsonIgnore
+    private Set<Room> roomSet;
 
-    public Services() {
+    public RoomType() {
     }
 
-    public Services(Long id) {
+    public RoomType(Long id) {
         this.id = id;
     }
 
-    public Services(Long id, String name, BigDecimal price) {
+    public RoomType(Long id, String name, int capacity) {
         this.id = id;
         this.name = name;
-        this.price = price;
+        this.capacity = capacity;
     }
 
     public Long getId() {
@@ -93,12 +93,12 @@ public class Services implements Serializable {
         this.name = name;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public int getCapacity() {
+        return capacity;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public String getDescription() {
@@ -118,12 +118,12 @@ public class Services implements Serializable {
     }
 
     @XmlTransient
-    public Set<ServiceOrders> getServiceOrdersSet() {
-        return serviceOrdersSet;
+    public Set<Room> getRoomSet() {
+        return roomSet;
     }
 
-    public void setServiceOrdersSet(Set<ServiceOrders> serviceOrdersSet) {
-        this.serviceOrdersSet = serviceOrdersSet;
+    public void setRoomSet(Set<Room> roomSet) {
+        this.roomSet = roomSet;
     }
 
     @Override
@@ -136,10 +136,10 @@ public class Services implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Services)) {
+        if (!(object instanceof RoomType)) {
             return false;
         }
-        Services other = (Services) object;
+        RoomType other = (RoomType) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -148,7 +148,7 @@ public class Services implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.Services[ id=" + id + " ]";
+        return "com.hvh.pojo.RoomType[ id=" + id + " ]";
     }
     
 }

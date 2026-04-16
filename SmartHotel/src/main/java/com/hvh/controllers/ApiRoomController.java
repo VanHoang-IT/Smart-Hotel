@@ -4,13 +4,14 @@
  */
 package com.hvh.controllers;
 
-import com.hvh.pojo.Rooms;
+import com.hvh.pojo.Room;
 import com.hvh.service.RoomService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,12 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class ApiRoomController {
     @Autowired
     private RoomService roomService;
     
     @GetMapping("/rooms")
-    public ResponseEntity<List<Rooms>> list(@RequestParam Map<String, String> params){
+    public ResponseEntity<List<Room>> list(@RequestParam Map<String, String> params){
         return new ResponseEntity<>(this.roomService.getRooms(params), HttpStatus.OK);
     }
     
@@ -40,3 +42,4 @@ public class ApiRoomController {
         this.roomService.deleteRoom(id);
     }
 }
+                                    

@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
@@ -19,19 +20,20 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  *
  * @author 03358
  */
 @Entity
-@Table(name = "room_image")
+@Table(name = "reservation_room")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "RoomImage.findAll", query = "SELECT r FROM RoomImage r"),
-    @NamedQuery(name = "RoomImage.findById", query = "SELECT r FROM RoomImage r WHERE r.id = :id"),
-    @NamedQuery(name = "RoomImage.findByImageUrl", query = "SELECT r FROM RoomImage r WHERE r.imageUrl = :imageUrl")})
-public class RoomImage implements Serializable {
+    @NamedQuery(name = "ReservationRoom.findAll", query = "SELECT r FROM ReservationRoom r"),
+    @NamedQuery(name = "ReservationRoom.findById", query = "SELECT r FROM ReservationRoom r WHERE r.id = :id"),
+    @NamedQuery(name = "ReservationRoom.findByPricePerNight", query = "SELECT r FROM ReservationRoom r WHERE r.pricePerNight = :pricePerNight")})
+public class ReservationRoom implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -39,25 +41,32 @@ public class RoomImage implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Long id;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 255)
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "price_per_night")
+    private BigDecimal pricePerNight;
+    @Lob
+    @Size(max = 65535)
+    @Column(name = "notes")
+    private String notes;
+    @JoinColumn(name = "reservation_id", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    private Reservation reservationId;
     @JoinColumn(name = "room_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Rooms roomId;
+    private Room roomId;
 
-    public RoomImage() {
+    public ReservationRoom() {
     }
 
-    public RoomImage(Long id) {
+    public ReservationRoom(Long id) {
         this.id = id;
     }
 
-    public RoomImage(Long id, String imageUrl) {
+    public ReservationRoom(Long id, BigDecimal pricePerNight) {
         this.id = id;
-        this.imageUrl = imageUrl;
+        this.pricePerNight = pricePerNight;
     }
 
     public Long getId() {
@@ -68,19 +77,35 @@ public class RoomImage implements Serializable {
         this.id = id;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public BigDecimal getPricePerNight() {
+        return pricePerNight;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setPricePerNight(BigDecimal pricePerNight) {
+        this.pricePerNight = pricePerNight;
     }
 
-    public Rooms getRoomId() {
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Reservation getReservationId() {
+        return reservationId;
+    }
+
+    public void setReservationId(Reservation reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public Room getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(Rooms roomId) {
+    public void setRoomId(Room roomId) {
         this.roomId = roomId;
     }
 
@@ -94,10 +119,10 @@ public class RoomImage implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof RoomImage)) {
+        if (!(object instanceof ReservationRoom)) {
             return false;
         }
-        RoomImage other = (RoomImage) object;
+        ReservationRoom other = (ReservationRoom) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -106,7 +131,7 @@ public class RoomImage implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.RoomImage[ id=" + id + " ]";
+        return "com.hvh.pojo.ReservationRoom[ id=" + id + " ]";
     }
     
 }

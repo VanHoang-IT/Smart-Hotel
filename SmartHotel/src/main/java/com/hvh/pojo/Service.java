@@ -4,7 +4,6 @@
  */
 package com.hvh.pojo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -30,16 +29,15 @@ import java.util.Set;
  * @author 03358
  */
 @Entity
-@Table(name = "room_types")
+@Table(name = "service")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "RoomTypes.findAll", query = "SELECT r FROM RoomTypes r"),
-    @NamedQuery(name = "RoomTypes.findById", query = "SELECT r FROM RoomTypes r WHERE r.id = :id"),
-    @NamedQuery(name = "RoomTypes.findByName", query = "SELECT r FROM RoomTypes r WHERE r.name = :name"),
-    @NamedQuery(name = "RoomTypes.findByPrice", query = "SELECT r FROM RoomTypes r WHERE r.price = :price"),
-    @NamedQuery(name = "RoomTypes.findByCapacity", query = "SELECT r FROM RoomTypes r WHERE r.capacity = :capacity"),
-    @NamedQuery(name = "RoomTypes.findByActive", query = "SELECT r FROM RoomTypes r WHERE r.active = :active")})
-public class RoomTypes implements Serializable {
+    @NamedQuery(name = "Service.findAll", query = "SELECT s FROM Service s"),
+    @NamedQuery(name = "Service.findById", query = "SELECT s FROM Service s WHERE s.id = :id"),
+    @NamedQuery(name = "Service.findByName", query = "SELECT s FROM Service s WHERE s.name = :name"),
+    @NamedQuery(name = "Service.findByPrice", query = "SELECT s FROM Service s WHERE s.price = :price"),
+    @NamedQuery(name = "Service.findByActive", query = "SELECT s FROM Service s WHERE s.active = :active")})
+public class Service implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -57,32 +55,26 @@ public class RoomTypes implements Serializable {
     @NotNull
     @Column(name = "price")
     private BigDecimal price;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "capacity")
-    private int capacity;
     @Lob
     @Size(max = 65535)
     @Column(name = "description")
     private String description;
     @Column(name = "active")
     private Boolean active;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "roomTypeId")
-    @JsonIgnore
-    private Set<Rooms> roomsSet;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceId")
+    private Set<ServiceOrder> serviceOrderSet;
 
-    public RoomTypes() {
+    public Service() {
     }
 
-    public RoomTypes(Long id) {
+    public Service(Long id) {
         this.id = id;
     }
 
-    public RoomTypes(Long id, String name, BigDecimal price, int capacity) {
+    public Service(Long id, String name, BigDecimal price) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.capacity = capacity;
     }
 
     public Long getId() {
@@ -109,14 +101,6 @@ public class RoomTypes implements Serializable {
         this.price = price;
     }
 
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -134,12 +118,12 @@ public class RoomTypes implements Serializable {
     }
 
     @XmlTransient
-    public Set<Rooms> getRoomsSet() {
-        return roomsSet;
+    public Set<ServiceOrder> getServiceOrderSet() {
+        return serviceOrderSet;
     }
 
-    public void setRoomsSet(Set<Rooms> roomsSet) {
-        this.roomsSet = roomsSet;
+    public void setServiceOrderSet(Set<ServiceOrder> serviceOrderSet) {
+        this.serviceOrderSet = serviceOrderSet;
     }
 
     @Override
@@ -152,10 +136,10 @@ public class RoomTypes implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof RoomTypes)) {
+        if (!(object instanceof Service)) {
             return false;
         }
-        RoomTypes other = (RoomTypes) object;
+        Service other = (Service) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -164,7 +148,7 @@ public class RoomTypes implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.RoomTypes[ id=" + id + " ]";
+        return "com.hvh.pojo.Service[ id=" + id + " ]";
     }
     
 }

@@ -4,13 +4,14 @@
  */
 package com.hvh.repository;
 
-import com.hvh.pojo.Users;
+import com.hvh.pojo.User;
 
 /**
  *
  * @author 03358
  */
 public interface UserRepository {
-    Users getUserByUsername(String username);
-    Users addUser(Users u);
+    User getUserByUsername(String username);
+    User addUser(User u);
+    boolean authenticate(String username, String password);
 }

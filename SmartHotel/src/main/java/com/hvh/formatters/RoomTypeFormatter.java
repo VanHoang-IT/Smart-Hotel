@@ -4,7 +4,7 @@
  */
 package com.hvh.formatters;
 
-import com.hvh.pojo.RoomTypes;
+import com.hvh.pojo.RoomType;
 import java.text.ParseException;
 import java.util.Locale;
 import org.springframework.format.Formatter;
@@ -13,16 +13,16 @@ import org.springframework.format.Formatter;
  *
  * @author 03358
  */
-public class RoomTypeFormatter implements Formatter<RoomTypes>{
+public class RoomTypeFormatter implements Formatter<RoomType>{
 
     @Override
-    public String print(RoomTypes type, Locale locale) {
+    public String print(RoomType type, Locale locale) {
         return String.valueOf(type.getId());
     }
 
     @Override
-    public RoomTypes parse(String typeId, Locale locale) throws ParseException {
-        RoomTypes t = new RoomTypes();
+    public RoomType parse(String typeId, Locale locale) throws ParseException {
+        RoomType t = new RoomType();
         t.setId(Long.valueOf(typeId));
         return t;
     }
