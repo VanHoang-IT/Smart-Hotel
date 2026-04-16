@@ -6,7 +6,7 @@ package com.hvh.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.hvh.pojo.Rooms;
+import com.hvh.pojo.Room;
 import com.hvh.repository.RoomRepository;
 import com.hvh.service.RoomService;
 import java.io.IOException;
@@ -35,12 +35,12 @@ public class RoomServiceImpl implements RoomService {
     private Cloudinary cloudinary;
     
     @Override
-    public List<Rooms> getRooms(Map<String, String> params) {
-        return this.roomRepo.getRooms(params);
+    public List<Room> getRooms(Map<String, String> params) {
+        return this.roomRepo.getRoom(params);
     }
     
     @Override
-    public void addOrUpdateRoom(Rooms r) {
+    public void addOrUpdateRoom(Room r) {
         if (!r.getFile().isEmpty()) {
             try {                
                 Map res = this.cloudinary.uploader().upload(r.getFile().getBytes(),
@@ -54,12 +54,12 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Rooms getRoomById(int id) {
+    public Room getRoomById(long id) {
         return this.roomRepo.getRoomById(id);
     }
 
     @Override
-    public void deleteRoom(int id) {
+    public void deleteRoom(long id) {
         this.roomRepo.deleteRoom(id);
     }
     

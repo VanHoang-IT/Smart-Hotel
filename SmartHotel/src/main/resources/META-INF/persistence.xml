@@ -15,5 +15,18 @@
     <class>com.hvh.pojo.RoomTypes</class>
     <class>com.hvh.pojo.RoomImage</class>
     <class>com.hvh.pojo.Users</class>
+    <class>com.hvh.pojo.Reservation</class>
+    <class>com.hvh.pojo.ServiceOrder</class>
+    <class>com.hvh.pojo.RoomType</class>
+    <class>com.hvh.pojo.Invoice</class>
+    <class>com.hvh.pojo.HousekeepingTask</class>
+    <class>com.hvh.pojo.Review</class>
+    <class>com.hvh.pojo.Service</class>
+    <class>com.hvh.pojo.Payment</class>
+    <class>com.hvh.pojo.Room</class>
+    <class>com.hvh.pojo.RoomImages</class>
+    <class>com.hvh.pojo.ReservationRoom</class>
+    <class>com.hvh.pojo.CustomerProfile</class>
+    <class>com.hvh.pojo.User</class>
   </persistence-unit>
 </persistence>

@@ -26,6 +26,7 @@ import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Set;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,17 +35,18 @@ import org.springframework.web.multipart.MultipartFile;
  * @author 03358
  */
 @Entity
-@Table(name = "rooms")
+@Table(name = "room")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Rooms.findAll", query = "SELECT r FROM Rooms r"),
-    @NamedQuery(name = "Rooms.findById", query = "SELECT r FROM Rooms r WHERE r.id = :id"),
-    @NamedQuery(name = "Rooms.findByRoomNumber", query = "SELECT r FROM Rooms r WHERE r.roomNumber = :roomNumber"),
-    @NamedQuery(name = "Rooms.findByFloor", query = "SELECT r FROM Rooms r WHERE r.floor = :floor"),
-    @NamedQuery(name = "Rooms.findByStatus", query = "SELECT r FROM Rooms r WHERE r.status = :status"),
-    @NamedQuery(name = "Rooms.findByMainImage", query = "SELECT r FROM Rooms r WHERE r.mainImage = :mainImage")})
-@JsonIgnoreProperties(value = {"reservationRoomsSet", "housekeepingTasksSet", "roomImageSet"})
-public class Rooms implements Serializable {
+    @NamedQuery(name = "Room.findAll", query = "SELECT r FROM Room r"),
+    @NamedQuery(name = "Room.findById", query = "SELECT r FROM Room r WHERE r.id = :id"),
+    @NamedQuery(name = "Room.findByRoomNumber", query = "SELECT r FROM Room r WHERE r.roomNumber = :roomNumber"),
+    @NamedQuery(name = "Room.findByFloor", query = "SELECT r FROM Room r WHERE r.floor = :floor"),
+    @NamedQuery(name = "Room.findByStatus", query = "SELECT r FROM Room r WHERE r.status = :status"),
+    @NamedQuery(name = "Room.findByMainImage", query = "SELECT r FROM Room r WHERE r.mainImage = :mainImage"),
+    @NamedQuery(name = "Room.findByPrice", query = "SELECT r FROM Room r WHERE r.price = :price")})
+@JsonIgnoreProperties(value = {"housekeepingTaskSet", "roomImagesSet", "reservationRoomSet"})
+public class Room implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -65,34 +67,40 @@ public class Rooms implements Serializable {
     @Size(max = 255)
     @Column(name = "main_image")
     private String mainImage;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "price")
+    private BigDecimal price;
     @Lob
     @Size(max = 65535)
     @Column(name = "note")
     private String note;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "roomId")
-    private Set<ReservationRooms> reservationRoomsSet;
+    private Set<ReservationRoom> reservationRoomSet;
     @JoinColumn(name = "room_type_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     @JsonProperty("roomType")
-    private RoomTypes roomTypeId;
+    private RoomType roomTypeId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "roomId")
-    private Set<HousekeepingTasks> housekeepingTasksSet;
+    private Set<HousekeepingTask> housekeepingTaskSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "roomId")
-    private Set<RoomImage> roomImageSet;
+    private Set<RoomImages> roomImagesSet;
     
     @Transient
     private MultipartFile file;
     
-    public Rooms() {
+    public Room() {
     }
 
-    public Rooms(Long id) {
+    public Room(Long id) {
         this.id = id;
     }
 
-    public Rooms(Long id, String roomNumber) {
+    public Room(Long id, String roomNumber, BigDecimal price) {
         this.id = id;
         this.roomNumber = roomNumber;
+        this.price = price;
     }
 
     public Long getId() {
@@ -135,6 +143,14 @@ public class Rooms implements Serializable {
         this.mainImage = mainImage;
     }
 
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
     public String getNote() {
         return note;
     }
@@ -144,38 +160,38 @@ public class Rooms implements Serializable {
     }
 
     @XmlTransient
-    public Set<ReservationRooms> getReservationRoomsSet() {
-        return reservationRoomsSet;
+    public Set<ReservationRoom> getReservationRoomSet() {
+        return reservationRoomSet;
     }
 
-    public void setReservationRoomsSet(Set<ReservationRooms> reservationRoomsSet) {
-        this.reservationRoomsSet = reservationRoomsSet;
+    public void setReservationRoomSet(Set<ReservationRoom> reservationRoomSet) {
+        this.reservationRoomSet = reservationRoomSet;
     }
 
-    public RoomTypes getRoomTypeId() {
+    public RoomType getRoomTypeId() {
         return roomTypeId;
     }
 
-    public void setRoomTypeId(RoomTypes roomTypeId) {
+    public void setRoomTypeId(RoomType roomTypeId) {
         this.roomTypeId = roomTypeId;
     }
 
     @XmlTransient
-    public Set<HousekeepingTasks> getHousekeepingTasksSet() {
-        return housekeepingTasksSet;
+    public Set<HousekeepingTask> getHousekeepingTaskSet() {
+        return housekeepingTaskSet;
     }
 
-    public void setHousekeepingTasksSet(Set<HousekeepingTasks> housekeepingTasksSet) {
-        this.housekeepingTasksSet = housekeepingTasksSet;
+    public void setHousekeepingTaskSet(Set<HousekeepingTask> housekeepingTaskSet) {
+        this.housekeepingTaskSet = housekeepingTaskSet;
     }
 
     @XmlTransient
-    public Set<RoomImage> getRoomImageSet() {
-        return roomImageSet;
+    public Set<RoomImages> getRoomImagesSet() {
+        return roomImagesSet;
     }
 
-    public void setRoomImageSet(Set<RoomImage> roomImageSet) {
-        this.roomImageSet = roomImageSet;
+    public void setRoomImagesSet(Set<RoomImages> roomImagesSet) {
+        this.roomImagesSet = roomImagesSet;
     }
 
     @Override
@@ -188,10 +204,10 @@ public class Rooms implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Rooms)) {
+        if (!(object instanceof Room)) {
             return false;
         }
-        Rooms other = (Rooms) object;
+        Room other = (Room) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -200,7 +216,7 @@ public class Rooms implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.Rooms[ id=" + id + " ]";
+        return "com.hvh.pojo.Room[ id=" + id + " ]";
     }
 
     /**

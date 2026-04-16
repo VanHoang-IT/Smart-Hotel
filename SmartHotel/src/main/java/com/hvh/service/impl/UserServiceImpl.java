@@ -6,7 +6,7 @@ package com.hvh.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.hvh.pojo.Users;
+import com.hvh.pojo.User;
 import com.hvh.repository.UserRepository;
 import com.hvh.service.UserService;
 import java.io.IOException;
@@ -40,13 +40,13 @@ public class UserServiceImpl implements UserService{
     private Cloudinary cloudinary;
     
     @Override
-    public Users getUserByUsername(String username){
+    public User getUserByUsername(String username){
         return this.userRepo.getUserByUsername(username);
     }
 
     @Override
-    public Users addUser(Map<String, String> params, MultipartFile avatar) {
-        Users u = new Users();
+    public User addUser(Map<String, String> params, MultipartFile avatar) {
+        User u = new User();
         u.setUsername(params.get("username"));
         u.setFullName(params.get("fullname"));
         u.setPhone(params.get("phone"));
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = this.userRepo.getUserByUsername(username);
+        User user = this.userRepo.getUserByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("Không tồn tại!");
         }
@@ -78,5 +78,10 @@ public class UserServiceImpl implements UserService{
         
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
                 user.getPassword(), authorities);
+    }
+
+    @Override
+    public boolean authenticate(String username, String password) {
+        return this.userRepo.authenticate(username, password);
     }
 }

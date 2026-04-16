@@ -4,7 +4,7 @@
  */
 package com.hvh.service.impl;
 
-import com.hvh.pojo.RoomTypes;
+import com.hvh.pojo.RoomType;
 import com.hvh.repository.RoomTypeRepository;
 import com.hvh.service.RoomTypeService;
 import java.util.List;
@@ -21,8 +21,8 @@ public class RoomTypeServiceImpl implements RoomTypeService{
     private RoomTypeRepository typeRepo;
     
     @Override
-    public List<RoomTypes> getTypes() {
-        return this.typeRepo.getTypes();
+    public List<RoomType> getType() {
+        return this.typeRepo.getType();
     }
     
 }

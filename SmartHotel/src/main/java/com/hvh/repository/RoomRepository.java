@@ -4,7 +4,7 @@
  */
 package com.hvh.repository;
 
-import com.hvh.pojo.Rooms;
+import com.hvh.pojo.Room;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +13,8 @@ import java.util.Map;
  * @author 03358
  */
 public interface RoomRepository {
-    List<Rooms> getRooms(Map<String, String> params);
-    void addOrUpdateRoom(Rooms r);
-    Rooms getRoomById(int id);
-    void deleteRoom(int id);
+    List<Room> getRoom(Map<String, String> params);
+    void addOrUpdateRoom(Room r);
+    Room getRoomById(long id);
+    void deleteRoom(long id);
 }

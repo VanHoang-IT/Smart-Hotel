@@ -29,17 +29,17 @@ import java.util.Date;
  * @author 03358
  */
 @Entity
-@Table(name = "housekeeping_tasks")
+@Table(name = "housekeeping_task")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "HousekeepingTasks.findAll", query = "SELECT h FROM HousekeepingTasks h"),
-    @NamedQuery(name = "HousekeepingTasks.findById", query = "SELECT h FROM HousekeepingTasks h WHERE h.id = :id"),
-    @NamedQuery(name = "HousekeepingTasks.findByTask", query = "SELECT h FROM HousekeepingTasks h WHERE h.task = :task"),
-    @NamedQuery(name = "HousekeepingTasks.findByStatus", query = "SELECT h FROM HousekeepingTasks h WHERE h.status = :status"),
-    @NamedQuery(name = "HousekeepingTasks.findByDueTime", query = "SELECT h FROM HousekeepingTasks h WHERE h.dueTime = :dueTime"),
-    @NamedQuery(name = "HousekeepingTasks.findByCreatedAt", query = "SELECT h FROM HousekeepingTasks h WHERE h.createdAt = :createdAt"),
-    @NamedQuery(name = "HousekeepingTasks.findByUpdatedAt", query = "SELECT h FROM HousekeepingTasks h WHERE h.updatedAt = :updatedAt")})
-public class HousekeepingTasks implements Serializable {
+    @NamedQuery(name = "HousekeepingTask.findAll", query = "SELECT h FROM HousekeepingTask h"),
+    @NamedQuery(name = "HousekeepingTask.findById", query = "SELECT h FROM HousekeepingTask h WHERE h.id = :id"),
+    @NamedQuery(name = "HousekeepingTask.findByTask", query = "SELECT h FROM HousekeepingTask h WHERE h.task = :task"),
+    @NamedQuery(name = "HousekeepingTask.findByStatus", query = "SELECT h FROM HousekeepingTask h WHERE h.status = :status"),
+    @NamedQuery(name = "HousekeepingTask.findByDueTime", query = "SELECT h FROM HousekeepingTask h WHERE h.dueTime = :dueTime"),
+    @NamedQuery(name = "HousekeepingTask.findByCreatedAt", query = "SELECT h FROM HousekeepingTask h WHERE h.createdAt = :createdAt"),
+    @NamedQuery(name = "HousekeepingTask.findByUpdatedAt", query = "SELECT h FROM HousekeepingTask h WHERE h.updatedAt = :updatedAt")})
+public class HousekeepingTask implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -70,19 +70,19 @@ public class HousekeepingTasks implements Serializable {
     private Date updatedAt;
     @JoinColumn(name = "room_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private Rooms roomId;
+    private Room roomId;
     @JoinColumn(name = "assignee_id", referencedColumnName = "id")
     @ManyToOne
-    private Users assigneeId;
+    private User assigneeId;
 
-    public HousekeepingTasks() {
+    public HousekeepingTask() {
     }
 
-    public HousekeepingTasks(Long id) {
+    public HousekeepingTask(Long id) {
         this.id = id;
     }
 
-    public HousekeepingTasks(Long id, String task) {
+    public HousekeepingTask(Long id, String task) {
         this.id = id;
         this.task = task;
     }
@@ -143,19 +143,19 @@ public class HousekeepingTasks implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public Rooms getRoomId() {
+    public Room getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(Rooms roomId) {
+    public void setRoomId(Room roomId) {
         this.roomId = roomId;
     }
 
-    public Users getAssigneeId() {
+    public User getAssigneeId() {
         return assigneeId;
     }
 
-    public void setAssigneeId(Users assigneeId) {
+    public void setAssigneeId(User assigneeId) {
         this.assigneeId = assigneeId;
     }
 
@@ -169,10 +169,10 @@ public class HousekeepingTasks implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof HousekeepingTasks)) {
+        if (!(object instanceof HousekeepingTask)) {
             return false;
         }
-        HousekeepingTasks other = (HousekeepingTasks) object;
+        HousekeepingTask other = (HousekeepingTask) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -181,7 +181,7 @@ public class HousekeepingTasks implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.HousekeepingTasks[ id=" + id + " ]";
+        return "com.hvh.pojo.HousekeepingTask[ id=" + id + " ]";
     }
     
 }

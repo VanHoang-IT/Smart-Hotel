@@ -4,7 +4,7 @@
  */
 package com.hvh.service;
 
-import com.hvh.pojo.Rooms;
+import com.hvh.pojo.Room;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +13,8 @@ import java.util.Map;
  * @author 03358
  */
 public interface RoomService {
-    List<Rooms> getRooms(Map<String, String> params);
-    void addOrUpdateRoom(Rooms r);
-    public Rooms getRoomById(int id);
-    public void deleteRoom(int id);
+    List<Room> getRooms(Map<String, String> params);
+    void addOrUpdateRoom(Room r);
+    public Room getRoomById(long id);
+    public void deleteRoom(long id);
 }

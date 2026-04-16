@@ -32,15 +32,15 @@ import java.util.Set;
  * @author 03358
  */
 @Entity
-@Table(name = "customer_profiles")
+@Table(name = "customer_profile")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "CustomerProfiles.findAll", query = "SELECT c FROM CustomerProfiles c"),
-    @NamedQuery(name = "CustomerProfiles.findById", query = "SELECT c FROM CustomerProfiles c WHERE c.id = :id"),
-    @NamedQuery(name = "CustomerProfiles.findByDob", query = "SELECT c FROM CustomerProfiles c WHERE c.dob = :dob"),
-    @NamedQuery(name = "CustomerProfiles.findByAddress", query = "SELECT c FROM CustomerProfiles c WHERE c.address = :address"),
-    @NamedQuery(name = "CustomerProfiles.findByLoyaltyPoint", query = "SELECT c FROM CustomerProfiles c WHERE c.loyaltyPoint = :loyaltyPoint")})
-public class CustomerProfiles implements Serializable {
+    @NamedQuery(name = "CustomerProfile.findAll", query = "SELECT c FROM CustomerProfile c"),
+    @NamedQuery(name = "CustomerProfile.findById", query = "SELECT c FROM CustomerProfile c WHERE c.id = :id"),
+    @NamedQuery(name = "CustomerProfile.findByDob", query = "SELECT c FROM CustomerProfile c WHERE c.dob = :dob"),
+    @NamedQuery(name = "CustomerProfile.findByAddress", query = "SELECT c FROM CustomerProfile c WHERE c.address = :address"),
+    @NamedQuery(name = "CustomerProfile.findByLoyaltyPoint", query = "SELECT c FROM CustomerProfile c WHERE c.loyaltyPoint = :loyaltyPoint")})
+public class CustomerProfile implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -60,16 +60,16 @@ public class CustomerProfiles implements Serializable {
     @Size(max = 65535)
     @Column(name = "notes")
     private String notes;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId")
-    private Set<Reservations> reservationsSet;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OneToOne
-    private Users userId;
+    private User userId;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId")
+    private Set<Reservation> reservationSet;
 
-    public CustomerProfiles() {
+    public CustomerProfile() {
     }
 
-    public CustomerProfiles(Long id) {
+    public CustomerProfile(Long id) {
         this.id = id;
     }
 
@@ -113,21 +113,21 @@ public class CustomerProfiles implements Serializable {
         this.notes = notes;
     }
 
-    @XmlTransient
-    public Set<Reservations> getReservationsSet() {
-        return reservationsSet;
-    }
-
-    public void setReservationsSet(Set<Reservations> reservationsSet) {
-        this.reservationsSet = reservationsSet;
-    }
-
-    public Users getUserId() {
+    public User getUserId() {
         return userId;
     }
 
-    public void setUserId(Users userId) {
+    public void setUserId(User userId) {
         this.userId = userId;
+    }
+
+    @XmlTransient
+    public Set<Reservation> getReservationSet() {
+        return reservationSet;
+    }
+
+    public void setReservationSet(Set<Reservation> reservationSet) {
+        this.reservationSet = reservationSet;
     }
 
     @Override
@@ -140,10 +140,10 @@ public class CustomerProfiles implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof CustomerProfiles)) {
+        if (!(object instanceof CustomerProfile)) {
             return false;
         }
-        CustomerProfiles other = (CustomerProfiles) object;
+        CustomerProfile other = (CustomerProfile) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -152,7 +152,7 @@ public class CustomerProfiles implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.CustomerProfiles[ id=" + id + " ]";
+        return "com.hvh.pojo.CustomerProfile[ id=" + id + " ]";
     }
     
 }

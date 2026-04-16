@@ -22,9 +22,12 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#">Trang chủ</a>
                         </li>
-                        <li class="nav-item" th:each="t: ${roomTypes}">
+                        <li class="nav-item" th:each="t: ${roomType}">
                             <a class="nav-link" href="#" th:text="${t.name}"></a>
                         </li>
+                        <li class="nav-item">
+                                <a class="nav-link" th:href="@{/logout}">Đăng xuất</a>
+                            </li>
                     </ul>
                 </div>
             </div>

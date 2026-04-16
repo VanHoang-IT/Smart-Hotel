@@ -11,16 +11,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -28,14 +28,15 @@ import java.util.Date;
  * @author 03358
  */
 @Entity
-@Table(name = "invoices")
+@Table(name = "review")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Invoices.findAll", query = "SELECT i FROM Invoices i"),
-    @NamedQuery(name = "Invoices.findById", query = "SELECT i FROM Invoices i WHERE i.id = :id"),
-    @NamedQuery(name = "Invoices.findByTotalAmount", query = "SELECT i FROM Invoices i WHERE i.totalAmount = :totalAmount"),
-    @NamedQuery(name = "Invoices.findByIssuedAt", query = "SELECT i FROM Invoices i WHERE i.issuedAt = :issuedAt")})
-public class Invoices implements Serializable {
+    @NamedQuery(name = "Review.findAll", query = "SELECT r FROM Review r"),
+    @NamedQuery(name = "Review.findById", query = "SELECT r FROM Review r WHERE r.id = :id"),
+    @NamedQuery(name = "Review.findByRating", query = "SELECT r FROM Review r WHERE r.rating = :rating"),
+    @NamedQuery(name = "Review.findByVisible", query = "SELECT r FROM Review r WHERE r.visible = :visible"),
+    @NamedQuery(name = "Review.findByCreatedAt", query = "SELECT r FROM Review r WHERE r.createdAt = :createdAt")})
+public class Review implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -43,28 +44,26 @@ public class Invoices implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Long id;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "total_amount")
-    private BigDecimal totalAmount;
-    @Column(name = "issued_at")
+    @Column(name = "rating")
+    private Integer rating;
+    @Lob
+    @Size(max = 65535)
+    @Column(name = "comment")
+    private String comment;
+    @Column(name = "visible")
+    private Boolean visible;
+    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date issuedAt;
+    private Date createdAt;
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
-    @OneToOne(optional = false)
-    private Reservations reservationId;
+    @ManyToOne(optional = false)
+    private Reservation reservationId;
 
-    public Invoices() {
+    public Review() {
     }
 
-    public Invoices(Long id) {
+    public Review(Long id) {
         this.id = id;
-    }
-
-    public Invoices(Long id, BigDecimal totalAmount) {
-        this.id = id;
-        this.totalAmount = totalAmount;
     }
 
     public Long getId() {
@@ -75,27 +74,43 @@ public class Invoices implements Serializable {
         this.id = id;
     }
 
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
+    public Integer getRating() {
+        return rating;
     }
 
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
+    public void setRating(Integer rating) {
+        this.rating = rating;
     }
 
-    public Date getIssuedAt() {
-        return issuedAt;
+    public String getComment() {
+        return comment;
     }
 
-    public void setIssuedAt(Date issuedAt) {
-        this.issuedAt = issuedAt;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
-    public Reservations getReservationId() {
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Reservation getReservationId() {
         return reservationId;
     }
 
-    public void setReservationId(Reservations reservationId) {
+    public void setReservationId(Reservation reservationId) {
         this.reservationId = reservationId;
     }
 
@@ -109,10 +124,10 @@ public class Invoices implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Invoices)) {
+        if (!(object instanceof Review)) {
             return false;
         }
-        Invoices other = (Invoices) object;
+        Review other = (Review) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -121,7 +136,7 @@ public class Invoices implements Serializable {
 
     @Override
     public String toString() {
-        return "com.hvh.pojo.Invoices[ id=" + id + " ]";
+        return "com.hvh.pojo.Review[ id=" + id + " ]";
     }
     
 }
