@@ -4,15 +4,14 @@
  */
 package com.hvh.repository;
 
-
-import com.hvh.pojo.CartItem;
-import java.util.Date;
+import com.hvh.pojo.Payment;
 import java.util.List;
 
 /**
  *
  * @author 03358
  */
-public interface ReceiptRepository {
-    void addReceipt(List<CartItem> carts, Date checkIn, Date checkOut, Long customerId);
+public interface PaymentRepository {
+    void addPayment(Payment p);
+    List<Payment> getPaymentsByReservation(long resId);
 }
