@@ -4,7 +4,7 @@
  */
 package com.hvh.repository.impl;
 
-import com.hvh.dto.CartItem;
+import com.hvh.pojo.CartItem;
 import com.hvh.pojo.CustomerProfile;
 import com.hvh.pojo.Payment;
 import com.hvh.pojo.Reservation;

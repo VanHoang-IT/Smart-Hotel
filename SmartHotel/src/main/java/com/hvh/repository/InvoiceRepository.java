@@ -4,15 +4,13 @@
  */
 package com.hvh.repository;
 
-
-import com.hvh.pojo.CartItem;
-import java.util.Date;
+import com.hvh.pojo.Invoice;
 import java.util.List;
+import java.util.Map;
 
-/**
- *
- * @author 03358
- */
-public interface ReceiptRepository {
-    void addReceipt(List<CartItem> carts, Date checkIn, Date checkOut, Long customerId);
+public interface InvoiceRepository {
+    List<Invoice> getInvoices(Map<String, String> params);
+    void addOrUpdate(Invoice i);
+    Invoice getById(Long id);
+    Invoice getByReservationId(Long resId);
 }
