@@ -51,7 +51,7 @@ public class RoomRepositoryImpl implements RoomRepository{
             
             String kw = params.get("kw");
             if(kw != null && !kw.isEmpty()){
-                predicates.add(b.like(root.get("name"), String.format("%%%s%%", kw)));
+                predicates.add(b.like(root.get("room_number"), String.format("%%%s%%", kw)));
             }
             
             String fromPrice = params.get("fromPrice");
