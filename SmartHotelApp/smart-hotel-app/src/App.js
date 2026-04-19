@@ -9,7 +9,7 @@ const App = () => {
     <BrowserRouter>
       <Header />
       <SlideWindow />
-
+w
       <Footer />
     </BrowserRouter>
   );
