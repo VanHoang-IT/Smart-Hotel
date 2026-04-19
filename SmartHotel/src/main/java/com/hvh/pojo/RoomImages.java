@@ -4,6 +4,7 @@
  */
 package com.hvh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,6 +47,7 @@ public class RoomImages implements Serializable {
     private String imageUrl;
     @JoinColumn(name = "room_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private Room roomId;
 
     public RoomImages() {

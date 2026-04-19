@@ -4,6 +4,7 @@
  */
 package com.hvh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -64,6 +65,7 @@ public class CustomerProfile implements Serializable {
     @OneToOne
     private User userId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId")
+    @JsonIgnore
     private Set<Reservation> reservationSet;
 
     public CustomerProfile() {

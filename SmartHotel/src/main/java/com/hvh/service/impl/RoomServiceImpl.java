@@ -25,24 +25,25 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RoomServiceImpl implements RoomService {
+
     @Autowired
     private BCryptPasswordEncoder PasswordEncoder;
-    
+
     @Autowired
     private RoomRepository roomRepo;
-    
+
     @Autowired
     private Cloudinary cloudinary;
-    
+
     @Override
     public List<Room> getRooms(Map<String, String> params) {
         return this.roomRepo.getRoom(params);
     }
-    
+
     @Override
     public void addOrUpdateRoom(Room r) {
         if (!r.getFile().isEmpty()) {
-            try {                
+            try {
                 Map res = this.cloudinary.uploader().upload(r.getFile().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
                 r.setMainImage((String) res.get("secure_url"));
@@ -62,5 +63,10 @@ public class RoomServiceImpl implements RoomService {
     public void deleteRoom(long id) {
         this.roomRepo.deleteRoom(id);
     }
-    
+
+    @Override
+    public List<Room> getRoomAvailable() {
+        return this.roomRepo.getRoomAvailable();
+    }
+
 }

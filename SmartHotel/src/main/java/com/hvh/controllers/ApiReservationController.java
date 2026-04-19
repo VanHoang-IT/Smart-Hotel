@@ -59,6 +59,4 @@ public class ApiReservationController {
     public void createServiceOrder(@RequestBody ServiceOrder order){
         this.serOrderService.addOrUpdate(order);
     }
-    
-    @GetMapping("/")
 }

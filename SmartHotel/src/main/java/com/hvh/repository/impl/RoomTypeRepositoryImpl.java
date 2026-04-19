@@ -20,15 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class RoomTypeRepositoryImpl implements RoomTypeRepository{
-    
+public class RoomTypeRepositoryImpl implements RoomTypeRepository {
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     @Override
-    public List<RoomType> getType(){
+    public List<RoomType> getType() {
         Session session = this.factory.getObject().getCurrentSession();
-            Query query = session.createQuery("FROM RoomType", RoomType.class);
-            return query.getResultList();
+        Query query = session.createQuery("FROM RoomType", RoomType.class);
+        return query.getResultList();
     }
 }

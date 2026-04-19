@@ -45,7 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
     @NamedQuery(name = "Room.findByStatus", query = "SELECT r FROM Room r WHERE r.status = :status"),
     @NamedQuery(name = "Room.findByMainImage", query = "SELECT r FROM Room r WHERE r.mainImage = :mainImage"),
     @NamedQuery(name = "Room.findByPrice", query = "SELECT r FROM Room r WHERE r.price = :price")})
-@JsonIgnoreProperties(value = {"housekeepingTaskSet", "roomImagesSet", "reservationRoomSet"})
+    @JsonIgnoreProperties(value = {"housekeepingTaskSet", "roomImagesSet", "reservationRoomSet", "roomTypeId"})
 public class Room implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -86,10 +86,10 @@ public class Room implements Serializable {
     private Set<HousekeepingTask> housekeepingTaskSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "roomId")
     private Set<RoomImages> roomImagesSet;
-    
+
     @Transient
     private MultipartFile file;
-    
+
     public Room() {
     }
 
@@ -222,6 +222,7 @@ public class Room implements Serializable {
     /**
      * @return the file
      */
+    
     public MultipartFile getFile() {
         return file;
     }
@@ -232,5 +233,5 @@ public class Room implements Serializable {
     public void setFile(MultipartFile file) {
         this.file = file;
     }
-    
+
 }
