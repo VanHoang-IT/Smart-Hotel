@@ -34,7 +34,7 @@
                     <td th:text="${r.roomNumber}"></td>
                     <td th:text="${r.roomTypeId.name}"> </td>
                     <td th:text="${r.floor}"></td>
-                    <td th:text="${r.roomTypeId.price} + 'VNĐ'"></td>
+                    <td th:text="${r.price} + 'VNĐ'"></td>
                     <td th:text="${r.status}"></td>
                     <td>
                         <a th:href="@{/admin/room/} + ${r.id}" class="btn btn-info">Cập nhật</a>

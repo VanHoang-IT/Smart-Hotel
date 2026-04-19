@@ -4,6 +4,7 @@
  */
 package com.hvh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,6 +41,7 @@ import java.util.Date;
     @NamedQuery(name = "Payment.findByStatus", query = "SELECT p FROM Payment p WHERE p.status = :status"),
     @NamedQuery(name = "Payment.findByPaidAt", query = "SELECT p FROM Payment p WHERE p.paidAt = :paidAt"),
     @NamedQuery(name = "Payment.findByCreatedAt", query = "SELECT p FROM Payment p WHERE p.createdAt = :createdAt")})
+    @JsonIgnoreProperties(value = {"reservationId"})
 public class Payment implements Serializable {
 
     private static final long serialVersionUID = 1L;

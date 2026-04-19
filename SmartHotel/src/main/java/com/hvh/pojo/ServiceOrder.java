@@ -4,6 +4,7 @@
  */
 package com.hvh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,9 +68,11 @@ public class ServiceOrder implements Serializable {
     private String notes;
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private Reservation reservationId;
     @JoinColumn(name = "service_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private Service serviceId;
 
     public ServiceOrder() {

@@ -49,17 +49,17 @@ public class ReservationRepositoryImpl implements ReservationRepository{
             String customerId = params.get("customerId");
             if (customerId != null && !customerId.isEmpty()) {
                 
-                predicates.add(b.equal(root.get("customerProfile").get("id"), Long.parseLong(customerId)));
+                predicates.add(b.equal(root.get("customerId").get("id"), Long.parseLong(customerId)));
             }
 
             String status = params.get("status");
             if (status != null && !status.isEmpty()) {
-                predicates.add(b.equal(root.get("reservationStatus"), status));
+                predicates.add(b.equal(root.get("status"), status));
             }
 
             String fromDate = params.get("fromDate");
             if (fromDate != null && !fromDate.isEmpty()) {
-                predicates.add(b.greaterThanOrEqualTo(root.get("checkInDate"), fromDate));
+                predicates.add(b.greaterThanOrEqualTo(root.get("checkIn"), fromDate));
             }
 
             q.where(predicates.toArray(Predicate[]::new));

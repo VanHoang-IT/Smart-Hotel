@@ -4,6 +4,7 @@
  */
 package com.hvh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -59,6 +60,7 @@ public class Review implements Serializable {
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     @JsonProperty("reservation")
+    @JsonIgnore
     private Reservation reservationId;
 
     public Review() {

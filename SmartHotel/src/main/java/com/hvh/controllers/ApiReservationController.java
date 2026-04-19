@@ -43,7 +43,7 @@ public class ApiReservationController {
         return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
     } 
     
-    @PatchMapping("/reservations/{id}/cancel")
+    @PatchMapping("/secure/reservations/{id}/cancel")
     public ResponseEntity<String> cancel(@PathVariable long id) {
         Reservation r = this.resService.getReservationById(id);
         if (r != null) {
@@ -54,11 +54,9 @@ public class ApiReservationController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
     
-    @PostMapping("/service-orders")
+    @PostMapping("/secure/service-orders")
     @ResponseStatus(HttpStatus.CREATED)
     public void createServiceOrder(@RequestBody ServiceOrder order){
         this.serOrderService.addOrUpdate(order);
     }
-    
-    @GetMapping("/")
 }

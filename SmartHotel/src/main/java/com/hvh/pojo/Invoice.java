@@ -4,6 +4,7 @@
  */
 package com.hvh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,6 +54,7 @@ public class Invoice implements Serializable {
     private Date issuedAt;
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     @OneToOne(optional = false)
+    @JsonIgnore
     private Reservation reservationId;
 
     public Invoice() {

@@ -36,10 +36,10 @@ public class ApiRoomController {
         return new ResponseEntity<>(this.roomService.getRooms(params), HttpStatus.OK);
     }
     
-    @DeleteMapping("/rooms/{roomId}")
+    @DeleteMapping("/secure/rooms/{roomId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable(value = "roomId") int id){
         this.roomService.deleteRoom(id);
     }
-}
+}   
                                     
