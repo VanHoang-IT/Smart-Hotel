@@ -29,19 +29,26 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class ApiUserController {
+
     @Autowired
     private UserService userService;
-    @PostMapping(path = "/user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> create(@RequestParam Map<String, String> params, @RequestParam(value = "avatar") MultipartFile avatar){
+
+    @PostMapping(path = "/users",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<User> create(@RequestParam Map<String, String> params,
+            @RequestParam(value = "avatar") MultipartFile avatar) {
         User u = this.userService.addUser(params, avatar);
+
         return new ResponseEntity<>(u, HttpStatus.CREATED);
     }
-    
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User u){
-        
-        if(this.userService.authenticate(u.getUsername(), u.getPassword())){
+    public ResponseEntity<?> login(@RequestBody User u) {
+
+        if (this.userService.authenticate(u.getUsername(), u.getPassword())) {
             try {
                 String token = JwtUtils.generateToken(u.getUsername());
                 return ResponseEntity.ok().body(Collections.singletonMap("token", token));
@@ -51,10 +58,17 @@ public class ApiUserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai thông tin đăng nhập");
     }
-    @RequestMapping("/secure/profile")
+
+    @RequestMapping(
+            value = "/secure/profile",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ResponseBody
-    @CrossOrigin
     public ResponseEntity<User> getProfile(Principal principal) {
-        return new ResponseEntity<>(this.userService.getUserByUsername(principal.getName()), HttpStatus.OK);
+
+        return new ResponseEntity<>(
+                this.userService.getUserByUsername(
+                        principal.getName()),
+                HttpStatus.OK);
     }
 }

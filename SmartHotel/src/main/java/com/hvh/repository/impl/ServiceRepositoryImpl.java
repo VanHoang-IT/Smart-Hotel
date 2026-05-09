@@ -4,7 +4,7 @@
  */
 package com.hvh.repository.impl;
 
-import com.hvh.pojo.Service;
+import com.hvh.pojo.Services;
 import com.hvh.repository.ServiceRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -30,11 +30,11 @@ public class ServiceRepositoryImpl implements ServiceRepository{
     private LocalSessionFactoryBean factory;
     
     @Override
-    public List<Service> getServices(Map<String, String> params) {
+    public List<Services> getServices(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
         CriteriaBuilder b = s.getCriteriaBuilder();
-        CriteriaQuery<Service> q = b.createQuery(Service.class);
-        Root root = q.from(Service.class);
+        CriteriaQuery<Services> q = b.createQuery(Services.class);
+        Root root = q.from(Services.class);
         q.select(root);
 
         if (params != null) {
@@ -57,7 +57,7 @@ public class ServiceRepositoryImpl implements ServiceRepository{
     }
 
     @Override
-    public void addOrUpdate(Service s) {
+    public void addOrUpdate(Services s) {
         Session session = this.factory.getObject().getCurrentSession();
         if(s.getId() != null){
             session.merge(s);
@@ -68,15 +68,15 @@ public class ServiceRepositoryImpl implements ServiceRepository{
     }
 
     @Override
-    public Service getServiceById(Long id) {
+    public Services getServiceById(Long id) {
         Session session = this.factory.getObject().getCurrentSession();
-        return session.get(Service.class, id);
+        return session.get(Services.class, id);
     }
 
     @Override
     public void deleteService(Long id) {
         Session session = this.factory.getObject().getCurrentSession();
-        Service s = this.getServiceById(id);
+        Services s = this.getServiceById(id);
         session.remove(s);
     }
     

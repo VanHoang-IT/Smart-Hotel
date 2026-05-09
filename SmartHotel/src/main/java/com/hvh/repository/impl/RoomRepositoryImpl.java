@@ -21,6 +21,7 @@ import org.hibernate.query.Query;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
+
 /**
  *
  * @author 03358
@@ -28,54 +29,59 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @PropertySource("classpath:configs.properties")
 @Transactional
-public class RoomRepositoryImpl implements RoomRepository{
+public class RoomRepositoryImpl implements RoomRepository {
+
     @Autowired
     private Environment env;
-            
+
     private static final int PAGE_SIZE = 6;
-    
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
-    
+
     @Override
-    public List<Room> getRoom(Map<String, String> params){
+    public List<Room> getRoom(Map<String, String> params) {
         Session session = this.factory.getObject().getCurrentSession();
-        CriteriaBuilder b =  session.getCriteriaBuilder();
+        CriteriaBuilder b = session.getCriteriaBuilder();
         CriteriaQuery<Room> q = b.createQuery(Room.class);
         Root root = q.from(Room.class);
         q.select(root);
-        
-        if(params != null){
+
+        if (params != null) {
             List<Predicate> predicates = new ArrayList<>();
-            
+
             String kw = params.get("kw");
-            if(kw != null && !kw.isEmpty()){
-                predicates.add(b.like(root.get("room_number"), String.format("%%%s%%", kw)));
+            if (kw != null && !kw.isEmpty()) {
+                predicates.add(b.like(root.get("name"), String.format("%%%s%%", kw)));
             }
-            
+
             String fromPrice = params.get("fromPrice");
-            if (fromPrice != null && !fromPrice.isEmpty()){
+            if (fromPrice != null && !fromPrice.isEmpty()) {
                 predicates.add(b.greaterThanOrEqualTo(root.get("price"), fromPrice));
             }
-            
+
             String toPrice = params.get("toPrice");
-            if (toPrice != null && !toPrice.isEmpty()){
+            if (toPrice != null && !toPrice.isEmpty()) {
                 predicates.add(b.lessThanOrEqualTo(root.get("price"), toPrice));
             }
-           
+
+            String typeId = params.get("typeId");
+            if (typeId != null && !typeId.isEmpty()) {
+                predicates.add(b.equal(root.get("roomTypeId").get("id"), Integer.parseInt(typeId)));
+            }
+
             q.where(predicates.toArray(Predicate[]::new));
         }
-        
-        q.orderBy(b.desc(root.get("id")));
-        
+
+        q.orderBy(b.asc(root.get("id")));
+
         Query query = session.createQuery(q);
-        
-        if(params != null){
+
+        if (params != null) {
             int pageSize = this.env.getProperty("rooms.page_size", Integer.class);
             int page = Integer.parseInt(params.getOrDefault("page", "1"));
             int start = (page - 1) * pageSize;
-            
+
             query.setMaxResults(pageSize);
             query.setFirstResult(start);
         }
@@ -85,10 +91,9 @@ public class RoomRepositoryImpl implements RoomRepository{
     @Override
     public void addOrUpdateRoom(Room r) {
         Session session = this.factory.getObject().getCurrentSession();
-        if(r.getId() != null){
+        if (r.getId() != null) {
             session.merge(r);
-        }
-        else {
+        } else {
             session.persist(r);
         }
     }
@@ -96,7 +101,7 @@ public class RoomRepositoryImpl implements RoomRepository{
     @Override
     public Room getRoomById(long id) {
         Session session = this.factory.getObject().getCurrentSession();
-            return session.get(Room.class, id);
+        return session.get(Room.class, id);
     }
 
     @Override
@@ -104,5 +109,16 @@ public class RoomRepositoryImpl implements RoomRepository{
         Session session = this.factory.getObject().getCurrentSession();
         Room r = this.getRoomById(id);
         session.remove(r);
+    }
+
+    @Override
+    public List<Room> getRoomAvailable() {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<Room> q = b.createQuery(Room.class);
+        Root<Room> root = q.from(Room.class);
+        q.select(root);
+        q.where(b.equal(root.get("status"), "AVAILABLE"));
+        return session.createQuery(q).getResultList();
     }
 }

@@ -17,4 +17,5 @@ public interface RoomService {
     void addOrUpdateRoom(Room r);
     public Room getRoomById(long id);
     public void deleteRoom(long id);
+    List<Room> getRoomAvailable();
 }

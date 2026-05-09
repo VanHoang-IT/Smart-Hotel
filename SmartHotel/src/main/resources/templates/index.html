@@ -12,13 +12,13 @@
 
     <section class="container">
         <div>
-            <a th:href="@{/admin/room}" class="btn btn-info"> Thêm phòng</a>
+            <a th:href="@{/admin/rooms}" class="btn btn-info"> Thêm phòng</a>
         </div>
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th></th>
-                    <th>Mã phòng</th>
+                    <th>Tên phòng</th>
                     <th>Loại phòng</th>
                     <th>Tầng</th>
                     <th>Giá phòng</th>
@@ -27,18 +27,18 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="r: ${room}">
+                <tr th:each="r: ${rooms}">
                     <td>
                         <img th:src="${r.mainImage}" width="200" />
                     </td>
-                    <td th:text="${r.roomNumber}"></td>
+                    <td th:text="${r.name}"></td>
                     <td th:text="${r.roomTypeId.name}"> </td>
                     <td th:text="${r.floor}"></td>
                     <td th:text="${r.price} + 'VNĐ'"></td>
                     <td th:text="${r.status}"></td>
                     <td>
-                        <a th:href="@{/admin/room/} + ${r.id}" class="btn btn-info">Cập nhật</a>
-                        <button class="btn btn-danger" th:onclick="'deleteRoom(\'' + @{/api/room/} + ${r.id} + '\')'">Xóa</button>
+                        <a th:href="@{/admin/rooms/} + ${r.id}" class="btn btn-info">Cập nhật</a>
+                        <button class="btn btn-danger" th:onclick="'deleteRoom(\'' + @{/api/rooms/} + ${r.id} + '\')'">Xóa</button>
                     </td>
                 </tr>
             </tbody>

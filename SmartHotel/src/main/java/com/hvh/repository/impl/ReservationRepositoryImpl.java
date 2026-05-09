@@ -95,4 +95,10 @@ public class ReservationRepositoryImpl implements ReservationRepository{
         Session session = this.factory.getObject().getCurrentSession();
         return session.get(Reservation.class, id);
     }
+
+    @Override
+    public void updateStatus(long id, String status) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
 }

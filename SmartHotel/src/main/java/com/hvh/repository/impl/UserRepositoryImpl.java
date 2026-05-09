@@ -13,41 +13,53 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 /**
  *
  * @author 03358
  */
 @Repository
 @Transactional
-public class UserRepositoryImpl  implements UserRepository{
-    
+public class UserRepositoryImpl implements UserRepository {
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-    
+
     @Override
     public User getUserByUsername(String username) {
         Session session = this.factory.getObject().getCurrentSession();
-        Query q = session.createNamedQuery("User.findByUsername", User.class);
+
+        Query<User> q = session.createQuery(
+                "FROM User WHERE username = :username",
+                User.class
+        );
+
         q.setParameter("username", username);
-        
-        return (User)q.getSingleResult();
+
+        return q.getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public User addUser(User u) {
         Session session = this.factory.getObject().getCurrentSession();
         session.persist(u);
-        
+
         return u;
     }
-    
+
     @Override
-    public boolean authenticate(String username, String password){
+    public boolean authenticate(String username, String password) {
         User u = this.getUserByUsername(username);
-        
+
+        if (u == null)
+            return false;
+
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 }

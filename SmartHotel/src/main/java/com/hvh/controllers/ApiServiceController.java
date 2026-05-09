@@ -4,7 +4,7 @@
  */
 package com.hvh.controllers;
 
-import com.hvh.pojo.Service;
+import com.hvh.pojo.Services;
 import com.hvh.service.ServiceService;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,21 +36,23 @@ public class ApiServiceController {
     private ServiceService serviceService;
     
     @GetMapping("/services")
-    public ResponseEntity<List<Service>> list(@RequestParam Map<String, String> params){
+    public ResponseEntity<List<Services>> list(@RequestParam Map<String, String> params){
         return new ResponseEntity<>(this.serviceService.getServices(params), HttpStatus.OK);
     }
     
-    @GetMapping(value = "/services/{serviceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Service> getById(@PathVariable(value = "serviceId") Long id) {
-        Service s = this.serviceService.getServiceById(id);
+    @GetMapping(value = "/services/{servicesId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Services> getById(@PathVariable(value = "servicesId") Long id) {
+        Services s = this.serviceService.getServiceById(id);
         if (s != null) {
             return new ResponseEntity<>(s, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
     
-    @PostMapping("/secure/services")
-    public ResponseEntity<Service> addOrUpdate(@RequestBody Service s) {
+    @PostMapping(path = "/secure/services", 
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'STAFF')")
+    public ResponseEntity<Services> addOrUpdate(@RequestBody Services s) {
         try {
             this.serviceService.addOrUpdate(s);
             return new ResponseEntity<>(s, HttpStatus.CREATED);
@@ -58,9 +61,10 @@ public class ApiServiceController {
         }
     }
     
-    @DeleteMapping("/secure/services/{serviceId}")
+    @DeleteMapping("/secure/services/{servicesId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable(value = "serviceId") long id){
+    public void delete(@PathVariable(value = "servicesId") long id){
         this.serviceService.deleteService(id);
     }
 }

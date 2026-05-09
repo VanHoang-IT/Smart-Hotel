@@ -40,7 +40,7 @@ public class ServiceOrderRepositoryImpl implements ServiceOrderRepository {
             // Lọc theo Reservation ID (Để xem các dịch vụ của 1 đơn đặt phòng)
             String resId = params.get("reservationId");
             if (resId != null && !resId.isEmpty()) {
-                predicates.add(b.equal(root.get("reservation").get("id"), Long.parseLong(resId)));
+                predicates.add(b.equal(root.get("reservationId").get("id"), Long.parseLong(resId)));
             }
 
             q.where(predicates.toArray(Predicate[]::new));
