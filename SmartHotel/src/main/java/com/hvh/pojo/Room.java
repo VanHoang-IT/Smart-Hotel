@@ -40,25 +40,26 @@ import org.springframework.web.multipart.MultipartFile;
 @NamedQueries({
     @NamedQuery(name = "Room.findAll", query = "SELECT r FROM Room r"),
     @NamedQuery(name = "Room.findById", query = "SELECT r FROM Room r WHERE r.id = :id"),
-    @NamedQuery(name = "Room.findByRoomNumber", query = "SELECT r FROM Room r WHERE r.roomNumber = :roomNumber"),
+    @NamedQuery(name = "Room.findByName", query = "SELECT r FROM Room r WHERE r.name = :name"),
     @NamedQuery(name = "Room.findByFloor", query = "SELECT r FROM Room r WHERE r.floor = :floor"),
     @NamedQuery(name = "Room.findByStatus", query = "SELECT r FROM Room r WHERE r.status = :status"),
     @NamedQuery(name = "Room.findByMainImage", query = "SELECT r FROM Room r WHERE r.mainImage = :mainImage"),
     @NamedQuery(name = "Room.findByPrice", query = "SELECT r FROM Room r WHERE r.price = :price")})
-@JsonIgnoreProperties(value = {"housekeepingTaskSet", "roomImagesSet", "reservationRoomSet"})
+    @JsonIgnoreProperties(value = {"housekeepingTaskSet", "reservationRoomSet", "roomTypeId"})
 public class Room implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
+    
     @Column(name = "id")
     private Long id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 10)
-    @Column(name = "room_number")
-    private String roomNumber;
+    @Column(name = "name")
+    private String name;
     @Column(name = "floor")
     private Integer floor;
     @Size(max = 11)
@@ -86,10 +87,10 @@ public class Room implements Serializable {
     private Set<HousekeepingTask> housekeepingTaskSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "roomId")
     private Set<RoomImages> roomImagesSet;
-    
+
     @Transient
     private MultipartFile file;
-    
+
     public Room() {
     }
 
@@ -97,9 +98,9 @@ public class Room implements Serializable {
         this.id = id;
     }
 
-    public Room(Long id, String roomNumber, BigDecimal price) {
+    public Room(Long id, String name, BigDecimal price) {
         this.id = id;
-        this.roomNumber = roomNumber;
+        this.name = name;
         this.price = price;
     }
 
@@ -111,14 +112,7 @@ public class Room implements Serializable {
         this.id = id;
     }
 
-    public String getRoomNumber() {
-        return roomNumber;
-    }
-
-    public void setRoomNumber(String roomNumber) {
-        this.roomNumber = roomNumber;
-    }
-
+    
     public Integer getFloor() {
         return floor;
     }
@@ -222,6 +216,7 @@ public class Room implements Serializable {
     /**
      * @return the file
      */
+    
     public MultipartFile getFile() {
         return file;
     }
@@ -232,5 +227,20 @@ public class Room implements Serializable {
     public void setFile(MultipartFile file) {
         this.file = file;
     }
-    
+
+    /**
+     * @return the name
+     */
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

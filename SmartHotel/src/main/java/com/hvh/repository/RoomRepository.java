@@ -17,4 +17,5 @@ public interface RoomRepository {
     void addOrUpdateRoom(Room r);
     Room getRoomById(long id);
     void deleteRoom(long id);
+    List<Room> getRoomAvailable();
 }

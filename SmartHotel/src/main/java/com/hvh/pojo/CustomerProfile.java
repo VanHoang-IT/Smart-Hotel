@@ -43,6 +43,14 @@ import java.util.Set;
     @NamedQuery(name = "CustomerProfile.findByLoyaltyPoint", query = "SELECT c FROM CustomerProfile c WHERE c.loyaltyPoint = :loyaltyPoint")})
 public class CustomerProfile implements Serializable {
 
+    @Size(max = 500)
+    @Column(name = "address")
+    private String address;
+    @Lob
+    @Size(max = 65535)
+    @Column(name = "notes")
+    private String notes;
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,15 +60,8 @@ public class CustomerProfile implements Serializable {
     @Column(name = "dob")
     @Temporal(TemporalType.DATE)
     private Date dob;
-    @Size(max = 500)
-    @Column(name = "address")
-    private String address;
     @Column(name = "loyalty_point")
     private Integer loyaltyPoint;
-    @Lob
-    @Size(max = 65535)
-    @Column(name = "notes")
-    private String notes;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OneToOne
     private User userId;
@@ -91,13 +92,6 @@ public class CustomerProfile implements Serializable {
         this.dob = dob;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public Integer getLoyaltyPoint() {
         return loyaltyPoint;
@@ -107,13 +101,6 @@ public class CustomerProfile implements Serializable {
         this.loyaltyPoint = loyaltyPoint;
     }
 
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
 
     public User getUserId() {
         return userId;
@@ -155,6 +142,22 @@ public class CustomerProfile implements Serializable {
     @Override
     public String toString() {
         return "com.hvh.pojo.CustomerProfile[ id=" + id + " ]";
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
     
 }

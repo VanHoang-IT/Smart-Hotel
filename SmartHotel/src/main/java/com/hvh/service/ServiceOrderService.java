@@ -4,12 +4,18 @@
  */
 package com.hvh.service;
 
-import com.hvh.pojo.ServiceOrder;
+import com.hvh.dto.ServiceOrderRequestDTO;
+import com.hvh.dto.ServiceOrderResponseDTO;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 public interface ServiceOrderService {
-    List<ServiceOrder> getServiceOrders(Map<String, String> params);
-    void addOrUpdate(ServiceOrder order);
-    ServiceOrder getById(Long id);
+    List<ServiceOrderResponseDTO> getServiceOrders(Map<String, String> params);
+    void addOrUpdate(ServiceOrderRequestDTO orderDto);
+    ServiceOrderResponseDTO getById(Long id);
+    void updateStatus(Long id, String status);
+    void cancelOrder(Long id);
+    BigDecimal getTotalAmountByReservation(Long resId);
+    List<ServiceOrderResponseDTO> getPendingOrders();
 }

@@ -4,7 +4,7 @@
  */
 package com.hvh.service;
 
-import com.hvh.pojo.Service;
+import com.hvh.pojo.Services;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +14,8 @@ import java.util.Map;
  */
 
 public interface ServiceService {
-    List<Service> getServices(Map<String, String> params);
-    void addOrUpdate(Service s);
-    Service getServiceById(Long id);
+    List<Services> getServices(Map<String, String> params);
+    void addOrUpdate(Services s);
+    Services getServiceById(Long id);
     void deleteService(Long id);
 }

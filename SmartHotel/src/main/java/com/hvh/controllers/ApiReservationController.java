@@ -4,15 +4,20 @@
  */
 package com.hvh.controllers;
 
-import com.hvh.pojo.Reservation;
-import com.hvh.pojo.ServiceOrder;
+import com.hvh.dto.ReservationRequestDTO;
+import com.hvh.dto.ReservationResponseDTO;
+import com.hvh.dto.ServiceOrderRequestDTO;
+import com.hvh.dto.ServiceOrderResponseDTO;
 import com.hvh.service.ReservationService;
 import com.hvh.service.ServiceOrderService;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,31 +37,57 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @CrossOrigin
 public class ApiReservationController {
+
     @Autowired
     private ReservationService resService;
-    
+
     @Autowired
     private ServiceOrderService serOrderService;
-    
+
     @GetMapping("/reservations")
-    public ResponseEntity<List<Reservation>> list(@RequestParam Map<String, String> params) {
+    public ResponseEntity<List<ReservationResponseDTO>> list(@RequestParam Map<String, String> params) {
         return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
-    } 
-    
+    }
+
     @PatchMapping("/secure/reservations/{id}/cancel")
-    public ResponseEntity<String> cancel(@PathVariable long id) {
-        Reservation r = this.resService.getReservationById(id);
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    public ResponseEntity<String> cancel(@PathVariable("id") long id) {
+        ReservationResponseDTO r = this.resService.getReservationById(id);
         if (r != null) {
-            r.setStatus("CANCELED");
-            this.resService.addOrUpdateReservation(r);
-            return new ResponseEntity<>("Canceled", HttpStatus.OK);
+            ReservationRequestDTO cancelDto = new ReservationRequestDTO();
+            cancelDto.setId(id);
+            cancelDto.setCheckIn(r.getCheckIn()); 
+            cancelDto.setCheckOut(r.getCheckOut());
+            cancelDto.setStatus("CANCELLED"); 
+
+            this.resService.addOrUpdateReservation(cancelDto); 
+            return new ResponseEntity<>("CANCELLED", HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("NOT FOUND", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/secure/reservations/{id}/service-orders")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createServiceOrder(@PathVariable("id") Long reservationId, @RequestBody ServiceOrderRequestDTO orderDto) {
+        orderDto.setReservationId(reservationId);
+        this.serOrderService.addOrUpdate(orderDto);
     }
     
-    @PostMapping("/secure/service-orders")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createServiceOrder(@RequestBody ServiceOrder order){
-        this.serOrderService.addOrUpdate(order);
+    @GetMapping("/secure/reservations/{id}/service-orders")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    public ResponseEntity<List<ServiceOrderResponseDTO>> getOrdersByReservation(@PathVariable("id") Long resId) {
+        Map<String, String> params = new HashMap<>();
+        params.put("reservationId", resId.toString());
+        
+        List<ServiceOrderResponseDTO> orders = this.serOrderService.getServiceOrders(params);
+        return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+    
+    @GetMapping("/secure/reservations/{id}/service-total")
+    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    public ResponseEntity<BigDecimal> getTotalServiceAmount(@PathVariable("id") Long resId) {
+        BigDecimal total = this.serOrderService.getTotalAmountByReservation(resId);
+        return new ResponseEntity<>(total, HttpStatus.OK);
     }
 }

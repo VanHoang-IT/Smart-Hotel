@@ -4,7 +4,8 @@
  */
 package com.hvh.service;
 
-import com.hvh.pojo.Reservation;
+import com.hvh.dto.ReservationRequestDTO;
+import com.hvh.dto.ReservationResponseDTO;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,10 @@ import java.util.Map;
  * @author Smart Hotel
  */
 public interface ReservationService {
-    List<Reservation> getReservations(Map<String, String> params);
-    void addOrUpdateReservation(Reservation res);
-    public Reservation getReservationById(long id);
+
+    List<ReservationResponseDTO> getReservations(Map<String, String> params);
+    
+    void addOrUpdateReservation(ReservationRequestDTO resDto);
+    
+    ReservationResponseDTO getReservationById(long id);
 }

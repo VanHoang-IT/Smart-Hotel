@@ -16,4 +16,5 @@ public interface ReservationRepository {
     List<Reservation> getReservations(Map<String, String> params);
     void addOrUpdateReservation(Reservation res);
     public Reservation getReservationById(long id);
+    void updateStatus(long id, String status);
 }

@@ -5,7 +5,7 @@
 package com.hvh.service.impl;
 
 import com.hvh.service.ServiceService;
-import com.hvh.pojo.Service;
+import com.hvh.pojo.Services;
 import com.hvh.repository.ServiceRepository;
 import java.util.List;
 import java.util.Map;
@@ -23,17 +23,17 @@ public class ServiceServiceImpl implements ServiceService{
     
     
     @Override
-    public List<Service> getServices(Map<String, String> params) {
+    public List<Services> getServices(Map<String, String> params) {
         return this.serviceRepo.getServices(params);
     }
 
     @Override
-    public void addOrUpdate(Service s) {
+    public void addOrUpdate(Services s) {
         this.serviceRepo.addOrUpdate(s);
     }
 
     @Override
-    public Service getServiceById(Long id) {
+    public Services getServiceById(Long id) {
         return this.serviceRepo.getServiceById(id);
     }
 

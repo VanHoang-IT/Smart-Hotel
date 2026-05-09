@@ -1,47 +1,86 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { useEffect } from "react";
 import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
-import { Button, Card, Col, Row } from "react-bootstrap";
+import { Alert, Button, Card, Col, Row } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 const Home = () => {
+  // const [roomTypes, setRoomTypes] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const loadRoom = async () => {
+  const loadRooms = async () => {
     try {
-      let res = await Apis.get(endpoints["room"]);
-      setRoom(res.data);
+      let res = await Apis.get(endpoints["rooms"]);
+      setRooms(res.data);
     } catch (ex) {
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadRoom();
-  }, []);
+  // const loadRoomTypes = async () => {
+  //   try {
+  //     let res = await Apis.get(endpoints["roomTypes"]);
+  //     setRoomTypes(res.data);
+  //   } catch (ex) {
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
+  useEffect(() => {
+    loadRooms();
+    // loadRoomTypes();
+  }, []);
   return (
     <>
+      {rooms.length == 0 && (
+        <Alert variant="info" className="mt-2">
+          KHÔNG có phòng nào!
+        </Alert>
+      )}
       <Row>
-        {room.map((r) => (
-          <>
-            <Col xs={6} md={3} key={r.id}>
-              <Card>
-                <Card.Img variant="top" src={r.mainImage} />
+        {rooms.map((r) => {
+          return (
+            <Col xs={6} md={4} lg={6} key={r.id} className="p-2 w-200 h-25">
+              <Card className=" shadow-sm border-2 m-1">
+                <Link to={`/rooms/${r.id}`}>
+                  <div>
+                    <Card.Img
+                      variant="top"
+                      src={r.mainImage}
+                      style={{ height: "450px", objectFit: "cover" }}
+                    />
+                  </div>
+                </Link>
                 <Card.Body>
-                  <Card.Title>{r.name}</Card.Title>
-                  <Card.Text>{r.price} VND</Card.Text>
+                  <Link
+                    to={`/rooms/${r.id}`}
+                    className="text-decoration-none text-dark"
+                  >
+                    <Card.Title>{r.name}</Card.Title>
+                  </Link>
+                  <Card.Text>
+                    {Number(r.price).toLocaleString("vi-VN")} VND / đêm
+                  </Card.Text>
+                  <Card.Text>{r.note}</Card.Text>
                 </Card.Body>
                 <Card.Body>
-                  <Button variant="danger">Đặt phòng</Button>
-                  <Card.Link href="#">Another Link</Card.Link>
+                  <Button
+                    as={Link}
+                    to={`/rooms/${r.id}`}
+                    variant="dark"
+                    className="mt-4 border-radius-5"
+                  >
+                    ĐẶT PHÒNG
+                  </Button>
                 </Card.Body>
               </Card>
             </Col>
-          </>
-        ))}
+          );
+        })}
       </Row>
       {loading && <MySpinner />}
     </>

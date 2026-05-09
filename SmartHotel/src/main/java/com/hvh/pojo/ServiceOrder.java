@@ -4,7 +4,6 @@
  */
 package com.hvh.pojo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,7 +38,9 @@ import java.util.Date;
     @NamedQuery(name = "ServiceOrder.findByQty", query = "SELECT s FROM ServiceOrder s WHERE s.qty = :qty"),
     @NamedQuery(name = "ServiceOrder.findByUnitPrice", query = "SELECT s FROM ServiceOrder s WHERE s.unitPrice = :unitPrice"),
     @NamedQuery(name = "ServiceOrder.findByAmount", query = "SELECT s FROM ServiceOrder s WHERE s.amount = :amount"),
-    @NamedQuery(name = "ServiceOrder.findByOrderedAt", query = "SELECT s FROM ServiceOrder s WHERE s.orderedAt = :orderedAt")})
+    @NamedQuery(name = "ServiceOrder.findByOrderedAt", query = "SELECT s FROM ServiceOrder s WHERE s.orderedAt = :orderedAt"),
+    @NamedQuery(name = "ServiceOrder.findByStatus", query = "SELECT s FROM ServiceOrder s WHERE s.status = :status"),
+    @NamedQuery(name = "ServiceOrder.findByUpdatedAt", query = "SELECT s FROM ServiceOrder s WHERE s.updatedAt = :updatedAt")})
 public class ServiceOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -66,14 +67,20 @@ public class ServiceOrder implements Serializable {
     @Size(max = 65535)
     @Column(name = "notes")
     private String notes;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 20)
+    @Column(name = "status")
+    private String status;
+    @Column(name = "updated_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    @JsonIgnore
     private Reservation reservationId;
     @JoinColumn(name = "service_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    @JsonIgnore
-    private Service serviceId;
+    private Services serviceId;
 
     public ServiceOrder() {
     }
@@ -82,10 +89,11 @@ public class ServiceOrder implements Serializable {
         this.id = id;
     }
 
-    public ServiceOrder(Long id, BigDecimal unitPrice, BigDecimal amount) {
+    public ServiceOrder(Long id, BigDecimal unitPrice, BigDecimal amount, String status) {
         this.id = id;
         this.unitPrice = unitPrice;
         this.amount = amount;
+        this.status = status;
     }
 
     public Long getId() {
@@ -136,6 +144,22 @@ public class ServiceOrder implements Serializable {
         this.notes = notes;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public Reservation getReservationId() {
         return reservationId;
     }
@@ -144,11 +168,11 @@ public class ServiceOrder implements Serializable {
         this.reservationId = reservationId;
     }
 
-    public Service getServiceId() {
+    public Services getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(Service serviceId) {
+    public void setServiceId(Services serviceId) {
         this.serviceId = serviceId;
     }
 

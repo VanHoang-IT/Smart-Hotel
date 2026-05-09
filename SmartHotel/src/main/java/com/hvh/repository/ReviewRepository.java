@@ -17,4 +17,5 @@ public interface ReviewRepository {
     void addReviewOrUpdate(Review r);
     Review getReviewById(Long id);
     void deleteReview(Long id);
+    List<Review> getReviewsByRoomId(Long roomId); 
 }
