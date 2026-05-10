@@ -10,6 +10,11 @@ export const endpoints = {
   register: "/users",
   login: "/login",
   profile: "/secure/profile",
+  reservations: "/secure/reservations",
+  payments: "/secure/payments",
+  cancelReservation: (id) => `/secure/reservations/${id}/cancel`,
+  serviceOrders: (id) => `/secure/reservations/${id}/service-orders`,
+  serviceTotal: (id) => `/secure/reservations/${id}/service-total`,
 };
 
 export const authApis = () => {

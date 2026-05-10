@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
+import BookingBarSide from "../../components/BookingBarSide";
 
 const typeDescriptions = {
   "Standard Single":
@@ -48,7 +49,7 @@ const RoomType = () => {
   return (
     <Container className="my-5">
       <Row>
-        <Col md={12}>
+        <Col lg={8}>
           <h2 className="text-uppercase fs-1 mb-3">
             {typeName || "Danh mục phòng"}
           </h2>
@@ -65,7 +66,7 @@ const RoomType = () => {
             )}
 
             {rooms.map((r) => (
-              <Col xs={12} md={6} lg={7} key={r.id} className="mb-4">
+              <Col xs={12} md={6} lg={12} key={r.id} className="mb-4">
                 <Card className="h-100 shadow-sm border-2 m-4">
                   <Link to={`/rooms/${r.id}`}>
                     <Card.Img src={r.mainImage} />
@@ -97,10 +98,15 @@ const RoomType = () => {
                     </Button>
                   </Card.Body>
                 </Card>
+
                 <hr className="mt-2 w-27" />
               </Col>
             ))}
           </Row>
+        </Col>
+
+        <Col lg={4}>
+          <BookingBarSide />
         </Col>
       </Row>
     </Container>

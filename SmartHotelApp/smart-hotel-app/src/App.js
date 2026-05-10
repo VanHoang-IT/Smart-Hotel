@@ -8,46 +8,49 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import MyUserReducer from "./reducers/MyUserReducer";
 import cookies from "react-cookies";
 import { useReducer } from "react";
-import { MyUserContext } from "./configs/Contexts";
+import { MyUserContext, MyBookingContext } from "./configs/Contexts";
 import RoomDetails from "./screens/RoomDetails/RoomDetails";
 import Register from "./screens/User/Register";
 import Login from "./screens/User/Login";
-import { Container } from "react-bootstrap";
 import RoomTypes from "./screens/RoomType/RoomTypes";
 import BookingBar from "./components/BookingBar";
 import AvailableRooms from "./screens/Available/AvailableRooms";
+import MyBookingReducer, { initialState } from "./reducers/MyBookingReducer";
 
 const App = () => {
   const [user, dispatch] = useReducer(
     MyUserReducer,
     cookies.load("user") || null,
   );
+
+  const [booking, bookingDispatch] = useReducer(MyBookingReducer, initialState);
   return (
     <MyUserContext.Provider value={[user, dispatch]}>
-      <BrowserRouter>
-        <Header />
+      <MyBookingContext.Provider value={[booking, bookingDispatch]}>
+        <BrowserRouter>
+          <Header />
 
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <SlideWindow />
-                <BookingBar />
-                <Home />
-              </>
-            }
-          />
-          <Route path="/rooms/:id" element={<RoomDetails />} />
-          <Route path="/room-types/:typeId" element={<RoomTypes />} />
-          <Route path="/available" element={<AvailableRooms />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <SlideWindow />
+                  <BookingBar />
+                  <Home />
+                </>
+              }
+            />
+            <Route path="/rooms/:id" element={<RoomDetails />} />
+            <Route path="/room-types/:typeId" element={<RoomTypes />} />
+            <Route path="/available" element={<AvailableRooms />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
 
-        <Footer />
-      </BrowserRouter>
+          <Footer />
+        </BrowserRouter>
+      </MyBookingContext.Provider>
     </MyUserContext.Provider>
   );
 };
