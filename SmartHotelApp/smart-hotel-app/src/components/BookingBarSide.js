@@ -1,70 +1,102 @@
-// import { useNavigate } from "react-router-dom";
-// import { Form, Button } from "react-bootstrap";
+import { useContext } from "react";
+import { Container, Form, Button, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { MyBookingContext } from "../configs/Contexts";
 
-// const BookingBarSide = () => {
-//   const navigate = useNavigate();
+const BookingBarSide = () => {
+  const navigate = useNavigate();
+  const [booking, dispatch] = useContext(MyBookingContext);
 
-//   const { checkIn, setCheckIn, checkOut, setCheckOut } = useBooking();
+  const todayStr = new Date().toISOString().split("T")[0];
 
-//   const todayStr = new Date().toISOString().split("T")[0];
+  const handleBooking = () => {
+    navigate(
+      `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}&adults=${booking.adults}&children=${booking.children}`,
+    );
+  };
 
-//   const handleBooking = (e) => {
-//     e.preventDefault();
-//     navigate(`/available?checkIn=${checkIn}&checkOut=${checkOut}`);
-//   };
+  const handleChange = (field, value) => {
+    dispatch({
+      type: "UPDATE_BOOKING",
+      payload: {
+        [field]: value,
+      },
+    });
+  };
 
-//   return (
-//     <div className="mt-6">
-//       <div className="border p-4">
-//         <h4 className="font-medium mb-4">Kiểm tra phòng trống</h4>
+  return (
+    <div className="mt-4">
+      <Container>
+        <Row className="justify-content-end">
+          <Col>
+            <div className="border p-4 rounded">
+              <h3 className="mb-4">KIỂM TRA PHÒNG TRỐNG</h3>
 
-//         <Form onSubmit={handleBooking}>
-//           <Form.Group className="mb-3">
-//             <Form.Label>Check-in</Form.Label>
-//             <Form.Control
-//               type="date"
-//               value={checkIn}
-//               min={todayStr}
-//               onChange={(e) => setCheckIn(e.target.value)}
-//             />
-//           </Form.Group>
+              <Form.Group className="mb-4">
+                <Form.Label>Ngày đến</Form.Label>
 
-//           <Form.Group className="mb-3">
-//             <Form.Label>Check-out</Form.Label>
-//             <Form.Control
-//               type="date"
-//               value={checkOut}
-//               min={todayStr}
-//               onChange={(e) => setCheckOut(e.target.value)}
-//             />
-//           </Form.Group>
+                <Form.Control
+                  type="date"
+                  value={booking.checkIn}
+                  min={todayStr}
+                  onChange={(e) => handleChange("checkIn", e.target.value)}
+                />
+              </Form.Group>
 
-//           <Form.Group className="mb-3">
-//             <Form.Label>Số phòng</Form.Label>
-//             <Form.Select>
-//               <option value="1">1 phòng</option>
-//               <option value="2">2 phòng</option>
-//               <option value="3">3 phòng</option>
-//             </Form.Select>
-//           </Form.Group>
+              <Form.Group className="mb-4">
+                <Form.Label>Ngày đi</Form.Label>
 
-//           <Form.Group className="mb-4">
-//             <Form.Label>Guests</Form.Label>
-//             <Form.Select>
-//               <option value="1">1 người lớn</option>
-//               <option value="2">2 người lớn</option>
-//               <option value="3">2 người lớn 2 trẻ em</option>
-//               <option value="4">2 người lớn 1 trẻ em</option>
-//             </Form.Select>
-//           </Form.Group>
+                <Form.Control
+                  type="date"
+                  value={booking.checkOut}
+                  min={booking.checkIn || todayStr}
+                  onChange={(e) => handleChange("checkOut", e.target.value)}
+                />
+              </Form.Group>
 
-//           <Button type="submit" className="w-100">
-//             KIỂM TRA TÌNH TRẠNG PHÒNG
-//           </Button>
-//         </Form>
-//       </div>
-//     </div>
-//   );
-// };
+              <Form.Group className="mb-4">
+                <Form.Label>Người lớn</Form.Label>
 
-// export default BookingBarSide;
+                <Form.Select
+                  value={booking.adults}
+                  onChange={(e) =>
+                    handleChange("adults", Number(e.target.value))
+                  }
+                >
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group className="mb-4">
+                <Form.Label>Trẻ em</Form.Label>
+
+                <Form.Select
+                  value={booking.children}
+                  onChange={(e) =>
+                    handleChange("children", Number(e.target.value))
+                  }
+                >
+                  {[0, 1, 2, 3].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              <Button onClick={handleBooking} className="w-100 mt-3">
+                KIỂM TRA
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+};
+
+export default BookingBarSide;

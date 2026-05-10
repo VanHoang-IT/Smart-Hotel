@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { MyBookingContext } from "../configs/Contexts";
 
-const BookingBar = () => {
+const RentingBarSide = () => {
   const navigate = useNavigate();
   const [booking, dispatch] = useContext(MyBookingContext);
 
@@ -14,6 +14,7 @@ const BookingBar = () => {
       `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}&adults=${booking.adults}&children=${booking.children}`,
     );
   };
+
   const handleChange = (field, value) => {
     dispatch({
       type: "UPDATE_BOOKING",
@@ -22,13 +23,16 @@ const BookingBar = () => {
       },
     });
   };
+
   return (
     <div className="mt-4">
       <Container>
-        <div className="border p-3 rounded">
-          <Row className="g-2 align-items-end">
-            <Col md={3}>
-              <Form.Group>
+        <Row className="justify-content-end">
+          <Col>
+            <div className="border p-4 rounded">
+              <h3 className="mb-4">CHI TIẾT ĐẶT PHÒNG</h3>
+
+              <Form.Group className="mb-4">
                 <Form.Label>Ngày đến</Form.Label>
 
                 <Form.Control
@@ -38,23 +42,19 @@ const BookingBar = () => {
                   onChange={(e) => handleChange("checkIn", e.target.value)}
                 />
               </Form.Group>
-            </Col>
 
-            <Col md={3}>
-              <Form.Group>
+              <Form.Group className="mb-4">
                 <Form.Label>Ngày đi</Form.Label>
 
                 <Form.Control
                   type="date"
                   value={booking.checkOut}
-                  min={todayStr}
+                  min={booking.checkIn || todayStr}
                   onChange={(e) => handleChange("checkOut", e.target.value)}
                 />
               </Form.Group>
-            </Col>
 
-            <Col md={2}>
-              <Form.Group>
+              <Form.Group className="mb-4">
                 <Form.Label>Người lớn</Form.Label>
 
                 <Form.Select
@@ -70,10 +70,8 @@ const BookingBar = () => {
                   ))}
                 </Form.Select>
               </Form.Group>
-            </Col>
 
-            <Col md={2}>
-              <Form.Group>
+              <Form.Group className="mb-4">
                 <Form.Label>Trẻ em</Form.Label>
 
                 <Form.Select
@@ -89,18 +87,16 @@ const BookingBar = () => {
                   ))}
                 </Form.Select>
               </Form.Group>
-            </Col>
 
-            <Col md={2}>
-              <Button onClick={handleBooking} className="w-100">
-                ĐẶT PHÒNG
+              <Button onClick={handleBooking} className="w-100 mt-3">
+                Đặt phòng
               </Button>
-            </Col>
-          </Row>
-        </div>
+            </div>
+          </Col>
+        </Row>
       </Container>
     </div>
   );
 };
 
-export default BookingBar;
+export default RentingBarSide;

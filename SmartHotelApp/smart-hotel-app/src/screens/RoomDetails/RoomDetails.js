@@ -8,6 +8,7 @@ import Policy from "../../components/Policy";
 import AvailabilityCalendar from "../../components/Calender";
 import Location from "../../components/Location";
 import ImageCarousel from "../../components/ImageCarousel";
+import BookingBarSide from "../../components/BookingBarSide";
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -39,26 +40,43 @@ const RoomDetails = () => {
           KHÔNG có phòng nào!
         </Alert>
       )}
+
       <ImageCarousel images={images} text="" />
 
       <div className="mt-5">
-        <div className="container m-5">
-          <h2 className="text-bold text-black m-3 fs-1">{rooms.name}</h2>
-          <p className="fs-5">{rooms.note}</p>
-        </div>
-        <div className="border-bottom my-3"></div>
-        <div className="container m-5">
-          <Amenities />
-        </div>
-        <div className="border-bottom my-3"></div>
-        <div className="container m-5">
-          <Policy />
-        </div>
-        <div className="container m-5">
-          <AvailabilityCalendar />
-        </div>
-        <div className="container m-5">
-          <Location />
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-8">
+              <div className="m-5">
+                <h2 className="text-bold text-black m-3 fs-1">{rooms.name}</h2>
+
+                <p className="fs-5">{rooms.note}</p>
+              </div>
+
+              <div className="border-bottom my-3"></div>
+
+              <div className="m-5">
+                <Amenities />
+              </div>
+
+              <div className="border-bottom my-3"></div>
+
+              <div className="m-5">
+                <Policy />
+              </div>
+
+              <div className="m-5">
+                <AvailabilityCalendar />
+              </div>
+
+              <div className="m-5">
+                <Location />
+              </div>
+            </div>
+            <div className="col-lg-4">
+              <BookingBarSide />
+            </div>
+          </div>
         </div>
       </div>
     </>
