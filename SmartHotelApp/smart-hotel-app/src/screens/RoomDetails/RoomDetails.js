@@ -9,6 +9,7 @@ import AvailabilityCalendar from "../../components/Calender";
 import Location from "../../components/Location";
 import ImageCarousel from "../../components/ImageCarousel";
 import BookingBarSide from "../../components/BookingBarSide";
+import RentingBarSide from "../../components/RentingBarSide";
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -74,7 +75,7 @@ const RoomDetails = () => {
               </div>
             </div>
             <div className="col-lg-4">
-              <BookingBarSide />
+              <RentingBarSide room={rooms} />
             </div>
           </div>
         </div>

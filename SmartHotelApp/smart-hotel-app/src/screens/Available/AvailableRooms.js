@@ -4,7 +4,6 @@ import { Row, Col, Card, Button } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
 import { Alert } from "react-bootstrap";
-import RentingBarSide from "../../components/RentingBarSide";
 
 const AvailableRooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -71,7 +70,7 @@ const AvailableRooms = () => {
                     <Card.Body>
                       <Button
                         as={Link}
-                        to={`/rooms/${r.id}`}
+                        to={`/checkout/${r.id}`}
                         variant="dark"
                         className="mt-4"
                       >
@@ -82,9 +81,6 @@ const AvailableRooms = () => {
                 </Col>
               ))}
             </Row>
-          </Col>
-          <Col lg={4}>
-            <RentingBarSide />
           </Col>
         </Row>
       </div>

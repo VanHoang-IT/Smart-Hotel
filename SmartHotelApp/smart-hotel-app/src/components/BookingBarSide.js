@@ -3,13 +3,28 @@ import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { MyBookingContext } from "../configs/Contexts";
 
-const BookingBarSide = () => {
+const BookingBarSide = ({ room }) => {
   const navigate = useNavigate();
   const [booking, dispatch] = useContext(MyBookingContext);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
   const handleBooking = () => {
+    if (room) {
+      dispatch({
+        type: "ADD_ROOM",
+        payload: {
+          id: room.id,
+          name: room.name,
+          price: room.price,
+        },
+      });
+
+      navigate("/checkout");
+
+      return;
+    }
+
     navigate(
       `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}&adults=${booking.adults}&children=${booking.children}`,
     );

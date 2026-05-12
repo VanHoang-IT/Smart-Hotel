@@ -3,16 +3,28 @@ import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { MyBookingContext } from "../configs/Contexts";
 
-const RentingBarSide = () => {
+const RentingBarSide = ({ room }) => {
   const navigate = useNavigate();
+
   const [booking, dispatch] = useContext(MyBookingContext);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
+  const isAvailable = room?.status === "AVAILABLE";
+
   const handleBooking = () => {
-    navigate(
-      `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}&adults=${booking.adults}&children=${booking.children}`,
-    );
+    if (!room || !isAvailable) return;
+
+    dispatch({
+      type: "ADD_ROOM",
+      payload: {
+        id: room.id,
+        name: room.name,
+        price: room.price,
+      },
+    });
+
+    navigate("/checkout");
   };
 
   const handleChange = (field, value) => {
@@ -32,9 +44,15 @@ const RentingBarSide = () => {
             <div className="border p-4 rounded">
               <h3 className="mb-4">CHI TIẾT ĐẶT PHÒNG</h3>
 
+              <p>
+                Trạng thái:{" "}
+                <b className={isAvailable ? "text-success" : "text-danger"}>
+                  {room?.status}
+                </b>
+              </p>
+
               <Form.Group className="mb-4">
                 <Form.Label>Ngày đến</Form.Label>
-
                 <Form.Control
                   type="date"
                   value={booking.checkIn}
@@ -45,7 +63,6 @@ const RentingBarSide = () => {
 
               <Form.Group className="mb-4">
                 <Form.Label>Ngày đi</Form.Label>
-
                 <Form.Control
                   type="date"
                   value={booking.checkOut}
@@ -56,7 +73,6 @@ const RentingBarSide = () => {
 
               <Form.Group className="mb-4">
                 <Form.Label>Người lớn</Form.Label>
-
                 <Form.Select
                   value={booking.adults}
                   onChange={(e) =>
@@ -73,7 +89,6 @@ const RentingBarSide = () => {
 
               <Form.Group className="mb-4">
                 <Form.Label>Trẻ em</Form.Label>
-
                 <Form.Select
                   value={booking.children}
                   onChange={(e) =>
@@ -88,8 +103,13 @@ const RentingBarSide = () => {
                 </Form.Select>
               </Form.Group>
 
-              <Button onClick={handleBooking} className="w-100 mt-3">
-                Đặt phòng
+              <Button
+                onClick={handleBooking}
+                className="w-100 mt-3"
+                disabled={!isAvailable}
+                variant={isAvailable ? "primary" : "secondary"}
+              >
+                {isAvailable ? "Đặt phòng" : "Không khả dụng"}
               </Button>
             </div>
           </Col>

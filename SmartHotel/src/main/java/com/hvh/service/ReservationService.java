@@ -16,8 +16,12 @@ import java.util.Map;
 public interface ReservationService {
 
     List<ReservationResponseDTO> getReservations(Map<String, String> params);
-    
-    void addOrUpdateReservation(ReservationRequestDTO resDto);
-    
+
+    ReservationResponseDTO createReservation(ReservationRequestDTO dto);
+
+    ReservationResponseDTO updateReservation(ReservationRequestDTO dto);
+
     ReservationResponseDTO getReservationById(long id);
+    
+    ReservationResponseDTO cancelReservation(long id);
 }

@@ -1,82 +1,112 @@
-import { useSelector } from "react-redux";
+import { useContext } from "react";
+import { Alert, Button, Card, Form, Table } from "react-bootstrap";
+import { MyBookingContext, MyUserContext } from "../../configs/Contexts";
 
 const Checkout = () => {
-  const booking = useSelector((state) => state.booking);
+  const [booking] = useContext(MyBookingContext);
 
-  // tính số đêm
+  const [user] = useContext(MyUserContext);
+
+  if (!booking) {
+    return (
+      <Alert variant="warning" className="mt-3">
+        Không có dữ liệu đặt phòng!
+      </Alert>
+    );
+  }
+
   const getNights = () => {
     const checkIn = new Date(booking.checkIn);
+
     const checkOut = new Date(booking.checkOut);
-    const diff = checkOut - checkIn;
-    return diff / (1000 * 60 * 60 * 24);
+
+    return (checkOut - checkIn) / 86400000;
   };
 
   const nights = getNights();
 
-  // giả lập giá phòng
-  const pricePerNight = 50; // USD hoặc VND tùy bạn
-  const totalPrice = nights > 0 ? nights * pricePerNight : 0;
-
   return (
-    <div className="container mt-4">
-      <h2>Checkout</h2>
+    <>
+      <h1 className="text-center text-success mt-3">CHECKOUT</h1>
 
-      <div className="row mt-3">
-        {/* LEFT - Booking info */}
-        <div className="col-md-7">
-          <div className="card p-3">
-            <h5>Booking Information</h5>
+      <Card className="p-3 mt-3" lg={8}>
+        <h4 className="mb-3">Thông tin đặt phòng</h4>
 
-            <p>
-              <b>Check-in:</b> {booking.checkIn}
-            </p>
+        <Table striped bordered hover>
+          <tbody>
+            <tr>
+              <th>Check-in</th>
+              <td>{booking.checkIn}</td>
+            </tr>
 
-            <p>
-              <b>Check-out:</b> {booking.checkOut}
-            </p>
+            <tr>
+              <th>Check-out</th>
+              <td>{booking.checkOut}</td>
+            </tr>
 
-            <p>
-              <b>Nights:</b> {nights}
-            </p>
+            <tr>
+              <th>Số đêm</th>
+              <td>{nights}</td>
+            </tr>
 
-            <p>
-              <b>Adults:</b> {booking.adults}
-            </p>
+            <tr>
+              <th>Người lớn</th>
+              <td>{booking.adults}</td>
+            </tr>
 
-            <p>
-              <b>Children:</b> {booking.children}
-            </p>
-          </div>
+            <tr>
+              <th>Trẻ em</th>
+              <td>{booking.children}</td>
+            </tr>
 
-          {/* Guest info */}
-          <div className="card p-3 mt-3">
-            <h5>Guest Details</h5>
+            <tr>
+              <th>Tiền phòng</th>
+              <td>${booking.roomTotal}</td>
+            </tr>
 
-            <input className="form-control mb-2" placeholder="Full name" />
-            <input className="form-control mb-2" placeholder="Email" />
-            <input className="form-control mb-2" placeholder="Phone" />
-          </div>
-        </div>
+            <tr>
+              <th>Tiền dịch vụ</th>
+              <td>${booking.serviceTotal}</td>
+            </tr>
 
-        {/* RIGHT - Summary */}
-        <div className="col-md-5">
-          <div className="card p-3">
-            <h5>Price Summary</h5>
+            <tr>
+              <th>Tổng tiền</th>
+              <td className="text-danger fw-bold">${booking.totalAmount}</td>
+            </tr>
+          </tbody>
+        </Table>
+      </Card>
 
-            <p>Price per night: ${pricePerNight}</p>
-            <p>Nights: {nights}</p>
+      <Card className="p-3 mt-3">
+        <h4 className="mb-3">Thông tin khách hàng</h4>
 
-            <hr />
+        <Form>
+          <Form.Group className="mb-3 d-flex align-items-center">
+            <Form.Label style={{ width: "80px" }}>Họ tên</Form.Label>
 
-            <h5>Total: ${totalPrice}</h5>
+            <Form.Control type="text" value={user?.fullName || ""} readOnly />
+          </Form.Group>
 
-            <button className="btn btn-primary w-100 mt-3">
-              Proceed to Payment
-            </button>
-          </div>
-        </div>
+          <Form.Group className="mb-3 d-flex align-items-center">
+            <Form.Label style={{ width: "80px" }}>Email</Form.Label>
+
+            <Form.Control type="email" value={user?.email || ""} readOnly />
+          </Form.Group>
+
+          <Form.Group className="mb-3 d-flex align-items-center">
+            <Form.Label style={{ width: "80px" }}>Số điện thoại</Form.Label>
+
+            <Form.Control type="text" value={user?.phone || ""} readOnly />
+          </Form.Group>
+        </Form>
+      </Card>
+
+      <div className="d-flex m-3 text-center justify-content-center">
+        <Button variant="success" size="lg">
+          Thanh toán
+        </Button>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -16,6 +16,7 @@ import RoomTypes from "./screens/RoomType/RoomTypes";
 import BookingBar from "./components/BookingBar";
 import AvailableRooms from "./screens/Available/AvailableRooms";
 import MyBookingReducer, { initialState } from "./reducers/MyBookingReducer";
+import Checkout from "./screens/Checkout/Checkout";
 
 const App = () => {
   const [user, dispatch] = useReducer(
@@ -46,6 +47,7 @@ const App = () => {
             <Route path="/available" element={<AvailableRooms />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
 
           <Footer />

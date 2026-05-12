@@ -51,19 +51,24 @@ public class ApiReservationController {
 
     @PatchMapping("/secure/reservations/{id}/cancel")
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
-    public ResponseEntity<String> cancel(@PathVariable("id") long id) {
-        ReservationResponseDTO r = this.resService.getReservationById(id);
-        if (r != null) {
-            ReservationRequestDTO cancelDto = new ReservationRequestDTO();
-            cancelDto.setId(id);
-            cancelDto.setCheckIn(r.getCheckIn()); 
-            cancelDto.setCheckOut(r.getCheckOut());
-            cancelDto.setStatus("CANCELLED"); 
+    public ResponseEntity<?> cancel(@PathVariable("id") long id) {
 
-            this.resService.addOrUpdateReservation(cancelDto); 
-            return new ResponseEntity<>("CANCELLED", HttpStatus.OK);
+        ReservationResponseDTO r = this.resService.getReservationById(id);
+
+        if (r == null) {
+            return new ResponseEntity<>("Reservation Not Found", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("NOT FOUND", HttpStatus.NOT_FOUND);
+
+        ReservationResponseDTO updated = this.resService.cancelReservation(id);
+
+        return new ResponseEntity<>(updated, HttpStatus.OK);
+    }
+
+    @PostMapping("/secure/reservations")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public ResponseEntity<ReservationResponseDTO> create(@RequestBody ReservationRequestDTO dto) {
+        ReservationResponseDTO created = this.resService.createReservation(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PostMapping("/secure/reservations/{id}/service-orders")
@@ -73,17 +78,17 @@ public class ApiReservationController {
         orderDto.setReservationId(reservationId);
         this.serOrderService.addOrUpdate(orderDto);
     }
-    
+
     @GetMapping("/secure/reservations/{id}/service-orders")
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
     public ResponseEntity<List<ServiceOrderResponseDTO>> getOrdersByReservation(@PathVariable("id") Long resId) {
         Map<String, String> params = new HashMap<>();
         params.put("reservationId", resId.toString());
-        
+
         List<ServiceOrderResponseDTO> orders = this.serOrderService.getServiceOrders(params);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
-    
+
     @GetMapping("/secure/reservations/{id}/service-total")
     @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
     public ResponseEntity<BigDecimal> getTotalServiceAmount(@PathVariable("id") Long resId) {
