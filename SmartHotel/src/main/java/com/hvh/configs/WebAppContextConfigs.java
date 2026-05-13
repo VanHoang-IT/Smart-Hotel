@@ -44,8 +44,6 @@ public class WebAppContextConfigs implements WebMvcConfigurer {
         registry.addFormatter(new RoomTypeFormatter());
     }
 
-    
-
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
