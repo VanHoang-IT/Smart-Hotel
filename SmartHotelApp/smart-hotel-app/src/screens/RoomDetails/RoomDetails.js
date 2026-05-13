@@ -9,6 +9,8 @@ import AvailabilityCalendar from "../../components/Calender";
 import Location from "../../components/Location";
 import ImageCarousel from "../../components/ImageCarousel";
 import BookingBarSide from "../../components/BookingBarSide";
+import RentingBarSide from "../../components/RentingBarSide";
+import MySpinner from "../../components/MySpinner";
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -31,7 +33,11 @@ const RoomDetails = () => {
 
   const images = rooms?.roomImagesSet?.map((img) => img.imageUrl) || [];
   if (loading || !rooms) {
-    return <p>Loading...</p>;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+        <MySpinner />
+      </div>
+    );
   }
   return (
     <>
@@ -74,7 +80,7 @@ const RoomDetails = () => {
               </div>
             </div>
             <div className="col-lg-4">
-              <BookingBarSide />
+              <RentingBarSide roomPrice={rooms.price} roomId={rooms.id} />
             </div>
           </div>
         </div>

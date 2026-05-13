@@ -5,6 +5,9 @@ import java.util.List;
 
 public class ReservationRequestDTO {
 
+    private List<ReservationRoomRequestDTO> rooms;
+    private Long createdBy;
+
     /**
      * @return the status
      */
@@ -96,6 +99,19 @@ public class ReservationRequestDTO {
     private String status;
     public ReservationRequestDTO() {}
 
-    // Getters and Setters
-    
+    public List<ReservationRoomRequestDTO> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(List<ReservationRoomRequestDTO> rooms) {
+        this.rooms = rooms;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
 }

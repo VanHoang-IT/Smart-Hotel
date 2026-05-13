@@ -4,6 +4,7 @@
  */
 package com.hvh.repository;
 
+import com.hvh.dto.ReservationRequestDTO;
 import com.hvh.pojo.Reservation;
 import java.util.List;
 import java.util.Map;
@@ -17,4 +18,5 @@ public interface ReservationRepository {
     void addOrUpdateReservation(Reservation res);
     public Reservation getReservationById(long id);
     void updateStatus(long id, String status);
+    Reservation createReservation(ReservationRequestDTO dto);
 }

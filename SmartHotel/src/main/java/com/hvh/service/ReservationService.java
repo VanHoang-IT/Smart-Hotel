@@ -6,6 +6,7 @@ package com.hvh.service;
 
 import com.hvh.dto.ReservationRequestDTO;
 import com.hvh.dto.ReservationResponseDTO;
+import com.hvh.pojo.Reservation;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public interface ReservationService {
 
     List<ReservationResponseDTO> getReservations(Map<String, String> params);
     
-    void addOrUpdateReservation(ReservationRequestDTO resDto);
+    Reservation addOrUpdateReservation(ReservationRequestDTO resDto);
     
     ReservationResponseDTO getReservationById(long id);
 }

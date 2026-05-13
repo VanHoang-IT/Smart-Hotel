@@ -5,6 +5,7 @@ import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
 import { Alert } from "react-bootstrap";
 import RentingBarSide from "../../components/RentingBarSide";
+import BookingBarSide from "../../components/BookingBarSide";
 
 const AvailableRooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -84,7 +85,7 @@ const AvailableRooms = () => {
             </Row>
           </Col>
           <Col lg={4}>
-            <RentingBarSide />
+            <BookingBarSide />
           </Col>
         </Row>
       </div>

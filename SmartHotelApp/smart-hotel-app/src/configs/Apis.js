@@ -8,6 +8,7 @@ export const endpoints = {
   roomDetails: (id) => `/rooms/${id}`,
   extraServices: "/services",
   register: "/users",
+  createReservation:'/secure/reservations',
   login: "/login",
   profile: "/secure/profile",
   reservations: "/secure/reservations",

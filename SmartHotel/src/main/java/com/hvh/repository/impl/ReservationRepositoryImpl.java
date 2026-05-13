@@ -4,8 +4,15 @@
  */
 package com.hvh.repository.impl;
 
+import com.hvh.dto.ReservationRequestDTO;
+import com.hvh.dto.ReservationRoomRequestDTO;
+import com.hvh.pojo.CustomerProfile;
 import com.hvh.pojo.Reservation;
+import com.hvh.pojo.ReservationRoom;
+import com.hvh.pojo.Room;
+import com.hvh.pojo.User;
 import com.hvh.repository.ReservationRepository;
+import java.util.Date;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -98,7 +105,37 @@ public class ReservationRepositoryImpl implements ReservationRepository{
 
     @Override
     public void updateStatus(long id, String status) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
+    @Override
+    public Reservation createReservation(ReservationRequestDTO dto) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        Reservation res = new Reservation();
+        res.setCreatedAt(new Date());
+        res.setCheckIn(dto.getCheckIn());
+        res.setCheckOut(dto.getCheckOut());
+        res.setStatus(dto.getStatus() != null ? dto.getStatus() : "PENDING");
+        res.setCustomerId(session.getReference(CustomerProfile.class, dto.getCustomerId()));
+
+        if (dto.getCreatedBy() != null) {
+            res.setCreatedBy(session.getReference(User.class, dto.getCreatedBy()));
+        }
+
+        session.persist(res);
+
+        if (dto.getRooms() != null) {
+            for (ReservationRoomRequestDTO roomDto : dto.getRooms()) {
+                ReservationRoom rr = new ReservationRoom();
+                rr.setReservationId(res);
+                rr.setRoomId(session.getReference(Room.class, roomDto.getRoomId()));
+                rr.setPricePerNight(roomDto.getPricePerNight());
+                rr.setNotes(roomDto.getNotes());
+                session.persist(rr);
+            }
+        }
+        return res;
+    }
+
 }
