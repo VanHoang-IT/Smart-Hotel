@@ -62,4 +62,10 @@ public class UserRepositoryImpl implements UserRepository {
 
         return this.passwordEncoder.matches(password, u.getPassword());
     }
+    
+    @Override
+    public User getUserById(Long id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        return session.get(User.class, id);
+    }
 }

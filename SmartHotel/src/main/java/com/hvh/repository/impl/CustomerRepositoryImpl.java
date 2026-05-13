@@ -28,5 +28,9 @@ public class CustomerRepositoryImpl implements CustomerRepository{
         return session.get(CustomerProfile.class, id);
     }
     
-        
+    @Override
+    public void addCustomerProfile(CustomerProfile profile) {
+        Session session = this.factory.getObject().getCurrentSession();
+        session.persist(profile);
+    }    
 }

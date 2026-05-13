@@ -54,6 +54,9 @@ const Header = () => {
             <Nav.Link as={Link} to="/contact">
               Liên hệ
             </Nav.Link>
+            <Nav.Link as={Link} to="/cart">
+              Giỏ hàng
+            </Nav.Link>
           </Nav>
 
           {user === null ? (

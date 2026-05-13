@@ -8,8 +8,11 @@ import com.hvh.dto.ReservationRequestDTO;
 import com.hvh.dto.ReservationResponseDTO;
 import com.hvh.dto.ServiceOrderRequestDTO;
 import com.hvh.dto.ServiceOrderResponseDTO;
+import com.hvh.pojo.User;
 import com.hvh.service.ReservationService;
 import com.hvh.service.ServiceOrderService;
+import com.hvh.service.UserService;
+import org.springframework.security.core.Authentication;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +47,22 @@ public class ApiReservationController {
     @Autowired
     private ServiceOrderService serOrderService;
 
-    @GetMapping("/reservations")
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/secure/reservations")
+    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN', 'CUSTOMER')")
+    public ResponseEntity<?> createReservation(@RequestBody ReservationRequestDTO dto, Authentication auth) {
+        User currentUser = this.userService.getUserByUsername(auth.getName());
+        dto.setCreatedBy(currentUser.getId());
+        com.hvh.pojo.Reservation newReservation = this.resService.addOrUpdateReservation(dto);
+        java.util.Map<String, Long> response = new java.util.HashMap<>();
+        response.put("id", newReservation.getId());
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/secure/reservations")
     public ResponseEntity<List<ReservationResponseDTO>> list(@RequestParam Map<String, String> params) {
         return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
     }
@@ -56,34 +74,34 @@ public class ApiReservationController {
         if (r != null) {
             ReservationRequestDTO cancelDto = new ReservationRequestDTO();
             cancelDto.setId(id);
-            cancelDto.setCheckIn(r.getCheckIn()); 
+            cancelDto.setCheckIn(r.getCheckIn());
             cancelDto.setCheckOut(r.getCheckOut());
-            cancelDto.setStatus("CANCELLED"); 
+            cancelDto.setStatus("CANCELLED");
 
-            this.resService.addOrUpdateReservation(cancelDto); 
+            this.resService.addOrUpdateReservation(cancelDto);
             return new ResponseEntity<>("CANCELLED", HttpStatus.OK);
         }
         return new ResponseEntity<>("NOT FOUND", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/secure/reservations/{id}/service-orders")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public void createServiceOrder(@PathVariable("id") Long reservationId, @RequestBody ServiceOrderRequestDTO orderDto) {
         orderDto.setReservationId(reservationId);
         this.serOrderService.addOrUpdate(orderDto);
     }
-    
+
     @GetMapping("/secure/reservations/{id}/service-orders")
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
     public ResponseEntity<List<ServiceOrderResponseDTO>> getOrdersByReservation(@PathVariable("id") Long resId) {
         Map<String, String> params = new HashMap<>();
         params.put("reservationId", resId.toString());
-        
+
         List<ServiceOrderResponseDTO> orders = this.serOrderService.getServiceOrders(params);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
-    
+
     @GetMapping("/secure/reservations/{id}/service-total")
     @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
     public ResponseEntity<BigDecimal> getTotalServiceAmount(@PathVariable("id") Long resId) {
