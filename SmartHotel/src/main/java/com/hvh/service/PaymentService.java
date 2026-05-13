@@ -6,12 +6,15 @@ package com.hvh.service;
 
 import com.hvh.pojo.Payment;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author 03358
  */
 public interface PaymentService {
-    void addPayment(Payment p);
+    void addPayment(Map<String, Object> payload);
     List<Payment> getPaymentsByReservation(long resId);
+    Map<String, Object> createMoMoPayment(Long reservationId, Long amount) throws Exception;
+    void processMoMoPayment(Map<String, Object> callbackData);
 }

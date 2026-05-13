@@ -13,6 +13,7 @@ export const endpoints = {
   profile: "/secure/profile",
   reservations: "/secure/reservations",
   payments: "/secure/payments",
+  momoLink: "/secure/payments/momo-link",
   cancelReservation: (id) => `/secure/reservations/${id}/cancel`,
   serviceOrders: (id) => `/secure/reservations/${id}/service-orders`,
   serviceTotal: (id) => `/secure/reservations/${id}/service-total`,
