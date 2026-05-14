@@ -1,14 +1,20 @@
 package com.hvh.service.impl;
 
+import com.hvh.dto.ReservationDetailDTO;
 import com.hvh.dto.ReservationRequestDTO;
 import com.hvh.dto.ReservationResponseDTO;
 import com.hvh.pojo.CustomerProfile;
+import com.hvh.pojo.Payment;
 import com.hvh.pojo.Reservation;
+import com.hvh.pojo.ReservationRoom;
+import com.hvh.pojo.ServiceOrder;
 import com.hvh.pojo.User;
 import com.hvh.repository.CustomerRepository;
+import com.hvh.repository.PaymentRepository;
 import com.hvh.repository.ReservationRepository;
 import com.hvh.repository.UserRepository;
 import com.hvh.service.ReservationService;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +34,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private CustomerRepository customerRepo;
+
+    @Autowired
+    private PaymentRepository paymentRepo;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,6 +85,75 @@ public class ReservationServiceImpl implements ReservationService {
         } 
         
         return savedReservation;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReservationDetailDTO getReservationDetailById(long id) {
+        Reservation res = this.resRepo.getReservationById(id);
+        if (res == null) return null;
+
+        ReservationDetailDTO dto = new ReservationDetailDTO();
+        dto.setId(res.getId());
+        dto.setCheckIn(res.getCheckIn());
+        dto.setCheckOut(res.getCheckOut());
+        dto.setStatus(res.getStatus());
+        dto.setCreatedAt(res.getCreatedAt());
+
+        if (res.getCustomerId() != null && res.getCustomerId().getUserId() != null) {
+            dto.setCustomerName(res.getCustomerId().getUserId().getFullName());
+        }
+        if (res.getCreatedBy() != null) {
+            dto.setCreatedByName(res.getCreatedBy().getUsername());
+        }
+
+        // Rooms
+        List<ReservationDetailDTO.RoomItem> rooms = new ArrayList<>();
+        if (res.getReservationRoomSet() != null) {
+            for (ReservationRoom rr : res.getReservationRoomSet()) {
+                String roomName = rr.getRoomId() != null ? rr.getRoomId().getName() : null;
+                rooms.add(new ReservationDetailDTO.RoomItem(
+                        rr.getId(), roomName, rr.getPricePerNight()));
+            }
+        }
+        dto.setRooms(rooms);
+
+        // Service orders
+        List<ReservationDetailDTO.ServiceOrderItem> orders = new ArrayList<>();
+        if (res.getServiceOrderSet() != null) {
+            for (ServiceOrder so : res.getServiceOrderSet()) {
+                String svcName = so.getServiceId() != null ? so.getServiceId().getName() : null;
+                orders.add(new ReservationDetailDTO.ServiceOrderItem(
+                        so.getId(), svcName, so.getQty(),
+                        so.getUnitPrice(), so.getAmount(),
+                        so.getStatus(), so.getOrderedAt()));
+            }
+        }
+        dto.setServiceOrders(orders);
+
+        // Payments
+        List<Payment> payments = this.paymentRepo.getPaymentsByReservation(id);
+        List<ReservationDetailDTO.PaymentItem> paymentItems = new ArrayList<>();
+        for (Payment p : payments) {
+            paymentItems.add(new ReservationDetailDTO.PaymentItem(
+                    p.getId(), p.getAmount(), p.getMethod(),
+                    p.getStatus(), p.getTransactionId(),
+                    p.getPaidAt(), p.getCreatedAt()));
+        }
+        dto.setPayments(paymentItems);
+
+        return dto;
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(long id, String status) {
+        Reservation res = this.resRepo.getReservationById(id);
+        if (res == null) {
+            throw new RuntimeException("Không tìm thấy reservation với ID: " + id);
+        }
+        res.setStatus(status);
+        this.resRepo.addOrUpdateReservation(res);
     }
 
     private ReservationResponseDTO toResponseDTO(Reservation res) {

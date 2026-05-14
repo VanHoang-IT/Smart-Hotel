@@ -47,16 +47,14 @@ const Header = () => {
                 </NavDropdown.Item>
               ))}
             </NavDropdown>
-
-            <Nav.Link as={Link} to="/about-us">
-              About Us
-            </Nav.Link>
-            <Nav.Link as={Link} to="/contact">
-              Liên hệ
-            </Nav.Link>
             <Nav.Link as={Link} to="/cart">
               Giỏ hàng
             </Nav.Link>
+            {user && user.role === "RECEPTIONIST" && (
+              <Nav.Link as={Link} to="/reservation">
+                Đơn đặt phòng
+              </Nav.Link>
+            )}
           </Nav>
 
           {user === null ? (

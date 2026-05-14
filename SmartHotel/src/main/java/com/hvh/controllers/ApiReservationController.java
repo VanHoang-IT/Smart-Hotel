@@ -4,6 +4,7 @@
  */
 package com.hvh.controllers;
 
+import com.hvh.dto.ReservationDetailDTO;
 import com.hvh.dto.ReservationRequestDTO;
 import com.hvh.dto.ReservationResponseDTO;
 import com.hvh.dto.ServiceOrderRequestDTO;
@@ -67,6 +68,31 @@ public class ApiReservationController {
         return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
     }
 
+    @GetMapping("/secure/reservations/{id}")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    public ResponseEntity<ReservationDetailDTO> getById(@PathVariable("id") long id) {
+        ReservationDetailDTO r = this.resService.getReservationDetailById(id);
+        if (r == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(r, HttpStatus.OK);
+    }
+
+    @PatchMapping("/secure/reservations/{id}/status")
+    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    public ResponseEntity<String> updateReservationStatus(
+            @PathVariable("id") long id,
+            @RequestBody Map<String, String> body) {
+        String status = body.get("status");
+        if (status == null || status.isBlank()) {
+            return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
+        }
+        try {
+            this.resService.updateStatus(id, status);
+            return new ResponseEntity<>(status, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PatchMapping("/secure/reservations/{id}/cancel")
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
     public ResponseEntity<String> cancel(@PathVariable("id") long id) {
@@ -107,5 +133,33 @@ public class ApiReservationController {
     public ResponseEntity<BigDecimal> getTotalServiceAmount(@PathVariable("id") Long resId) {
         BigDecimal total = this.serOrderService.getTotalAmountByReservation(resId);
         return new ResponseEntity<>(total, HttpStatus.OK);
+    }
+
+    @PatchMapping("/secure/service-orders/{id}/status")
+    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    public ResponseEntity<String> updateServiceOrderStatus(
+            @PathVariable("id") Long id,
+            @RequestBody Map<String, String> body) {
+        String status = body.get("status");
+        if (status == null || status.isBlank()) {
+            return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
+        }
+        try {
+            this.serOrderService.updateStatus(id, status);
+            return new ResponseEntity<>(status, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PatchMapping("/secure/service-orders/{id}/cancel")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    public ResponseEntity<String> cancelServiceOrder(@PathVariable("id") Long id) {
+        try {
+            this.serOrderService.cancelOrder(id);
+            return new ResponseEntity<>("CANCELED", HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

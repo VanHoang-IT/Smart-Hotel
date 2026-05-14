@@ -12,11 +12,15 @@ export const endpoints = {
   login: "/login",
   profile: "/secure/profile",
   reservations: "/secure/reservations",
+  reservationDetail: (id) => `/secure/reservations/${id}`,
+  updateReservationStatus: (id) => `/secure/reservations/${id}/status`,
   payments: "/secure/payments",
   momoLink: "/secure/payments/momo-link",
   cancelReservation: (id) => `/secure/reservations/${id}/cancel`,
   serviceOrders: (id) => `/secure/reservations/${id}/service-orders`,
+  updateServiceOrderStatus: (id) => `/secure/service-orders/${id}/status`,
   serviceTotal: (id) => `/secure/reservations/${id}/service-total`,
+  updatePaymentStatus: (id) => `/secure/payments/${id}/status`,
 };
 
 export const authApis = () => {
