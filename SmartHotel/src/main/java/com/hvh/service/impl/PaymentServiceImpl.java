@@ -6,8 +6,11 @@ package com.hvh.service.impl;
 
 import com.hvh.pojo.Payment;
 import com.hvh.pojo.Reservation;
+import com.hvh.pojo.ReservationRoom;
+import com.hvh.pojo.Room;
 import com.hvh.repository.PaymentRepository;
 import com.hvh.repository.ReservationRepository;
+import com.hvh.repository.RoomRepository;
 import com.hvh.service.PaymentService;
 import com.hvh.utils.MoMoSecurity;
 import java.math.BigDecimal;
@@ -33,26 +36,40 @@ public class PaymentServiceImpl implements PaymentService {
     private ReservationRepository reservationRepo;
     @Autowired
     private RestTemplate restTemplate;
-
+    @Autowired
+    private RoomRepository roomRepo;
+    
     private final String partnerCode = "MOMO";
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
 
     @Override
+    @Transactional
     public void addPayment(Map<String, Object> payload) {
         Long resId = Long.valueOf(payload.get("reservationId").toString());
         BigDecimal amount = new BigDecimal(payload.get("amount").toString());
         String method = payload.get("method").toString();
-        Payment payment = new Payment();
-        payment.setAmount(amount);
-        payment.setMethod(method);
-        payment.setStatus("PENDING");
-        payment.setCreatedAt(new Date());
-        Reservation reservation = new Reservation();
-        reservation.setId(resId);
-        payment.setReservationId(reservation);
-        this.paymentRepo.addPayment(payment);
+        Reservation res = this.reservationRepo.getReservationById(resId);
+        if (res != null) {
+            res.setStatus("PENDING");
+            this.reservationRepo.addOrUpdateReservation(res);
+
+            if (res.getReservationRoomSet() != null) {
+                for (com.hvh.pojo.ReservationRoom rr : res.getReservationRoomSet()) {
+                    com.hvh.pojo.Room room = rr.getRoomId();
+                    room.setStatus("OCCUPIED");
+                    this.roomRepo.addOrUpdateRoom(room); 
+                }
+            }
+            Payment payment = new Payment();
+            payment.setAmount(amount);
+            payment.setMethod(method);
+            payment.setStatus("PENDING"); 
+            payment.setCreatedAt(new Date());
+            payment.setReservationId(res);
+            this.paymentRepo.addPayment(payment);
+        }
     }
 
     @Override
@@ -66,7 +83,7 @@ public class PaymentServiceImpl implements PaymentService {
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderInfo = "Thanh toán SmartHotel. Đơn: " + reservationId;
         String redirectUrl = "http://localhost:3000/cart";
-        String ipnUrl = "https://why-embody-playful.ngrok-free.dev/SmartHotel/api/public/payments/momo-callback";        
+        String ipnUrl = "https://why-embody-playful.ngrok-free.dev/SmartHotel/api/public/payments/momo-callback";
         String requestType = "captureWallet";
         String extraData = "";
 
@@ -103,19 +120,44 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public void processMoMoPayment(Map<String, Object> callbackData) {
         if ("0".equals(String.valueOf(callbackData.get("resultCode")))) {
-            Payment p = new Payment();
             String orderId = callbackData.get("orderId").toString();
             Long resId = Long.parseLong(orderId.split("_")[0]);
             Reservation res = this.reservationRepo.getReservationById(resId);
-            p.setReservationId(res);
-            p.setAmount(new BigDecimal(callbackData.get("amount").toString()));
-            p.setMethod("E_WALLET");
-            p.setTransactionId(callbackData.get("transId").toString());
-            p.setStatus("COMPLETED");
-            p.setPaidAt(new Date());
-            p.setCreatedAt(new Date());
+            if (res != null) {
+                res.setStatus("CONFIRMED");
+                this.reservationRepo.addOrUpdateReservation(res);
+                if (res.getReservationRoomSet() != null) {
+                    for (ReservationRoom rr : res.getReservationRoomSet()) {
+                        com.hvh.pojo.Room room = rr.getRoomId();
+                        room.setStatus("OCCUPIED");
+                        this.roomRepo.addOrUpdateRoom(room); 
+                    }
+                }
+                Payment p = new Payment();
+                p.setReservationId(res);
+                p.setAmount(new BigDecimal(callbackData.get("amount").toString()));
+                p.setMethod("E_WALLET");
+                p.setTransactionId(callbackData.get("transId").toString());
+                p.setStatus("COMPLETED");
+                p.setPaidAt(new Date());
+                p.setCreatedAt(new Date());
 
-            this.paymentRepo.addPayment(p);
+                this.paymentRepo.addPayment(p);
+            }
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(long id, String status) {
+        Payment p = this.paymentRepo.getById(id);
+        if (p == null) {
+            throw new RuntimeException("Không tìm thấy payment với ID: " + id);
+        }
+        p.setStatus(status);
+        if ("COMPLETED".equals(status)) {
+            p.setPaidAt(new Date());
+        }
+        this.paymentRepo.updatePayment(p);
     }
 }

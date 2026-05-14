@@ -119,7 +119,7 @@ const Cart = () => {
                         amount: calculateTotal(),
                         method: "CASH"
                     });
-                    alert("Đặt phòng thành công! Quý khách vui lòng thanh toán tiền mặt khi nhận phòng.");
+                    alert("Đặt phòng thành công! Vui lòng thanh toán tiền mặt vào ngày checkin.");
                     finishPayment();
                 } 
                 else if (methodType === "MOMO") {

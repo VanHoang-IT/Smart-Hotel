@@ -6,11 +6,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /*
@@ -49,15 +51,10 @@ public class ApiPaymentController {
             return new ResponseEntity<>(result, HttpStatus.OK);
             
         } catch (org.springframework.web.client.HttpStatusCodeException e) {
-            // ĐÂY LÀ LỖI DO MOMO TRẢ VỀ
             String momoError = e.getResponseBodyAsString();
-            System.err.println("===== LỖI TỪ MOMO =====");
-            System.err.println(momoError);
-            System.err.println("=======================");
             return new ResponseEntity<>(momoError, HttpStatus.BAD_REQUEST);
             
         } catch (Exception e) {
-            // Lỗi hệ thống nội bộ
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -65,19 +62,29 @@ public class ApiPaymentController {
 
     @PostMapping("/public/payments/momo-callback")
     public ResponseEntity<Void> momoCallback(@RequestBody Map<String, Object> body) {
-        System.out.println("\n=========================================");
-        System.out.println("🔔 MOMO VỪA GỌI VỀ IPN CALLBACK!");
-        System.out.println("Dữ liệu MoMo gửi sang: " + body);
-        System.out.println("=========================================\n");
-        
         try {
             this.paymentService.processMoMoPayment(body);
-            System.out.println("✅ ĐÃ LƯU BẢNG PAYMENT VÀO DATABASE THÀNH CÔNG!");
         } catch (Exception e) {
-            System.err.println("❌ LỖI RỒI: KHÔNG THỂ LƯU PAYMENT:");
-            e.printStackTrace(); // Lệnh này sẽ in ra nguyên nhân lỗi chi tiết
+            e.printStackTrace();
         }
-        
+
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/secure/payments/{id}/status")
+    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    public ResponseEntity<String> updatePaymentStatus(
+            @PathVariable("id") long id,
+            @RequestBody Map<String, String> body) {
+        String status = body.get("status");
+        if (status == null || status.isBlank()) {
+            return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
+        }
+        try {
+            this.paymentService.updateStatus(id, status);
+            return new ResponseEntity<>(status, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 }

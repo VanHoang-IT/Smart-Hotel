@@ -38,9 +38,19 @@ public class PaymentRepositoryImpl implements PaymentRepository{
         CriteriaBuilder b = s.getCriteriaBuilder();
         CriteriaQuery<Payment> q = b.createQuery(Payment.class);
         Root root = q.from(Payment.class);
-        q.where(b.equal(root.get("reservation").get("id"), resId));
+        q.where(b.equal(root.get("reservationId").get("id"), resId));
         return s.createQuery(q).getResultList();
     }
-    
-    
+
+    @Override
+    public Payment getById(long id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.get(Payment.class, id);
+    }
+
+    @Override
+    public void updatePayment(Payment p) {
+        Session s = this.factory.getObject().getCurrentSession();
+        s.merge(p);
+    }
 }

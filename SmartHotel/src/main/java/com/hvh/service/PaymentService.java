@@ -17,4 +17,5 @@ public interface PaymentService {
     List<Payment> getPaymentsByReservation(long resId);
     Map<String, Object> createMoMoPayment(Long reservationId, Long amount) throws Exception;
     void processMoMoPayment(Map<String, Object> callbackData);
+    void updateStatus(long id, String status);
 }

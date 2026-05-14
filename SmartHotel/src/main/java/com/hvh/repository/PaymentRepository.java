@@ -14,4 +14,6 @@ import java.util.List;
 public interface PaymentRepository {
     void addPayment(Payment p);
     List<Payment> getPaymentsByReservation(long resId);
+    Payment getById(long id);
+    void updatePayment(Payment p);
 }
