@@ -11,7 +11,7 @@ const BookingBarSide = () => {
 
   const handleBooking = () => {
     navigate(
-      `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}&adults=${booking.adults}&children=${booking.children}`,
+      `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}`,
     );
   };
 
@@ -27,7 +27,7 @@ const BookingBarSide = () => {
   return (
     <div className="mt-4">
       <Container>
-        <Row className="justify-content-end">
+        <Row className="justify-content-center">
           <Col>
             <div className="border p-4 rounded">
               <h3 className="mb-4">KIỂM TRA PHÒNG TRỐNG</h3>
@@ -52,40 +52,6 @@ const BookingBarSide = () => {
                   min={booking.checkIn || todayStr}
                   onChange={(e) => handleChange("checkOut", e.target.value)}
                 />
-              </Form.Group>
-
-              <Form.Group className="mb-4">
-                <Form.Label>Người lớn</Form.Label>
-
-                <Form.Select
-                  value={booking.adults}
-                  onChange={(e) =>
-                    handleChange("adults", Number(e.target.value))
-                  }
-                >
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group className="mb-4">
-                <Form.Label>Trẻ em</Form.Label>
-
-                <Form.Select
-                  value={booking.children}
-                  onChange={(e) =>
-                    handleChange("children", Number(e.target.value))
-                  }
-                >
-                  {[0, 1, 2, 3].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </Form.Select>
               </Form.Group>
 
               <Button onClick={handleBooking} className="w-100 mt-3">

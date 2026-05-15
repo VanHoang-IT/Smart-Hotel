@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Badge, Alert } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
 import BookingBarSide from "../../components/BookingBarSide";
 
-const typeDescriptions = {
-  "Standard Single":
-    "Không gian gọn gàng, tiện nghi cơ bản, lý tưởng cho khách đi một mình.",
-  "Deluxe Double":
-    "Phòng rộng rãi với giường đôi thoải mái, phù hợp cho cặp đôi hoặc nghỉ dưỡng.",
-  "VIP Suite":
-    "Hạng phòng cao cấp, không gian riêng biệt và tiện nghi sang trọng.",
+
+const renderRoomStatus = (status) => {
+  switch (status) {
+    case "AVAILABLE":
+      return <Badge bg="success">Sẵn sàng</Badge>;
+    case "OCCUPIED":
+      return <Badge bg="danger">Đã đặt trước</Badge>;
+    case "CLEANING":
+      return <Badge bg="warning" text="dark">Đang dọn dẹp</Badge>;
+    case "MAINTENANCE":
+      return <Badge bg="secondary">Đang bảo trì</Badge>;
+    default:
+      return <Badge bg="info">{status}</Badge>;
+  }
 };
 
 const RoomType = () => {
@@ -19,18 +26,17 @@ const RoomType = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [typeName, setTypeName] = useState("");
+  const [typeDescription, setTypeDescription] = useState("");
 
   useEffect(() => {
     const loadRooms = async () => {
       try {
         setLoading(true);
-
-        let res = await Apis.get(`${endpoints["rooms"]}?typeId=${typeId}`);
-
+        const res = await Apis.get(`${endpoints["rooms"]}?typeId=${typeId}`);
         setRooms(res.data);
-
         if (res.data.length > 0) {
           setTypeName(res.data[0].roomType?.name || "");
+          setTypeDescription(res.data[0].roomType?.description || "");
         }
       } catch (err) {
         console.error(err);
@@ -38,11 +44,8 @@ const RoomType = () => {
         setLoading(false);
       }
     };
-
     loadRooms();
   }, [typeId]);
-
-  const Descriptions = typeDescriptions[typeName] || typeDescriptions.Default;
 
   if (loading) return <MySpinner />;
 
@@ -50,58 +53,60 @@ const RoomType = () => {
     <Container className="my-5">
       <Row>
         <Col lg={8}>
-          <h2 className="text-uppercase fs-1 mb-3">
-            {typeName || "Danh mục phòng"}
-          </h2>
+          <h2 className="text-uppercase fs-1 mb-3">{typeName || "Danh mục phòng"}</h2>
+          {typeDescription && <p className="text-muted fs-5 mb-3">{typeDescription}</p>}
+          <hr className="mb-4" />
 
-          <p className="text-muted fs-5 mb-3">{Descriptions}</p>
-
-          <hr className="mb-4 w-27" />
+          {rooms.length === 0 && (
+            <Alert variant="info">KHÔNG có phòng nào!</Alert>
+          )}
 
           <Row>
-            {rooms.length === 0 && (
-              <Col>
-                <div className="alert alert-info">KHÔNG có phòng nào!</div>
-              </Col>
-            )}
-
-            {rooms.map((r) => (
-              <Col xs={12} md={6} lg={12} key={r.id} className="mb-4">
-                <Card className="h-100 shadow-sm border-2 m-4">
-                  <Link to={`/rooms/${r.id}`}>
-                    <Card.Img src={r.mainImage} />
-                  </Link>
-
-                  <Card.Body>
-                    <Card.Title className="font-bold fs-3">
-                      <Link
-                        to={`/rooms/${r.id}`}
-                        className="text-decoration-none text-dark"
-                      >
-                        {r.name}
-                      </Link>
-                    </Card.Title>
-
-                    <Card.Text>
-                      {Number(r.price).toLocaleString("vi-VN")} VND / đêm
-                    </Card.Text>
-
-                    <Card.Text className="f6-6 text-muted">{r.note}</Card.Text>
-
-                    <Button
-                      as={Link}
-                      to={`/rooms/${r.id}`}
-                      variant="dark"
-                      size="fs-6"
+            {rooms.map((r) => {
+              const isOccupied = r.status === "OCCUPIED";
+              return (
+                <Col xs={12} md={6} key={r.id} className="mb-4">
+                  <Card className="shadow-sm border-2 h-100">
+                    <Link
+                      to={isOccupied ? "#" : `/rooms/${r.id}`}
+                      style={{ pointerEvents: isOccupied ? "none" : "auto" }}
                     >
-                      ĐẶT PHÒNG
-                    </Button>
-                  </Card.Body>
-                </Card>
-
-                <hr className="mt-2 w-27" />
-              </Col>
-            ))}
+                      <Card.Img
+                        variant="top"
+                        src={r.mainImage}
+                        style={{ height: 250, objectFit: "cover" }}
+                      />
+                    </Link>
+                    <Card.Body>
+                      <Link
+                        to={isOccupied ? "#" : `/rooms/${r.id}`}
+                        className="text-decoration-none text-dark"
+                        style={{ pointerEvents: isOccupied ? "none" : "auto" }}
+                      >
+                        <Card.Title>{r.name}</Card.Title>
+                      </Link>
+                      <Card.Text>
+                        {Number(r.price).toLocaleString("vi-VN")} VND / đêm
+                      </Card.Text>
+                      <Card.Text>
+                        <strong>Trạng thái: </strong>{renderRoomStatus(r.status)}
+                      </Card.Text>
+                      <Card.Text className="text-muted">{r.note}</Card.Text>
+                    </Card.Body>
+                    <Card.Body>
+                      <Button
+                        as={isOccupied ? "button" : Link}
+                        to={isOccupied ? undefined : `/rooms/${r.id}`}
+                        disabled={isOccupied}
+                        variant={isOccupied ? "secondary" : "dark"}
+                      >
+                        {isOccupied ? "ĐÃ ĐẶT TRƯỚC" : "ĐẶT PHÒNG"}
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
           </Row>
         </Col>
 

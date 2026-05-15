@@ -15,23 +15,27 @@ import MySpinner from "../../components/MySpinner";
 const RoomDetails = () => {
   const { id } = useParams();
   const [rooms, setRooms] = useState(null);
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadRooms = async () => {
       try {
         setLoading(true);
-        let res = await Apis.get(endpoints.roomDetails(id));
-        setRooms(res.data);
+        const [roomRes, imgRes] = await Promise.all([
+          Apis.get(endpoints.roomDetails(id)),
+          Apis.get(endpoints.roomImages(id)),
+        ]);
+        setRooms(roomRes.data);
+        setImages(imgRes.data.map(img => img.imageUrl));
       } catch (ex) {
+        console.error(ex);
       } finally {
         setLoading(false);
       }
     };
     loadRooms();
   }, [id]);
-
-  const images = rooms?.roomImagesSet?.map((img) => img.imageUrl) || [];
   if (loading || !rooms) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
@@ -72,7 +76,7 @@ const RoomDetails = () => {
               </div>
 
               <div className="m-5">
-                <AvailabilityCalendar />
+                <AvailabilityCalendar roomId={id} />
               </div>
 
               <div className="m-5">

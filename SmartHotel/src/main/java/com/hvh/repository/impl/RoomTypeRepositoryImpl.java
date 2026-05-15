@@ -28,7 +28,30 @@ public class RoomTypeRepositoryImpl implements RoomTypeRepository{
     @Override
     public List<RoomType> getType(){
         Session session = this.factory.getObject().getCurrentSession();
-            Query query = session.createQuery("FROM RoomType", RoomType.class);
-            return query.getResultList();
+        Query query = session.createQuery("FROM RoomType", RoomType.class);
+        return query.getResultList();
+    }
+
+    @Override
+    public void addOrUpdate(RoomType rt) {
+        Session session = this.factory.getObject().getCurrentSession();
+        if (rt.getId() != null) {
+            session.merge(rt);
+        } else {
+            session.persist(rt);
+        }
+    }
+
+    @Override
+    public RoomType getById(Long id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        return session.get(RoomType.class, id);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        RoomType rt = this.getById(id);
+        if (rt != null) session.remove(rt);
     }
 }

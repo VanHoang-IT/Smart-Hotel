@@ -1,12 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Card, Row, Col, Table, Form, Button, Badge, Spinner, Alert } from "react-bootstrap";
 import { authApis, endpoints } from "../../configs/Apis";
+import { MyUserContext } from "../../configs/Contexts";
+
+const statusLabel = {
+    PENDING:     "Chờ thanh toán",
+    CONFIRMED:   "Đã xác nhận",
+    CHECKED_IN:  "Đang ở",
+    CHECKED_OUT: "Đã trả phòng",
+    CANCELLED:   "Đã hủy",
+};
 
 const ReservationDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    
+    const [user] = useContext(MyUserContext);
+    // Chỉ hiện dropdown nếu đã đăng nhập VÀ là STAFF/ADMIN/RECEPTIONIST
+    const canEdit = user && user.role !== "ROLE_CUSTOMER";
+    const isCustomer = !canEdit;
+
     const [reservation, setReservation] = useState(null);
     const [serviceOrders, setServiceOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -95,13 +108,26 @@ const ReservationDetail = () => {
                             <hr />
                             <Form.Group>
                                 <Form.Label className="fw-bold">Trạng thái đặt phòng:</Form.Label>
-                                <Form.Select 
-                                    value={reservation.status} 
-                                    onChange={(e) => handleUpdateResStatus(e.target.value)}
-                                    className="border-primary text-primary fw-bold"
-                                >
-                                    {resStatuses.map(s => <option key={s} value={s}>{s}</option>)}
-                                </Form.Select>
+                                {isCustomer ? (
+                                    <div>
+                                        <Badge bg={
+                                            reservation.status === "CONFIRMED" ? "primary" :
+                                            reservation.status === "CHECKED_IN" ? "info" :
+                                            reservation.status === "CHECKED_OUT" ? "success" :
+                                            reservation.status === "CANCELLED" ? "danger" : "warning"
+                                        } text={reservation.status === "PENDING" ? "dark" : undefined}>
+                                            {statusLabel[reservation.status] || reservation.status}
+                                        </Badge>
+                                    </div>
+                                ) : (
+                                    <Form.Select
+                                        value={reservation.status}
+                                        onChange={(e) => handleUpdateResStatus(e.target.value)}
+                                        className="border-primary text-primary fw-bold"
+                                    >
+                                        {resStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+                                    </Form.Select>
+                                )}
                             </Form.Group>
                         </Card.Body>
                     </Card>
@@ -134,13 +160,22 @@ const ReservationDetail = () => {
                                         <p><strong>Phương thức:</strong> <Badge bg="info">{payment.method}</Badge></p>
                                         <Form.Group>
                                             <Form.Label className="small fw-bold">Trạng thái thanh toán:</Form.Label>
-                                            <Form.Select 
-                                                size="sm"
-                                                value={payment.status} 
-                                                onChange={(e) => handleUpdatePaymentStatus(payment.id, e.target.value)}
-                                            >
-                                                {paymentStatuses.map(s => <option key={s} value={s}>{s}</option>)}
-                                            </Form.Select>
+                                            {isCustomer ? (
+                                                <div>
+                                                    <Badge bg={payment.status === "COMPLETED" ? "success" : payment.status === "FAILED" ? "danger" : "warning"}
+                                                           text={payment.status === "PENDING" ? "dark" : undefined}>
+                                                        {payment.status}
+                                                    </Badge>
+                                                </div>
+                                            ) : (
+                                                <Form.Select
+                                                    size="sm"
+                                                    value={payment.status}
+                                                    onChange={(e) => handleUpdatePaymentStatus(payment.id, e.target.value)}
+                                                >
+                                                    {paymentStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+                                                </Form.Select>
+                                            )}
                                         </Form.Group>
                                     </div>
                                 ))
@@ -174,14 +209,24 @@ const ReservationDetail = () => {
                                                 <td>{so.qty}</td>
                                                 <td className="text-danger">{Number(so.amount).toLocaleString()}đ</td>
                                                 <td>
-                                                    <Form.Select 
-                                                        size="sm" 
-                                                        value={so.status}
-                                                        onChange={(e) => handleUpdateServiceStatus(so.id, e.target.value)}
-                                                        className={so.status === 'COMPLETED' ? 'text-success fw-bold border-success' : ''}
-                                                    >
-                                                        {soStatuses.map(s => <option key={s} value={s}>{s}</option>)}
-                                                    </Form.Select>
+                                                    {isCustomer ? (
+                                                        <Badge bg={
+                                                            so.status === "COMPLETED" ? "success" :
+                                                            so.status === "PROCESSING" ? "info" :
+                                                            so.status === "CANCELED" ? "danger" : "warning"
+                                                        } text={so.status === "PENDING" ? "dark" : undefined}>
+                                                            {so.status}
+                                                        </Badge>
+                                                    ) : (
+                                                        <Form.Select
+                                                            size="sm"
+                                                            value={so.status}
+                                                            onChange={(e) => handleUpdateServiceStatus(so.id, e.target.value)}
+                                                            className={so.status === 'COMPLETED' ? 'text-success fw-bold border-success' : ''}
+                                                        >
+                                                            {soStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+                                                        </Form.Select>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

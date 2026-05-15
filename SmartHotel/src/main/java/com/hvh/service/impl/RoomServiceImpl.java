@@ -85,8 +85,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Room> getRoomAvailable() {
-        List<Room> rooms = this.roomRepo.getRoomAvailable();
+    public List<Room> getRoomAvailable(String checkIn, String checkOut) {
+        List<Room> rooms = this.roomRepo.getRoomAvailable(checkIn, checkOut);
         if (rooms != null) {
             rooms.forEach(r -> {
                 if (r.getRoomImagesSet() != null) {
@@ -95,6 +95,18 @@ public class RoomServiceImpl implements RoomService {
             });
         }
         return rooms;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<java.util.Map<String, Object>> getRoomBookings(int roomId) {
+        return this.roomRepo.getRoomBookings(roomId);
+    }
+
+    @Override
+    @Transactional
+    public void addOrUpdateRoomJson(Room r) {
+        this.roomRepo.addOrUpdateRoom(r);
     }
 
 }
