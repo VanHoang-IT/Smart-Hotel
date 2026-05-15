@@ -5,6 +5,7 @@
 package com.hvh.controllers;
 
 import com.hvh.pojo.Room;
+import com.hvh.service.RoomImagesService;
 import com.hvh.service.RoomService;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,9 @@ public class ApiRoomController {
     @Autowired
     private RoomService roomService;
 
+    @Autowired
+    private RoomImagesService roomImagesService;
+
     @GetMapping("/rooms")
     public ResponseEntity<List<Room>> list(@RequestParam Map<String, String> params) {
         return new ResponseEntity<>(this.roomService.getRooms(params), HttpStatus.OK);
@@ -52,7 +56,19 @@ public class ApiRoomController {
     }
 
     @GetMapping("/rooms/available")
-    public ResponseEntity<List<Room>> listRoomAvailable() {
-        return new ResponseEntity<>(this.roomService.getRoomAvailable(), HttpStatus.OK);
+    public ResponseEntity<List<Room>> listRoomAvailable(
+            @RequestParam(value = "checkIn", required = false) String checkIn,
+            @RequestParam(value = "checkOut", required = false) String checkOut) {
+        return new ResponseEntity<>(this.roomService.getRoomAvailable(checkIn, checkOut), HttpStatus.OK);
+    }
+
+    @GetMapping("/rooms/{roomId}/bookings")
+    public ResponseEntity<List<Map<String, Object>>> getRoomBookings(@PathVariable("roomId") int id) {
+        return new ResponseEntity<>(this.roomService.getRoomBookings(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/rooms/{roomId}/images")
+    public ResponseEntity<List<Map<String, Object>>> getRoomImages(@PathVariable("roomId") Long roomId) {
+        return new ResponseEntity<>(this.roomImagesService.getImagesByRoomId(roomId), HttpStatus.OK);
     }
 }

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useEffect } from "react";
 import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
-// Thêm Badge vào phần import từ react-bootstrap
 import { Alert, Button, Card, Col, Row, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
@@ -41,7 +40,7 @@ const Home = () => {
       case "AVAILABLE":
         return <Badge bg="success">Sẵn sàng</Badge>;
       case "OCCUPIED":
-        return <Badge bg="danger">Đang sử dụng</Badge>;
+        return <Badge bg="danger">Đã đặt trước</Badge>;
       case "CLEANING":
         return <Badge bg="warning" text="dark">Đang dọn dẹp</Badge>;
       case "MAINTENANCE":
@@ -96,11 +95,11 @@ const Home = () => {
                   <Button
                     as={isOccupied ? "button" : Link}
                     to={isOccupied ? undefined : `/rooms/${r.id}`}
-                    disabled={isOccupied} // Vô hiệu hóa nút
+                    disabled={isOccupied}
                     variant={isOccupied ? "secondary" : "dark"}
                     className="mt-4 border-radius-5"
                   >
-                    {isOccupied ? "ĐÃ ĐƯỢC ĐẶT" : "ĐẶT PHÒNG"}
+                    {isOccupied ? "ĐÃ ĐẶT TRƯỚC" : "ĐẶT PHÒNG"}
                   </Button>
                 </Card.Body>
               </Card>

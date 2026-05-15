@@ -68,4 +68,16 @@ public class UserRepositoryImpl implements UserRepository {
         Session session = this.factory.getObject().getCurrentSession();
         return session.get(User.class, id);
     }
+
+    @Override
+    public java.util.List<User> getUsers() {
+        Session session = this.factory.getObject().getCurrentSession();
+        return session.createQuery("FROM User ORDER BY id", User.class).getResultList();
+    }
+
+    @Override
+    public void updateUser(User u) {
+        Session session = this.factory.getObject().getCurrentSession();
+        session.merge(u);
+    }
 }

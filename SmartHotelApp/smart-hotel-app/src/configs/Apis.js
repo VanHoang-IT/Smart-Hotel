@@ -21,6 +21,25 @@ export const endpoints = {
   updateServiceOrderStatus: (id) => `/secure/service-orders/${id}/status`,
   serviceTotal: (id) => `/secure/reservations/${id}/service-total`,
   updatePaymentStatus: (id) => `/secure/payments/${id}/status`,
+  roomBookings: (id) => `/rooms/${id}/bookings`,
+  roomImages: (id) => `/rooms/${id}/images`,
+  myReservations: "/secure/reservations/my",
+  // Admin
+  adminUsers: "/secure/admin/users",
+  adminUpdateRole: (id) => `/secure/admin/users/${id}/role`,
+  adminAddRoom: "/secure/admin/rooms",
+  adminUpdateRoom: (id) => `/secure/admin/rooms/${id}`,
+  adminDeleteRoom: (id) => `/secure/admin/rooms/${id}`,
+  adminAddRoomType: "/secure/admin/room-types",
+  adminUpdateRoomType: (id) => `/secure/admin/room-types/${id}`,
+  adminDeleteRoomType: (id) => `/secure/admin/room-types/${id}`,
+  adminHousekeeping: "/secure/admin/housekeeping",
+  adminUpdateTaskStatus: (id) => `/secure/admin/housekeeping/${id}/status`,
+  adminDeleteTask: (id) => `/secure/admin/housekeeping/${id}`,
+  adminStaff: "/secure/admin/staff",
+  adminUploadImage: "/secure/admin/upload-image",
+  adminRoomImages: (id) => `/secure/admin/rooms/${id}/images`,
+  adminDeleteRoomImage: (id) => `/secure/admin/room-images/${id}`,
 };
 
 export const authApis = () => {

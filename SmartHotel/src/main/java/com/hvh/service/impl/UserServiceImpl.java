@@ -84,4 +84,18 @@ public class UserServiceImpl implements UserService{
     public boolean authenticate(String username, String password) {
         return this.userRepo.authenticate(username, password);
     }
+
+    @Override
+    public java.util.List<User> getUsers() {
+        return this.userRepo.getUsers();
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void updateRole(Long id, String role) {
+        User u = this.userRepo.getUserById(id);
+        if (u == null) throw new RuntimeException("Không tìm thấy user: " + id);
+        u.setRole(role);
+        this.userRepo.updateUser(u);
+    }
 }

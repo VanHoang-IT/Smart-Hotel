@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
@@ -91,6 +92,9 @@ public class RoomRepositoryImpl implements RoomRepository {
     @Override
     public void addOrUpdateRoom(Room r) {
         Session session = this.factory.getObject().getCurrentSession();
+        if (r.getRoomTypeId() != null && r.getRoomTypeId().getId() != null) {
+            r.setRoomTypeId(session.getReference(com.hvh.pojo.RoomType.class, r.getRoomTypeId().getId()));
+        }
         if (r.getId() != null) {
             session.merge(r);
         } else {
@@ -112,13 +116,63 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public List<Room> getRoomAvailable() {
+    public List<Room> getRoomAvailable(String checkIn, String checkOut) {
         Session session = this.factory.getObject().getCurrentSession();
-        CriteriaBuilder b = session.getCriteriaBuilder();
-        CriteriaQuery<Room> q = b.createQuery(Room.class);
-        Root<Room> root = q.from(Room.class);
-        q.select(root);
-        q.where(b.equal(root.get("status"), "AVAILABLE"));
-        return session.createQuery(q).getResultList();
+
+        if (checkIn == null || checkIn.isEmpty() || checkOut == null || checkOut.isEmpty()) {
+            CriteriaBuilder b = session.getCriteriaBuilder();
+            CriteriaQuery<Room> q = b.createQuery(Room.class);
+            Root<Room> root = q.from(Room.class);
+            q.where(b.equal(root.get("status"), "AVAILABLE"));
+            return session.createQuery(q).getResultList();
+        }
+
+        try {
+            java.sql.Date checkInDate = java.sql.Date.valueOf(checkIn);
+            java.sql.Date checkOutDate = java.sql.Date.valueOf(checkOut);
+
+            String hqlBlocked = "SELECT DISTINCT rr.roomId.id FROM ReservationRoom rr"
+                    + " WHERE rr.reservationId.status IN ('PENDING', 'CONFIRMED', 'CHECKED_IN')"
+                    + " AND rr.reservationId.checkIn < :checkOut"
+                    + " AND rr.reservationId.checkOut > :checkIn";
+
+            List<Long> blockedIds = session.createQuery(hqlBlocked, Long.class)
+                    .setParameter("checkIn", checkInDate)
+                    .setParameter("checkOut", checkOutDate)
+                    .getResultList();
+
+            CriteriaBuilder b = session.getCriteriaBuilder();
+            CriteriaQuery<Room> q = b.createQuery(Room.class);
+            Root<Room> root = q.from(Room.class);
+
+            if (blockedIds.isEmpty()) {
+                return session.createQuery(q).getResultList();
+            } else {
+                q.where(root.get("id").in(blockedIds).not());
+                return session.createQuery(q).getResultList();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi kiểm tra phòng trống: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getRoomBookings(int roomId) {
+        Session session = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT rr.reservationId.checkIn, rr.reservationId.checkOut"
+                + " FROM ReservationRoom rr"
+                + " WHERE rr.roomId.id = :roomId"
+                + " AND rr.reservationId.status IN ('PENDING', 'CONFIRMED', 'CHECKED_IN')";
+        List<Object[]> rows = session.createQuery(hql, Object[].class)
+                .setParameter("roomId", roomId)
+                .getResultList();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] row : rows) {
+            Map<String, Object> booking = new HashMap<>();
+            booking.put("checkIn", row[0]);
+            booking.put("checkOut", row[1]);
+            result.add(booking);
+        }
+        return result;
     }
 }

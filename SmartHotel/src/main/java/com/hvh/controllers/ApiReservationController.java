@@ -68,6 +68,18 @@ public class ApiReservationController {
         return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
     }
 
+    @GetMapping("/secure/reservations/my")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public ResponseEntity<List<ReservationResponseDTO>> getMyReservations(Authentication auth) {
+        User currentUser = this.userService.getUserByUsername(auth.getName());
+        if (currentUser == null || currentUser.getCustomerProfile() == null) {
+            return new ResponseEntity<>(java.util.Collections.emptyList(), HttpStatus.OK);
+        }
+        Map<String, String> params = new java.util.HashMap<>();
+        params.put("customerId", String.valueOf(currentUser.getCustomerProfile().getId()));
+        return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
+    }
+
     @GetMapping("/secure/reservations/{id}")
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
     public ResponseEntity<ReservationDetailDTO> getById(@PathVariable("id") long id) {

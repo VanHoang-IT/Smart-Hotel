@@ -53,7 +53,7 @@ public class HousekeepingTask implements Serializable {
     @Column(name = "task")
     private String task;
     @Size(max = 11)
-    @Column(name = "status")
+    @Column(name = "status", length = 11)
     private String status;
     @Column(name = "due_time")
     @Temporal(TemporalType.TIMESTAMP)

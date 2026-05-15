@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Row, Col, Card, Button } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
@@ -10,31 +10,50 @@ import BookingBarSide from "../../components/BookingBarSide";
 const AvailableRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchParams] = useSearchParams();
+
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
 
   useEffect(() => {
     const loadRooms = async () => {
       try {
         setLoading(true);
-        const res = await Apis.get(endpoints.availableRooms);
+        setError(null);
+        const res = await Apis.get(endpoints.availableRooms, {
+          params: { checkIn, checkOut },
+        });
         setRooms(res.data);
       } catch (error) {
         console.error("Lỗi tải danh sách phòng trống:", error);
+        setError("Lỗi tải danh sách phòng: " + (error.response?.data || error.message));
       } finally {
         setLoading(false);
       }
     };
 
     loadRooms();
-  }, []);
+  }, [checkIn, checkOut]);
+  if (loading) return <MySpinner />;
+  if (error) return <Alert variant="danger" className="mt-3 mx-3">{error}</Alert>;
+
   return (
     <>
-      {rooms.length === 0 && (
+      {!loading && rooms.length === 0 && (
         <Alert variant="info" className="mt-2">
-          KHÔNG có phòng nào!
+          KHÔNG có phòng nào trong khoảng thời gian này!
         </Alert>
       )}
 
-      <div className="fs-2 fw-bold mb-3 m-3">DANH SÁCH PHÒNG TRỐNG</div>
+      <div className="fs-2 fw-bold mb-3 m-3">
+        DANH SÁCH PHÒNG TRỐNG
+        {checkIn && checkOut && (
+          <span className="fs-6 fw-normal text-muted ms-3">
+            ({checkIn} → {checkOut})
+          </span>
+        )}
+      </div>
 
       <div className="container">
         <Row>
@@ -90,7 +109,6 @@ const AvailableRooms = () => {
         </Row>
       </div>
 
-      {loading && <MySpinner />}
     </>
   );
 };

@@ -24,5 +24,21 @@ public class RoomTypeServiceImpl implements RoomTypeService{
     public List<RoomType> getType() {
         return this.typeRepo.getType();
     }
-    
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void addOrUpdate(RoomType rt) {
+        this.typeRepo.addOrUpdate(rt);
+    }
+
+    @Override
+    public RoomType getRoomTypeById(Long id) {
+        return this.typeRepo.getById(id);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteRoomType(Long id) {
+        this.typeRepo.delete(id);
+    }
 }

@@ -14,6 +14,8 @@ import com.hvh.repository.RoomRepository;
 import com.hvh.service.PaymentService;
 import com.hvh.utils.MoMoSecurity;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,11 +57,11 @@ public class PaymentServiceImpl implements PaymentService {
             res.setStatus("PENDING");
             this.reservationRepo.addOrUpdateReservation(res);
 
-            if (res.getReservationRoomSet() != null) {
+            if (res.getReservationRoomSet() != null && isToday(res.getCheckIn())) {
                 for (com.hvh.pojo.ReservationRoom rr : res.getReservationRoomSet()) {
                     com.hvh.pojo.Room room = rr.getRoomId();
                     room.setStatus("OCCUPIED");
-                    this.roomRepo.addOrUpdateRoom(room); 
+                    this.roomRepo.addOrUpdateRoom(room);
                 }
             }
             Payment payment = new Payment();
@@ -126,11 +128,11 @@ public class PaymentServiceImpl implements PaymentService {
             if (res != null) {
                 res.setStatus("CONFIRMED");
                 this.reservationRepo.addOrUpdateReservation(res);
-                if (res.getReservationRoomSet() != null) {
+                if (res.getReservationRoomSet() != null && isToday(res.getCheckIn())) {
                     for (ReservationRoom rr : res.getReservationRoomSet()) {
                         com.hvh.pojo.Room room = rr.getRoomId();
                         room.setStatus("OCCUPIED");
-                        this.roomRepo.addOrUpdateRoom(room); 
+                        this.roomRepo.addOrUpdateRoom(room);
                     }
                 }
                 Payment p = new Payment();
@@ -145,6 +147,17 @@ public class PaymentServiceImpl implements PaymentService {
                 this.paymentRepo.addPayment(p);
             }
         }
+    }
+
+    private boolean isToday(Date date) {
+        if (date == null) return false;
+        LocalDate checkInDate;
+        if (date instanceof java.sql.Date) {
+            checkInDate = ((java.sql.Date) date).toLocalDate();
+        } else {
+            checkInDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        }
+        return LocalDate.now().equals(checkInDate);
     }
 
     @Override

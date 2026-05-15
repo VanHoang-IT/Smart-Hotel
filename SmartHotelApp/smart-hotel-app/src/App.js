@@ -19,6 +19,8 @@ import MyBookingReducer, { initialState } from "./reducers/MyBookingReducer";
 import Cart from "./screens/Payment/Cart";
 import Reservation from "./screens/Payment/Reservation"
 import ReservationDetail from "./screens/Payment/ReservationDetails";
+import MyReservations from "./screens/Payment/MyReservations";
+import AdminPanel from "./screens/Admin/AdminPanel";
 
 const App = () => {
   const [user, dispatch] = useReducer(
@@ -52,6 +54,8 @@ const App = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/reservation" element={<Reservation />} />
             <Route path="/reservation-detail/:id" element={<ReservationDetail />} />
+            <Route path="/my-reservations" element={<MyReservations />} />
+            <Route path="/admin" element={<AdminPanel />} />
           </Routes>
 
           <Footer />

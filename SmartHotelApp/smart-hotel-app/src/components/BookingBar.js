@@ -11,7 +11,7 @@ const BookingBar = () => {
 
   const handleBooking = () => {
     navigate(
-      `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}&adults=${booking.adults}&children=${booking.children}`,
+      `/available?checkIn=${booking.checkIn}&checkOut=${booking.checkOut}`,
     );
   };
   const handleChange = (field, value) => {
@@ -25,79 +25,45 @@ const BookingBar = () => {
   return (
     <div className="mt-4">
       <Container>
-        <div className="border p-3 rounded">
-          <Row className="g-2 align-items-end">
-            <Col md={3}>
-              <Form.Group>
-                <Form.Label>Ngày đến</Form.Label>
+        <Row className="justify-content-center">
+          <Col md={8} lg={6}>
+            <div className="border p-3 rounded">
+              <Row className="g-2 align-items-end">
+                <Col md={5}>
+                  <Form.Group>
+                    <Form.Label>Ngày đến</Form.Label>
 
-                <Form.Control
-                  type="date"
-                  value={booking.checkIn}
-                  min={todayStr}
-                  onChange={(e) => handleChange("checkIn", e.target.value)}
-                />
-              </Form.Group>
-            </Col>
+                    <Form.Control
+                      type="date"
+                      value={booking.checkIn}
+                      min={todayStr}
+                      onChange={(e) => handleChange("checkIn", e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
 
-            <Col md={3}>
-              <Form.Group>
-                <Form.Label>Ngày đi</Form.Label>
+                <Col md={5}>
+                  <Form.Group>
+                    <Form.Label>Ngày đi</Form.Label>
 
-                <Form.Control
-                  type="date"
-                  value={booking.checkOut}
-                  min={todayStr}
-                  onChange={(e) => handleChange("checkOut", e.target.value)}
-                />
-              </Form.Group>
-            </Col>
+                    <Form.Control
+                      type="date"
+                      value={booking.checkOut}
+                      min={todayStr}
+                      onChange={(e) => handleChange("checkOut", e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
 
-            <Col md={2}>
-              <Form.Group>
-                <Form.Label>Người lớn</Form.Label>
-
-                <Form.Select
-                  value={booking.adults}
-                  onChange={(e) =>
-                    handleChange("adults", Number(e.target.value))
-                  }
-                >
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-
-            <Col md={2}>
-              <Form.Group>
-                <Form.Label>Trẻ em</Form.Label>
-
-                <Form.Select
-                  value={booking.children}
-                  onChange={(e) =>
-                    handleChange("children", Number(e.target.value))
-                  }
-                >
-                  {[0, 1, 2, 3].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-
-            <Col md={2}>
-              <Button onClick={handleBooking} className="w-100">
-                ĐẶT PHÒNG
-              </Button>
-            </Col>
-          </Row>
-        </div>
+                <Col md={2}>
+                  <Button onClick={handleBooking} className="w-100">
+                    ĐẶT PHÒNG
+                  </Button>
+                </Col>
+              </Row>
+            </div>
+          </Col>
+        </Row>
       </Container>
     </div>
   );

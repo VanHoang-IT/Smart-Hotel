@@ -17,5 +17,7 @@ public interface RoomService {
     void addOrUpdateRoom(Room r);
     public Room getRoomById(long id);
     public void deleteRoom(long id);
-    List<Room> getRoomAvailable();
+    List<Room> getRoomAvailable(String checkIn, String checkOut);
+    List<java.util.Map<String, Object>> getRoomBookings(int roomId);
+    void addOrUpdateRoomJson(Room r);
 }
