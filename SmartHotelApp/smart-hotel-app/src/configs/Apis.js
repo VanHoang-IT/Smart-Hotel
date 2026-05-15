@@ -24,7 +24,7 @@ export const endpoints = {
   roomBookings: (id) => `/rooms/${id}/bookings`,
   roomImages: (id) => `/rooms/${id}/images`,
   myReservations: "/secure/reservations/my",
-  // Admin
+  
   adminUsers: "/secure/admin/users",
   adminUpdateRole: (id) => `/secure/admin/users/${id}/role`,
   adminAddRoom: "/secure/admin/rooms",
