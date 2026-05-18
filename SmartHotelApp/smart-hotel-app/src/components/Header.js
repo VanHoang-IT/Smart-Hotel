@@ -55,11 +55,9 @@ const Header = () => {
                 Đơn đặt phòng
               </Nav.Link>
             )}
-            {user && user.role === "ROLE_CUSTOMER" && (
               <Nav.Link as={Link} to="/my-reservations">
                 Lịch sử đặt phòng
               </Nav.Link>
-            )}
             {user && user.role === "ROLE_ADMIN" && (
               <Nav.Link as={Link} to="/admin">
                 Quản trị

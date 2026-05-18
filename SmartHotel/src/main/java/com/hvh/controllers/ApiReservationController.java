@@ -9,12 +9,14 @@ import com.hvh.dto.ReservationRequestDTO;
 import com.hvh.dto.ReservationResponseDTO;
 import com.hvh.dto.ServiceOrderRequestDTO;
 import com.hvh.dto.ServiceOrderResponseDTO;
+import com.hvh.pojo.Reservation;
 import com.hvh.pojo.User;
 import com.hvh.service.ReservationService;
 import com.hvh.service.ServiceOrderService;
 import com.hvh.service.UserService;
 import org.springframework.security.core.Authentication;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,28 +54,29 @@ public class ApiReservationController {
     private UserService userService;
 
     @PostMapping("/secure/reservations")
-    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_CUSTOMER', 'RECEPTIONIST')")
     public ResponseEntity<?> createReservation(@RequestBody ReservationRequestDTO dto, Authentication auth) {
         User currentUser = this.userService.getUserByUsername(auth.getName());
         dto.setCreatedBy(currentUser.getId());
-        com.hvh.pojo.Reservation newReservation = this.resService.addOrUpdateReservation(dto);
-        java.util.Map<String, Long> response = new java.util.HashMap<>();
+        Reservation newReservation = this.resService.addOrUpdateReservation(dto);
+        Map<String, Long> response = new java.util.HashMap<>();
         response.put("id", newReservation.getId());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/secure/reservations")
+    @PreAuthorize("hasAnyAuthority('ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<List<ReservationResponseDTO>> list(@RequestParam Map<String, String> params) {
         return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
     }
 
     @GetMapping("/secure/reservations/my")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ReservationResponseDTO>> getMyReservations(Authentication auth) {
         User currentUser = this.userService.getUserByUsername(auth.getName());
         if (currentUser == null || currentUser.getCustomerProfile() == null) {
-            return new ResponseEntity<>(java.util.Collections.emptyList(), HttpStatus.OK);
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
         Map<String, String> params = new java.util.HashMap<>();
         params.put("customerId", String.valueOf(currentUser.getCustomerProfile().getId()));
@@ -81,15 +84,17 @@ public class ApiReservationController {
     }
 
     @GetMapping("/secure/reservations/{id}")
-    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<ReservationDetailDTO> getById(@PathVariable("id") long id) {
         ReservationDetailDTO r = this.resService.getReservationDetailById(id);
-        if (r == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (r == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(r, HttpStatus.OK);
     }
 
     @PatchMapping("/secure/reservations/{id}/status")
-    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    @PreAuthorize("hasAuthority('RECEPTIONIST')")
     public ResponseEntity<String> updateReservationStatus(
             @PathVariable("id") long id,
             @RequestBody Map<String, String> body) {
@@ -106,7 +111,7 @@ public class ApiReservationController {
     }
 
     @PatchMapping("/secure/reservations/{id}/cancel")
-    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<String> cancel(@PathVariable("id") long id) {
         ReservationResponseDTO r = this.resService.getReservationById(id);
         if (r != null) {
@@ -123,7 +128,7 @@ public class ApiReservationController {
     }
 
     @PostMapping("/secure/reservations/{id}/service-orders")
-    @PreAuthorize("hasAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     @ResponseStatus(HttpStatus.CREATED)
     public void createServiceOrder(@PathVariable("id") Long reservationId, @RequestBody ServiceOrderRequestDTO orderDto) {
         orderDto.setReservationId(reservationId);
@@ -131,7 +136,7 @@ public class ApiReservationController {
     }
 
     @GetMapping("/secure/reservations/{id}/service-orders")
-    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<List<ServiceOrderResponseDTO>> getOrdersByReservation(@PathVariable("id") Long resId) {
         Map<String, String> params = new HashMap<>();
         params.put("reservationId", resId.toString());
@@ -141,14 +146,14 @@ public class ApiReservationController {
     }
 
     @GetMapping("/secure/reservations/{id}/service-total")
-    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<BigDecimal> getTotalServiceAmount(@PathVariable("id") Long resId) {
         BigDecimal total = this.serOrderService.getTotalAmountByReservation(resId);
         return new ResponseEntity<>(total, HttpStatus.OK);
     }
 
     @PatchMapping("/secure/service-orders/{id}/status")
-    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    @PreAuthorize("hasAuthority('RECEPTIONIST')")
     public ResponseEntity<String> updateServiceOrderStatus(
             @PathVariable("id") Long id,
             @RequestBody Map<String, String> body) {
@@ -165,7 +170,7 @@ public class ApiReservationController {
     }
 
     @PatchMapping("/secure/service-orders/{id}/cancel")
-    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'STAFF', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<String> cancelServiceOrder(@PathVariable("id") Long id) {
         try {
             this.serOrderService.cancelOrder(id);

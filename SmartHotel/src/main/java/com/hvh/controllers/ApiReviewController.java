@@ -42,7 +42,7 @@ public class ApiReviewController {
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
     @PostMapping("/secure/reviews")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     public ResponseEntity<?> create(@RequestBody ReviewRequestDTO reviewDto, Authentication auth) {
         try {
             String username = auth.getName();

@@ -26,14 +26,9 @@ const MyReservations = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Chỉ CUSTOMER mới được vào trang này
   useEffect(() => {
     if (!user) {
       navigate("/login?next=/my-reservations");
-      return;
-    }
-    if (user.role !== "ROLE_CUSTOMER") {
-      navigate("/");
       return;
     }
 
@@ -50,7 +45,7 @@ const MyReservations = () => {
     load();
   }, [user]);
 
-  if (!user || user.role !== "ROLE_CUSTOMER") return null;
+  if (!user) return null;
 
   if (loading) {
     return (

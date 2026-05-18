@@ -11,6 +11,7 @@ import com.hvh.service.RoomService;
 import com.hvh.service.RoomTypeService;
 import com.hvh.service.UserService;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +27,29 @@ import org.springframework.web.multipart.MultipartFile;
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class ApiAdminController {
 
-    @Autowired private UserService userService;
-    @Autowired private RoomService roomService;
-    @Autowired private RoomTypeService roomTypeService;
-    @Autowired private HousekeepingTaskService housekeepingService;
-    @Autowired private RoomImagesService roomImagesService;
-    @Autowired private Cloudinary cloudinary;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private RoomService roomService;
+    @Autowired
+    private RoomTypeService roomTypeService;
+    @Autowired
+    private HousekeepingTaskService housekeepingService;
+    @Autowired
+    private RoomImagesService roomImagesService;
+    @Autowired
+    private Cloudinary cloudinary;
 
     @PostMapping("/upload-image")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             Map result = this.cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap("resource_type", "auto")
+                    file.getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto")
             );
             return new ResponseEntity<>(
-                java.util.Collections.singletonMap("url", result.get("secure_url")),
-                HttpStatus.OK
+                    Collections.singletonMap("url", result.get("secure_url")),
+                    HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -59,8 +66,9 @@ public class ApiAdminController {
             @PathVariable("id") Long id,
             @RequestBody Map<String, String> body) {
         String role = body.get("role");
-        if (role == null || role.isBlank())
+        if (role == null || role.isBlank()) {
             return new ResponseEntity<>("Role is required", HttpStatus.BAD_REQUEST);
+        }
         try {
             this.userService.updateRole(id, role);
             return new ResponseEntity<>(role, HttpStatus.OK);
@@ -76,9 +84,15 @@ public class ApiAdminController {
             String price = body.get("price") != null ? body.get("price").toString().trim() : "";
             String roomTypeIdStr = body.get("roomTypeId") != null ? body.get("roomTypeId").toString().trim() : "";
 
-            if (name.isEmpty()) return new ResponseEntity<>("Tên phòng không được trống", HttpStatus.BAD_REQUEST);
-            if (price.isEmpty()) return new ResponseEntity<>("Giá không được trống", HttpStatus.BAD_REQUEST);
-            if (roomTypeIdStr.isEmpty()) return new ResponseEntity<>("Loại phòng không được trống", HttpStatus.BAD_REQUEST);
+            if (name.isEmpty()) {
+                return new ResponseEntity<>("Tên phòng không được trống", HttpStatus.BAD_REQUEST);
+            }
+            if (price.isEmpty()) {
+                return new ResponseEntity<>("Giá không được trống", HttpStatus.BAD_REQUEST);
+            }
+            if (roomTypeIdStr.isEmpty()) {
+                return new ResponseEntity<>("Loại phòng không được trống", HttpStatus.BAD_REQUEST);
+            }
 
             Room r = new Room();
             r.setName(name);
@@ -86,8 +100,9 @@ public class ApiAdminController {
             r.setStatus(body.getOrDefault("status", "AVAILABLE").toString());
             r.setNote(body.get("note") != null ? body.get("note").toString() : null);
             r.setMainImage(body.get("mainImage") != null ? body.get("mainImage").toString() : null);
-            if (body.get("floor") != null && !body.get("floor").toString().trim().isEmpty())
+            if (body.get("floor") != null && !body.get("floor").toString().trim().isEmpty()) {
                 r.setFloor(Integer.parseInt(body.get("floor").toString().trim()));
+            }
 
             RoomType rt = new RoomType(Long.valueOf(roomTypeIdStr));
             r.setRoomTypeId(rt);
@@ -103,20 +118,31 @@ public class ApiAdminController {
     public ResponseEntity<?> updateRoom(@PathVariable("id") Long id, @RequestBody Map<String, Object> body) {
         try {
             Room r = this.roomService.getRoomById(id);
-            if (r == null) return new ResponseEntity<>("Không tìm thấy phòng", HttpStatus.NOT_FOUND);
+            if (r == null) {
+                return new ResponseEntity<>("Không tìm thấy phòng", HttpStatus.NOT_FOUND);
+            }
 
-            if (body.get("name") != null && !body.get("name").toString().trim().isEmpty())
+            if (body.get("name") != null && !body.get("name").toString().trim().isEmpty()) {
                 r.setName(body.get("name").toString().trim());
-            if (body.get("price") != null && !body.get("price").toString().trim().isEmpty())
+            }
+            if (body.get("price") != null && !body.get("price").toString().trim().isEmpty()) {
                 r.setPrice(new BigDecimal(body.get("price").toString().trim()));
-            if (body.get("status") != null) r.setStatus(body.get("status").toString());
-            if (body.get("note") != null) r.setNote(body.get("note").toString());
-            if (body.get("floor") != null && !body.get("floor").toString().trim().isEmpty())
+            }
+            if (body.get("status") != null) {
+                r.setStatus(body.get("status").toString());
+            }
+            if (body.get("note") != null) {
+                r.setNote(body.get("note").toString());
+            }
+            if (body.get("floor") != null && !body.get("floor").toString().trim().isEmpty()) {
                 r.setFloor(Integer.parseInt(body.get("floor").toString().trim()));
-            if (body.get("mainImage") != null && !body.get("mainImage").toString().isEmpty())
+            }
+            if (body.get("mainImage") != null && !body.get("mainImage").toString().isEmpty()) {
                 r.setMainImage(body.get("mainImage").toString());
-            if (body.get("roomTypeId") != null && !body.get("roomTypeId").toString().trim().isEmpty())
+            }
+            if (body.get("roomTypeId") != null && !body.get("roomTypeId").toString().trim().isEmpty()) {
                 r.setRoomTypeId(new RoomType(Long.valueOf(body.get("roomTypeId").toString().trim())));
+            }
 
             this.roomService.addOrUpdateRoomJson(r);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -142,14 +168,14 @@ public class ApiAdminController {
             @RequestParam("file") MultipartFile file) {
         try {
             Map result = this.cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap("resource_type", "auto")
+                    file.getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto")
             );
             String url = result.get("secure_url").toString();
             this.roomImagesService.addImage(roomId, url);
             return new ResponseEntity<>(
-                java.util.Collections.singletonMap("imageUrl", url),
-                HttpStatus.CREATED
+                    java.util.Collections.singletonMap("imageUrl", url),
+                    HttpStatus.CREATED
             );
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -177,13 +203,18 @@ public class ApiAdminController {
     public ResponseEntity<?> updateRoomType(@PathVariable("id") Long id, @RequestBody Map<String, Object> body) {
         try {
             RoomType rt = this.roomTypeService.getRoomTypeById(id);
-            if (rt == null) return new ResponseEntity<>("Không tìm thấy loại phòng", HttpStatus.NOT_FOUND);
-            if (body.get("name") != null && !body.get("name").toString().trim().isEmpty())
+            if (rt == null) {
+                return new ResponseEntity<>("Không tìm thấy loại phòng", HttpStatus.NOT_FOUND);
+            }
+            if (body.get("name") != null && !body.get("name").toString().trim().isEmpty()) {
                 rt.setName(body.get("name").toString().trim());
-            if (body.get("capacity") != null && !body.get("capacity").toString().trim().isEmpty())
+            }
+            if (body.get("capacity") != null && !body.get("capacity").toString().trim().isEmpty()) {
                 rt.setCapacity(Integer.parseInt(body.get("capacity").toString().trim()));
-            if (body.get("description") != null)
+            }
+            if (body.get("description") != null) {
                 rt.setDescription(body.get("description").toString());
+            }
             this.roomTypeService.addOrUpdate(rt);
             return new ResponseEntity<>(rt, HttpStatus.OK);
         } catch (Exception e) {
@@ -217,8 +248,9 @@ public class ApiAdminController {
             @PathVariable("id") Long id,
             @RequestBody Map<String, String> body) {
         String status = body.get("status");
-        if (status == null || status.isBlank())
+        if (status == null || status.isBlank()) {
             return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
+        }
         try {
             this.housekeepingService.updateStatus(id, status);
             return new ResponseEntity<>(status, HttpStatus.OK);

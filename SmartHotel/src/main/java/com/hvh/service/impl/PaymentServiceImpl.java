@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,12 +55,14 @@ public class PaymentServiceImpl implements PaymentService {
         String method = payload.get("method").toString();
         Reservation res = this.reservationRepo.getReservationById(resId);
         if (res != null) {
+            Set<ReservationRoom> reservationRooms = res.getReservationRoomSet();
+
             res.setStatus("PENDING");
             this.reservationRepo.addOrUpdateReservation(res);
 
-            if (res.getReservationRoomSet() != null && isToday(res.getCheckIn())) {
-                for (com.hvh.pojo.ReservationRoom rr : res.getReservationRoomSet()) {
-                    com.hvh.pojo.Room room = rr.getRoomId();
+            if (reservationRooms != null && isToday(res.getCheckIn())) {
+                for (ReservationRoom rr : reservationRooms) {
+                    Room room = rr.getRoomId();
                     room.setStatus("OCCUPIED");
                     this.roomRepo.addOrUpdateRoom(room);
                 }
@@ -126,11 +129,13 @@ public class PaymentServiceImpl implements PaymentService {
             Long resId = Long.parseLong(orderId.split("_")[0]);
             Reservation res = this.reservationRepo.getReservationById(resId);
             if (res != null) {
+                java.util.Set<ReservationRoom> reservationRooms = res.getReservationRoomSet();
+
                 res.setStatus("CONFIRMED");
                 this.reservationRepo.addOrUpdateReservation(res);
-                if (res.getReservationRoomSet() != null && isToday(res.getCheckIn())) {
-                    for (ReservationRoom rr : res.getReservationRoomSet()) {
-                        com.hvh.pojo.Room room = rr.getRoomId();
+                if (reservationRooms != null && isToday(res.getCheckIn())) {
+                    for (ReservationRoom rr : reservationRooms) {
+                        Room room = rr.getRoomId();
                         room.setStatus("OCCUPIED");
                         this.roomRepo.addOrUpdateRoom(room);
                     }

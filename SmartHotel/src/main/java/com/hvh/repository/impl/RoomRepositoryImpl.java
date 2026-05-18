@@ -4,12 +4,15 @@
  */
 package com.hvh.repository.impl;
 
+import com.hvh.pojo.ReservationRoom;
 import com.hvh.pojo.Room;
+import com.hvh.pojo.RoomType;
 import com.hvh.repository.RoomRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,7 +96,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     public void addOrUpdateRoom(Room r) {
         Session session = this.factory.getObject().getCurrentSession();
         if (r.getRoomTypeId() != null && r.getRoomTypeId().getId() != null) {
-            r.setRoomTypeId(session.getReference(com.hvh.pojo.RoomType.class, r.getRoomTypeId().getId()));
+            r.setRoomTypeId(session.getReference(RoomType.class, r.getRoomTypeId().getId()));
         }
         if (r.getId() != null) {
             session.merge(r);
@@ -128,18 +131,19 @@ public class RoomRepositoryImpl implements RoomRepository {
         }
 
         try {
-            java.sql.Date checkInDate = java.sql.Date.valueOf(checkIn);
-            java.sql.Date checkOutDate = java.sql.Date.valueOf(checkOut);
+            Date checkInDate = Date.valueOf(checkIn);
+            Date checkOutDate = Date.valueOf(checkOut);
 
-            String hqlBlocked = "SELECT DISTINCT rr.roomId.id FROM ReservationRoom rr"
-                    + " WHERE rr.reservationId.status IN ('PENDING', 'CONFIRMED', 'CHECKED_IN')"
-                    + " AND rr.reservationId.checkIn < :checkOut"
-                    + " AND rr.reservationId.checkOut > :checkIn";
-
-            List<Long> blockedIds = session.createQuery(hqlBlocked, Long.class)
-                    .setParameter("checkIn", checkInDate)
-                    .setParameter("checkOut", checkOutDate)
-                    .getResultList();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Long> blockedQuery = cb.createQuery(Long.class);
+            Root<ReservationRoom> rr = blockedQuery.from(ReservationRoom.class);
+            blockedQuery.select(rr.get("roomId").get("id")).distinct(true)
+                    .where(
+                        rr.get("reservationId").get("status").in("PENDING", "CONFIRMED", "CHECKED_IN"),
+                        cb.lessThan(rr.get("reservationId").get("checkIn"), checkOutDate),
+                        cb.greaterThan(rr.get("reservationId").get("checkOut"), checkInDate)
+                    );
+            List<Long> blockedIds = session.createQuery(blockedQuery).getResultList();
 
             CriteriaBuilder b = session.getCriteriaBuilder();
             CriteriaQuery<Room> q = b.createQuery(Room.class);
@@ -159,13 +163,17 @@ public class RoomRepositoryImpl implements RoomRepository {
     @Override
     public List<Map<String, Object>> getRoomBookings(int roomId) {
         Session session = this.factory.getObject().getCurrentSession();
-        String hql = "SELECT rr.reservationId.checkIn, rr.reservationId.checkOut"
-                + " FROM ReservationRoom rr"
-                + " WHERE rr.roomId.id = :roomId"
-                + " AND rr.reservationId.status IN ('PENDING', 'CONFIRMED', 'CHECKED_IN')";
-        List<Object[]> rows = session.createQuery(hql, Object[].class)
-                .setParameter("roomId", roomId)
-                .getResultList();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<Object[]> q = b.createQuery(Object[].class);
+        Root<ReservationRoom> root = q.from(ReservationRoom.class);
+        q.multiselect(
+                root.get("reservationId").get("checkIn"),
+                root.get("reservationId").get("checkOut")
+        ).where(
+                b.equal(root.get("roomId").get("id"), roomId),
+                root.get("reservationId").get("status").in("PENDING", "CONFIRMED", "CHECKED_IN")
+        );
+        List<Object[]> rows = session.createQuery(q).getResultList();
         List<Map<String, Object>> result = new ArrayList<>();
         for (Object[] row : rows) {
             Map<String, Object> booking = new HashMap<>();
