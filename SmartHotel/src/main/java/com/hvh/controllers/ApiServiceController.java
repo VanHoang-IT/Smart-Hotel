@@ -51,7 +51,7 @@ public class ApiServiceController {
     
     @PostMapping(path = "/secure/services", 
                  produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'STAFF')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<Services> addOrUpdate(@RequestBody Services s) {
         try {
             this.serviceService.addOrUpdate(s);
@@ -62,7 +62,7 @@ public class ApiServiceController {
     }
     
     @DeleteMapping("/secure/services/{servicesId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable(value = "servicesId") long id){
         this.serviceService.deleteService(id);

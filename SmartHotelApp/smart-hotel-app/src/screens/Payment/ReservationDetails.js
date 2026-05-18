@@ -16,8 +16,7 @@ const ReservationDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [user] = useContext(MyUserContext);
-    // Chỉ hiện dropdown nếu đã đăng nhập VÀ là STAFF/ADMIN/RECEPTIONIST
-    const canEdit = user && user.role !== "ROLE_CUSTOMER";
+    const canEdit = user && user.role === "RECEPTIONIST";
     const isCustomer = !canEdit;
 
     const [reservation, setReservation] = useState(null);

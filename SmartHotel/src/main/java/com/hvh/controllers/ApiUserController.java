@@ -64,6 +64,7 @@ public class ApiUserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseBody
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<User> getProfile(Principal principal) {
 
         return new ResponseEntity<>(

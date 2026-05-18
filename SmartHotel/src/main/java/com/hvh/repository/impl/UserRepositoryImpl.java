@@ -6,8 +6,11 @@ package com.hvh.repository.impl;
 
 import com.hvh.pojo.User;
 import com.hvh.repository.UserRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import java.util.List;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
@@ -31,18 +34,12 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User getUserByUsername(String username) {
         Session session = this.factory.getObject().getCurrentSession();
-
-        Query<User> q = session.createQuery(
-                "FROM User WHERE username = :username",
-                User.class
-        );
-
-        q.setParameter("username", username);
-
-        return q.getResultList()
-                .stream()
-                .findFirst()
-                .orElse(null);
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<User> q = b.createQuery(User.class);
+        Root<User> root = q.from(User.class);
+        q.select(root).where(b.equal(root.get("username"), username));
+        return session.createQuery(q).getResultList()
+                .stream().findFirst().orElse(null);
     }
 
     @Override
@@ -70,9 +67,13 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public java.util.List<User> getUsers() {
+    public List<User> getUsers() {
         Session session = this.factory.getObject().getCurrentSession();
-        return session.createQuery("FROM User ORDER BY id", User.class).getResultList();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<User> q = b.createQuery(User.class);
+        Root<User> root = q.from(User.class);
+        q.select(root).orderBy(b.asc(root.get("id")));
+        return session.createQuery(q).getResultList();
     }
 
     @Override
