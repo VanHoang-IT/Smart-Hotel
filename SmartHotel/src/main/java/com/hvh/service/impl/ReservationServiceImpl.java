@@ -104,7 +104,7 @@ public class ReservationServiceImpl implements ReservationService {
             dto.setCustomerName(res.getCustomerId().getUserId().getFullName());
         }
         if (res.getCreatedBy() != null) {
-            dto.setCreatedByName(res.getCreatedBy().getUsername());
+            dto.setCreatedByName(res.getCreatedBy().getFullName());
         }
 
         // Rooms
@@ -136,7 +136,7 @@ public class ReservationServiceImpl implements ReservationService {
         List<ReservationDetailDTO.PaymentItem> paymentItems = new ArrayList<>();
         for (Payment p : payments) {
             paymentItems.add(new ReservationDetailDTO.PaymentItem(
-                    p.getId(), p.getAmount(), p.getMethod(),
+                    p.getId(), p.getTotalAmount(), p.getMethod(),
                     p.getStatus(), p.getTransactionId(),
                     p.getPaidAt(), p.getCreatedAt()));
         }

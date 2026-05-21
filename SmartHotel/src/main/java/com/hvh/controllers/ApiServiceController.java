@@ -51,7 +51,7 @@ public class ApiServiceController {
     
     @PostMapping(path = "/secure/services", 
                  produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Services> addOrUpdate(@RequestBody Services s) {
         try {
             this.serviceService.addOrUpdate(s);

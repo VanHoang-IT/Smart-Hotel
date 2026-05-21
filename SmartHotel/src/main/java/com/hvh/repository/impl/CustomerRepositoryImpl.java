@@ -27,10 +27,10 @@ public class CustomerRepositoryImpl implements CustomerRepository{
         Session session = this.factory.getObject().getCurrentSession();
         return session.get(CustomerProfile.class, id);
     }
-    
+
     @Override
     public void addCustomerProfile(CustomerProfile profile) {
         Session session = this.factory.getObject().getCurrentSession();
         session.persist(profile);
-    }    
+    }
 }

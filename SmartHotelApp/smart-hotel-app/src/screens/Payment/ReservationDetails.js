@@ -89,10 +89,6 @@ const ReservationDetail = () => {
 
     return (
         <Container className="mt-4 mb-5">
-            <Button variant="outline-secondary" className="mb-4" onClick={() => navigate(-1)}>
-                ← Quay lại danh sách
-            </Button>
-            
             <h2 className="mb-4 fw-bold text-primary">Chi tiết Đơn Đặt Phòng #{id}</h2>
 
             <Row>
@@ -155,7 +151,7 @@ const ReservationDetail = () => {
                             {reservation.payments && reservation.payments.length > 0 ? (
                                 reservation.payments.map(payment => (
                                     <div key={payment.id} className="mb-3 border-bottom pb-2">
-                                        <p><strong>Tổng tiền:</strong> <span className="text-danger fw-bold">{Number(payment.amount).toLocaleString()} VNĐ</span></p>
+                                        <p><strong>Tổng tiền:</strong> <span className="text-danger fw-bold">{Number(payment.totalAmount).toLocaleString()} VNĐ</span></p>
                                         <p><strong>Phương thức:</strong> <Badge bg="info">{payment.method}</Badge></p>
                                         <Form.Group>
                                             <Form.Label className="small fw-bold">Trạng thái thanh toán:</Form.Label>
@@ -185,7 +181,7 @@ const ReservationDetail = () => {
 
                 <Col lg={8}>
                     <Card className="shadow-sm border-0">
-                        <Card.Header className="bg-primary text-white fw-bold">Quản lý Dịch vụ gọi thêm (Service Orders)</Card.Header>
+                        <Card.Header className="bg-primary text-white fw-bold">Quản lý Dịch vụ gọi thêm</Card.Header>
                         <Card.Body>
                             {serviceOrders.length === 0 ? (
                                 <Alert variant="info" className="text-center">Khách chưa gọi dịch vụ nào.</Alert>
@@ -197,7 +193,7 @@ const ReservationDetail = () => {
                                             <th>Tên dịch vụ</th>
                                             <th>Số lượng</th>
                                             <th>Thành tiền</th>
-                                            <th>Trạng thái (Status)</th>
+                                            <th>Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody>

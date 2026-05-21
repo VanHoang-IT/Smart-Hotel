@@ -14,6 +14,16 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
 
   const todayStr = new Date().toISOString().split("T")[0];
 
+  const isBlocked = (() => {
+    if (!booking.checkIn || !booking.checkOut || !booking.bookedDates?.length) return false;
+    const start = new Date(booking.checkIn);
+    const end = new Date(booking.checkOut);
+    return booking.bookedDates.some((d) => {
+      const date = new Date(d);
+      return date >= start && date <= end;
+    });
+  })();
+
   const handleAddToCart = () => {
     if (!booking.checkIn || !booking.checkOut) {
       alert("Vui lòng chọn ngày nhận và ngày trả phòng hợp lệ!");
@@ -79,7 +89,7 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
         <Row className="justify-content-end">
           <Col>
             <div className="border p-4 rounded bg-white shadow-sm">
-              <h3 className="mb-4">ĐẶT PHÒNG {roomId}</h3>
+              <h3 className="mb-4">ĐẶT PHÒNG</h3>
               <Form.Group className="mb-4">
                 <Form.Label>Ngày đến</Form.Label>
                 <Form.Control
@@ -129,8 +139,13 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
                     <span className="fw-bold text-danger fs-5">{totalPrice.toLocaleString()} VNĐ</span>
                 </div>
               </div>
-              <Button onClick={handleAddToCart} className="w-100 mt-3 fw-bold">
-                THÊM VÀO GIỎ HÀNG
+              <Button
+                onClick={handleAddToCart}
+                disabled={isBlocked}
+                variant={isBlocked ? "secondary" : "primary"}
+                className="w-100 mt-3 fw-bold"
+              >
+                {isBlocked ? "NGÀY ĐÃ ĐƯỢC ĐẶT" : "THÊM VÀO GIỎ HÀNG"}
               </Button>
             </div>
           </Col>

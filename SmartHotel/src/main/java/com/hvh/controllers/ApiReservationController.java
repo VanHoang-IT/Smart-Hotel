@@ -59,7 +59,7 @@ public class ApiReservationController {
         User currentUser = this.userService.getUserByUsername(auth.getName());
         dto.setCreatedBy(currentUser.getId());
         Reservation newReservation = this.resService.addOrUpdateReservation(dto);
-        Map<String, Long> response = new java.util.HashMap<>();
+        Map<String, Long> response = new HashMap<>();
         response.put("id", newReservation.getId());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -78,7 +78,7 @@ public class ApiReservationController {
         if (currentUser == null || currentUser.getCustomerProfile() == null) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
-        Map<String, String> params = new java.util.HashMap<>();
+        Map<String, String> params = new HashMap<>();
         params.put("customerId", String.valueOf(currentUser.getCustomerProfile().getId()));
         return new ResponseEntity<>(this.resService.getReservations(params), HttpStatus.OK);
     }
@@ -100,7 +100,7 @@ public class ApiReservationController {
             @RequestBody Map<String, String> body) {
         String status = body.get("status");
         if (status == null || status.isBlank()) {
-            return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Phải có status", HttpStatus.BAD_REQUEST);
         }
         try {
             this.resService.updateStatus(id, status);
@@ -110,25 +110,7 @@ public class ApiReservationController {
         }
     }
 
-    @PatchMapping("/secure/reservations/{id}/cancel")
-    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
-    public ResponseEntity<String> cancel(@PathVariable("id") long id) {
-        ReservationResponseDTO r = this.resService.getReservationById(id);
-        if (r != null) {
-            ReservationRequestDTO cancelDto = new ReservationRequestDTO();
-            cancelDto.setId(id);
-            cancelDto.setCheckIn(r.getCheckIn());
-            cancelDto.setCheckOut(r.getCheckOut());
-            cancelDto.setStatus("CANCELLED");
-
-            this.resService.addOrUpdateReservation(cancelDto);
-            return new ResponseEntity<>("CANCELLED", HttpStatus.OK);
-        }
-        return new ResponseEntity<>("NOT FOUND", HttpStatus.NOT_FOUND);
-    }
-
     @PostMapping("/secure/reservations/{id}/service-orders")
-    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     @ResponseStatus(HttpStatus.CREATED)
     public void createServiceOrder(@PathVariable("id") Long reservationId, @RequestBody ServiceOrderRequestDTO orderDto) {
         orderDto.setReservationId(reservationId);
@@ -136,7 +118,6 @@ public class ApiReservationController {
     }
 
     @GetMapping("/secure/reservations/{id}/service-orders")
-    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<List<ServiceOrderResponseDTO>> getOrdersByReservation(@PathVariable("id") Long resId) {
         Map<String, String> params = new HashMap<>();
         params.put("reservationId", resId.toString());
@@ -169,14 +150,4 @@ public class ApiReservationController {
         }
     }
 
-    @PatchMapping("/secure/service-orders/{id}/cancel")
-    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
-    public ResponseEntity<String> cancelServiceOrder(@PathVariable("id") Long id) {
-        try {
-            this.serOrderService.cancelOrder(id);
-            return new ResponseEntity<>("CANCELED", HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
 }

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import Apis, { endpoints } from "../configs/Apis";
+import { MyBookingContext } from "../configs/Contexts";
 
 // Sinh tất cả ngày trong khoảng [checkIn, checkOut]
 const expandDateRange = (checkIn, checkOut) => {
@@ -19,6 +20,7 @@ const expandDateRange = (checkIn, checkOut) => {
 };
 
 const Calendar = ({ roomId }) => {
+  const [booking, dispatch] = useContext(MyBookingContext);
   const [bookedDates, setBookedDates] = useState([]);
 
   useEffect(() => {
@@ -27,12 +29,13 @@ const Calendar = ({ roomId }) => {
       try {
         const res = await Apis.get(endpoints.roomBookings(roomId));
         const dates = [];
-        res.data.forEach((booking) => {
-          if (booking.checkIn && booking.checkOut) {
-            dates.push(...expandDateRange(booking.checkIn, booking.checkOut));
+        res.data.forEach((b) => {
+          if (b.checkIn && b.checkOut) {
+            dates.push(...expandDateRange(b.checkIn, b.checkOut));
           }
         });
         setBookedDates(dates);
+        dispatch({ type: "UPDATE_BOOKING", payload: { bookedDates: dates } });
       } catch (err) {
         console.error("Lỗi tải lịch đặt phòng:", err);
       }
