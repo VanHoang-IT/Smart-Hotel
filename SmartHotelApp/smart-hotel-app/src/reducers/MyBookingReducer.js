@@ -14,6 +14,7 @@ export const initialState = {
   checkOut: getTomorrow(),
   adults: 2,
   children: 0,
+  bookedDates: [],
 };
 
 const MyBookingReducer = (current = initialState, action) => {

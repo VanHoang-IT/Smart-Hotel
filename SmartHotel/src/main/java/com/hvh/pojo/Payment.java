@@ -35,7 +35,7 @@ import java.util.Date;
 @NamedQueries({
     @NamedQuery(name = "Payment.findAll", query = "SELECT p FROM Payment p"),
     @NamedQuery(name = "Payment.findById", query = "SELECT p FROM Payment p WHERE p.id = :id"),
-    @NamedQuery(name = "Payment.findByAmount", query = "SELECT p FROM Payment p WHERE p.amount = :amount"),
+    @NamedQuery(name = "Payment.findByTotalAmount", query = "SELECT p FROM Payment p WHERE p.totalAmount = :totalAmount"),
     @NamedQuery(name = "Payment.findByMethod", query = "SELECT p FROM Payment p WHERE p.method = :method"),
     @NamedQuery(name = "Payment.findByTransactionId", query = "SELECT p FROM Payment p WHERE p.transactionId = :transactionId"),
     @NamedQuery(name = "Payment.findByStatus", query = "SELECT p FROM Payment p WHERE p.status = :status"),
@@ -53,8 +53,8 @@ public class Payment implements Serializable {
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @NotNull
-    @Column(name = "amount")
-    private BigDecimal amount;
+    @Column(name = "total_amount")
+    private BigDecimal totalAmount;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 8)
@@ -83,9 +83,9 @@ public class Payment implements Serializable {
         this.id = id;
     }
 
-    public Payment(Long id, BigDecimal amount, String method) {
+    public Payment(Long id, BigDecimal totalAmount, String method) {
         this.id = id;
-        this.amount = amount;
+        this.totalAmount = totalAmount;
         this.method = method;
     }
 
@@ -97,12 +97,12 @@ public class Payment implements Serializable {
         this.id = id;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public String getMethod() {

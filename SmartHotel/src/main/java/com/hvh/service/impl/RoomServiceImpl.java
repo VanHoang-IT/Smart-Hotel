@@ -99,7 +99,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<java.util.Map<String, Object>> getRoomBookings(int roomId) {
+    public List<Map<String, Object>> getRoomBookings(int roomId) {
         return this.roomRepo.getRoomBookings(roomId);
     }
 

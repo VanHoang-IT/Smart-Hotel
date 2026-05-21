@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -174,7 +175,7 @@ public class ApiAdminController {
             String url = result.get("secure_url").toString();
             this.roomImagesService.addImage(roomId, url);
             return new ResponseEntity<>(
-                    java.util.Collections.singletonMap("imageUrl", url),
+                    Collections.singletonMap("imageUrl", url),
                     HttpStatus.CREATED
             );
         } catch (Exception e) {
@@ -270,7 +271,7 @@ public class ApiAdminController {
         List<User> all = this.userService.getUsers();
         List<User> staff = all.stream()
                 .filter(u -> u.getRole() != null && u.getRole().contains("STAFF"))
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         return new ResponseEntity<>(staff, HttpStatus.OK);
     }
 }

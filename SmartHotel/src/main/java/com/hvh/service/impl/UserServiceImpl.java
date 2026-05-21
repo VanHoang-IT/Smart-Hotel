@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService{
     
     @Autowired
     private UserRepository userRepo;
-    
+
     @Autowired
     private Cloudinary cloudinary;
     
@@ -48,10 +49,12 @@ public class UserServiceImpl implements UserService{
     public User addUser(Map<String, String> params, MultipartFile avatar) {
         User u = new User();
         u.setUsername(params.get("username"));
-        u.setFullName(params.get("fullname"));
+        u.setFullName(params.get("fullName"));
         u.setPhone(params.get("phone"));
         u.setEmail(params.get("email"));
-        u.setRole(params.get("ROLE_USERS"));
+        u.setRole("ROLE_CUSTOMER");
+        u.setEnabled(true);
+        u.setCreatedAt(new java.util.Date());
         u.setPassword(PasswordEncoder.encode(params.get("password")));
         if(!avatar.isEmpty()){
             try {                
@@ -91,7 +94,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void updateRole(Long id, String role) {
         User u = this.userRepo.getUserById(id);
         if (u == null) throw new RuntimeException("Không tìm thấy user: " + id);

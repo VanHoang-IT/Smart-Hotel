@@ -11,6 +11,7 @@ import com.hvh.pojo.Room;
 import com.hvh.repository.PaymentRepository;
 import com.hvh.repository.ReservationRepository;
 import com.hvh.repository.RoomRepository;
+import com.hvh.service.MailService;
 import com.hvh.service.PaymentService;
 import com.hvh.utils.MoMoSecurity;
 import java.math.BigDecimal;
@@ -41,6 +42,8 @@ public class PaymentServiceImpl implements PaymentService {
     private RestTemplate restTemplate;
     @Autowired
     private RoomRepository roomRepo;
+    @Autowired
+    private MailService mailService;
     
     private final String partnerCode = "MOMO";
     private final String accessKey = "F8BBA842ECF85";
@@ -68,12 +71,13 @@ public class PaymentServiceImpl implements PaymentService {
                 }
             }
             Payment payment = new Payment();
-            payment.setAmount(amount);
+            payment.setTotalAmount(amount);
             payment.setMethod(method);
             payment.setStatus("PENDING"); 
             payment.setCreatedAt(new Date());
             payment.setReservationId(res);
             this.paymentRepo.addPayment(payment);
+            this.mailService.sendInvoiceEmail(res, payment);
         }
     }
 
@@ -142,7 +146,7 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 Payment p = new Payment();
                 p.setReservationId(res);
-                p.setAmount(new BigDecimal(callbackData.get("amount").toString()));
+                p.setTotalAmount(new BigDecimal(callbackData.get("amount").toString()));
                 p.setMethod("E_WALLET");
                 p.setTransactionId(callbackData.get("transId").toString());
                 p.setStatus("COMPLETED");
@@ -150,6 +154,7 @@ public class PaymentServiceImpl implements PaymentService {
                 p.setCreatedAt(new Date());
 
                 this.paymentRepo.addPayment(p);
+                this.mailService.sendInvoiceEmail(res, p);
             }
         }
     }
