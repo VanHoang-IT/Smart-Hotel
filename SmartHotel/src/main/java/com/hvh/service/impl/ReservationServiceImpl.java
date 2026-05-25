@@ -173,4 +173,10 @@ public class ReservationServiceImpl implements ReservationService {
 
         return dto;
     }
+
+    @Override
+    @Transactional
+    public void deleteReservation(long id) {
+        this.resRepo.deleteReservation(id);
+    }
 }

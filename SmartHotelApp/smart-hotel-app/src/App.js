@@ -9,18 +9,19 @@ import MyUserReducer from "./reducers/MyUserReducer";
 import cookies from "react-cookies";
 import { useReducer } from "react";
 import { MyUserContext, MyBookingContext } from "./configs/Contexts";
-import RoomDetails from "./screens/RoomDetails/RoomDetails";
+import RoomDetails from "./screens/Room/RoomDetails";
 import Register from "./screens/User/Register";
 import Login from "./screens/User/Login";
-import RoomTypes from "./screens/RoomType/RoomTypes";
+import RoomTypes from "./screens/Room/RoomTypes";
 import BookingBar from "./components/BookingBar";
-import AvailableRooms from "./screens/Available/AvailableRooms";
+import AvailableRooms from "./screens/Room/AvailableRooms";
 import MyBookingReducer, { initialState } from "./reducers/MyBookingReducer";
 import Cart from "./screens/Payment/Cart";
-import Reservation from "./screens/Payment/Reservation"
-import ReservationDetail from "./screens/Payment/ReservationDetails";
-import MyReservations from "./screens/Payment/MyReservations";
+import Reservation from "./screens/Receptionist/Reservation";
+import ReservationDetail from "./screens/Reservation/ReservationDetails";
+import MyReservations from "./screens/Reservation/MyReservations";
 import AdminPanel from "./screens/Admin/AdminPanel";
+import RoomStatusManager from "./screens/Receptionist/RoomStatusManager";
 
 const App = () => {
   const [user, dispatch] = useReducer(
@@ -56,6 +57,7 @@ const App = () => {
             <Route path="/reservation-detail/:id" element={<ReservationDetail />} />
             <Route path="/my-reservations" element={<MyReservations />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/room-status" element={<RoomStatusManager />} />
           </Routes>
 
           <Footer />

@@ -20,8 +20,8 @@ public class HousekeepingTaskRepositoryImpl implements HousekeepingTaskRepositor
     public List<HousekeepingTask> getAll() {
         Session session = this.factory.getObject().getCurrentSession();
         return session.createQuery(
-            "SELECT h FROM HousekeepingTask h LEFT JOIN FETCH h.roomId LEFT JOIN FETCH h.assigneeId ORDER BY h.id DESC",
-            HousekeepingTask.class
+                "SELECT h FROM HousekeepingTask h LEFT JOIN FETCH h.roomId LEFT JOIN FETCH h.assigneeId ORDER BY h.id DESC",
+                HousekeepingTask.class
         ).getResultList();
     }
 
@@ -45,6 +45,8 @@ public class HousekeepingTaskRepositoryImpl implements HousekeepingTaskRepositor
     public void delete(Long id) {
         Session session = this.factory.getObject().getCurrentSession();
         HousekeepingTask task = getById(id);
-        if (task != null) session.remove(task);
+        if (task != null) {
+            session.remove(task);
+        }
     }
 }

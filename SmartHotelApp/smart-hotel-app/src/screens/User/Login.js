@@ -56,7 +56,6 @@ const Login = () => {
         );
         cookies.save("token", res.data.token);
 
-        //    setTimeout(async () => {
         let p = await authApis().get(endpoints["profile"]);
         console.info(p.data);
         cookies.save("user", p.data);
@@ -69,7 +68,6 @@ const Login = () => {
         if (next) nav(next);
         else nav("/");
 
-        //    }, 500)
       } catch (ex) {
         console.error(ex.response);
         console.error(ex.response?.data);

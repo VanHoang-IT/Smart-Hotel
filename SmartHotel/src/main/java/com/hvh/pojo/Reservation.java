@@ -75,6 +75,8 @@ public class Reservation implements Serializable {
     private User createdBy;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "reservationId")
     private Set<ReservationRoom> reservationRoomSet;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "reservationId")
+    private Set<Payment> paymentSet;
 
     public Reservation() {
     }
@@ -179,6 +181,15 @@ public class Reservation implements Serializable {
 
     public void setServiceOrderSet(Set<ServiceOrder> serviceOrderSet) {
         this.serviceOrderSet = serviceOrderSet;
+    }
+
+    @XmlTransient
+    public Set<Payment> getPaymentSet() {
+        return paymentSet;
+    }
+
+    public void setPaymentSet(Set<Payment> paymentSet) {
+        this.paymentSet = paymentSet;
     }
 
     public String getStatus() {

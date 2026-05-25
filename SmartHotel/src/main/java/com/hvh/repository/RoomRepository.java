@@ -18,5 +18,5 @@ public interface RoomRepository {
     Room getRoomById(long id);
     void deleteRoom(long id);
     List<Room> getRoomAvailable(String checkIn, String checkOut);
-    List<java.util.Map<String, Object>> getRoomBookings(int roomId);
+    List<Map<String, Object>> getRoomBookings(int roomId);
 }
