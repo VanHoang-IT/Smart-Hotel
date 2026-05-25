@@ -6,7 +6,6 @@ import { Alert, Button, Card, Col, Row, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 const Home = () => {
-  // const [roomTypes, setRoomTypes] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,19 +19,8 @@ const Home = () => {
     }
   };
 
-  // const loadRoomTypes = async () => {
-  //   try {
-  //     let res = await Apis.get(endpoints["roomTypes"]);
-  //     setRoomTypes(res.data);
-  //   } catch (ex) {
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   useEffect(() => {
     loadRooms();
-    // loadRoomTypes();
   }, []);
 
   const renderRoomStatus = (status) => {

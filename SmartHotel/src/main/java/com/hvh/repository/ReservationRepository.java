@@ -19,4 +19,5 @@ public interface ReservationRepository {
     public Reservation getReservationById(long id);
     void updateStatus(long id, String status);
     Reservation createReservation(ReservationRequestDTO dto);
+    void deleteReservation(long id);
 }

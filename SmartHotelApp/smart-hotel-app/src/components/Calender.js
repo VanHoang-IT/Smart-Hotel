@@ -4,7 +4,6 @@ import "react-day-picker/dist/style.css";
 import Apis, { endpoints } from "../configs/Apis";
 import { MyBookingContext } from "../configs/Contexts";
 
-// Sinh tất cả ngày trong khoảng [checkIn, checkOut]
 const expandDateRange = (checkIn, checkOut) => {
   const dates = [];
   const start = new Date(checkIn);

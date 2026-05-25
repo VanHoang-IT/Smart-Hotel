@@ -14,14 +14,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 /**
  *
@@ -70,5 +73,22 @@ public class ApiRoomController {
     @GetMapping("/rooms/{roomId}/images")
     public ResponseEntity<List<Map<String, Object>>> getRoomImages(@PathVariable("roomId") Long roomId) {
         return new ResponseEntity<>(this.roomImagesService.getImagesByRoomId(roomId), HttpStatus.OK);
+    }
+
+    @PatchMapping("/secure/rooms/{roomId}/status")
+    @PreAuthorize("hasAnyAuthority('RECEPTIONIST')")
+    @Transactional
+    public ResponseEntity<Void> updateRoomStatus(
+            @PathVariable("roomId") long id,
+            @RequestParam("status") String status) {
+        List<String> validStatuses = List.of("AVAILABLE", "OCCUPIED", "CLEANING", "MAINTENANCE");
+        if (!validStatuses.contains(status)) {
+            return ResponseEntity.badRequest().build();
+        }
+        Room r = this.roomService.getRoomById(id);
+        if (r == null) return ResponseEntity.notFound().build();
+        r.setStatus(status);
+        this.roomService.addOrUpdateRoomJson(r);
+        return ResponseEntity.noContent().build();
     }
 }

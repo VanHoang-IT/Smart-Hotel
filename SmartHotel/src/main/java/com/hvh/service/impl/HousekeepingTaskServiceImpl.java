@@ -76,7 +76,7 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
             try {
                 task.setDueTime(new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm")
                         .parse(payload.get("dueTime").toString()));
-            } catch (Exception e) { /* ignore */ }
+            } catch (Exception e) {}
         }
 
         Long roomId = Long.valueOf(payload.get("roomId").toString());

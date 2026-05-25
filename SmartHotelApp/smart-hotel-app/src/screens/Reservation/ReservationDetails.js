@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Card, Row, Col, Table, Form, Button, Badge, Spinner, Alert } from "react-bootstrap";
-import { authApis, endpoints } from "../../configs/Apis";
+import Apis, { authApis, endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Contexts";
 
 const statusLabel = {
@@ -22,6 +22,10 @@ const ReservationDetail = () => {
     const [reservation, setReservation] = useState(null);
     const [serviceOrders, setServiceOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [services, setServices] = useState([]);
+    const [selectedServiceId, setSelectedServiceId] = useState("");
+    const [qty, setQty] = useState(1);
+    const [adding, setAdding] = useState(false);
 
     const resStatuses = ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CHECKED_OUT', 'CANCELLED'];
     const soStatuses = ['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELED'];
@@ -30,9 +34,14 @@ const ReservationDetail = () => {
     useEffect(() => {
         const loadData = async () => {
             try {
-                let resDetail = await authApis().get(endpoints.reservationDetail(id));
+                const [resDetail, svcRes] = await Promise.all([
+                    authApis().get(endpoints.reservationDetail(id)),
+                    Apis.get(endpoints.extraServices),
+                ]);
                 setReservation(resDetail.data);
                 setServiceOrders(resDetail.data.serviceOrders || []);
+                setServices(svcRes.data);
+                if (svcRes.data.length > 0) setSelectedServiceId(svcRes.data[0].id);
             } catch (ex) {
                 console.error("Lỗi tải chi tiết:", ex);
             } finally {
@@ -42,11 +51,33 @@ const ReservationDetail = () => {
         loadData();
     }, [id]);
 
+    const handleAddService = async (e) => {
+        e.preventDefault();
+        if (!selectedServiceId) return;
+        try {
+            setAdding(true);
+            await authApis().post(endpoints.serviceOrders(id), {
+                serviceId: selectedServiceId,
+                qty: qty,
+            });
+            const [resDetail] = await Promise.all([
+                authApis().get(endpoints.reservationDetail(id)),
+            ]);
+            setReservation(resDetail.data);
+            setServiceOrders(resDetail.data.serviceOrders || []);
+            setQty(1);
+        } catch (ex) {
+            console.error(ex);
+            alert("Thêm dịch vụ thất bại!");
+        } finally {
+            setAdding(false);
+        }
+    };
+
     const handleUpdateResStatus = async (newStatus) => {
         try {
             await authApis().patch(endpoints.updateReservationStatus(id), { status: newStatus });
             setReservation({ ...reservation, status: newStatus });
-            alert("Cập nhật trạng thái phòng thành công!");
         } catch (ex) {
             alert("Lỗi: Không thể cập nhật trạng thái phòng.");
         }
@@ -55,10 +86,9 @@ const ReservationDetail = () => {
     const handleUpdateServiceStatus = async (orderId, newStatus) => {
         try {
             await authApis().patch(endpoints.updateServiceOrderStatus(orderId), { status: newStatus });
-            setServiceOrders(serviceOrders.map(so => 
-                so.id === orderId ? { ...so, status: newStatus } : so
-            ));
-            alert("Cập nhật dịch vụ thành công!");
+            const resDetail = await authApis().get(endpoints.reservationDetail(id));
+            setReservation(resDetail.data);
+            setServiceOrders(resDetail.data.serviceOrders || []);
         } catch (ex) {
             alert("Lỗi: Không thể cập nhật trạng thái dịch vụ.");
         }
@@ -69,11 +99,10 @@ const ReservationDetail = () => {
             await authApis().patch(endpoints.updatePaymentStatus(paymentId), { status: newStatus });
             setReservation({
                 ...reservation,
-                payments: reservation.payments.map(p => 
+                payments: reservation.payments.map(p =>
                     p.id === paymentId ? { ...p, status: newStatus } : p
                 )
             });
-            alert("Cập nhật thanh toán thành công!");
         } catch (ex) {
             alert("Lỗi: Không thể cập nhật thanh toán.");
         }
@@ -183,6 +212,37 @@ const ReservationDetail = () => {
                     <Card className="shadow-sm border-0">
                         <Card.Header className="bg-primary text-white fw-bold">Quản lý Dịch vụ gọi thêm</Card.Header>
                         <Card.Body>
+                            {canEdit && (
+                                <Form onSubmit={handleAddService} className="d-flex gap-2 align-items-end mb-3">
+                                    <Form.Group style={{ minWidth: 200 }}>
+                                        <Form.Label className="fw-bold small">Dịch vụ</Form.Label>
+                                        <Form.Select
+                                            size="sm"
+                                            value={selectedServiceId}
+                                            onChange={(e) => setSelectedServiceId(e.target.value)}
+                                        >
+                                            {services.map((s) => (
+                                                <option key={s.id} value={s.id}>
+                                                    {s.name} — {Number(s.price).toLocaleString()}đ
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                    <Form.Group style={{ width: 80 }}>
+                                        <Form.Label className="fw-bold small">Số lượng</Form.Label>
+                                        <Form.Control
+                                            size="sm"
+                                            type="number"
+                                            min={1}
+                                            value={qty}
+                                            onChange={(e) => setQty(Number(e.target.value))}
+                                        />
+                                    </Form.Group>
+                                    <Button type="submit" size="sm" variant="success" disabled={adding}>
+                                        {adding ? <Spinner animation="border" size="sm" /> : "Thêm"}
+                                    </Button>
+                                </Form>
+                            )}
                             {serviceOrders.length === 0 ? (
                                 <Alert variant="info" className="text-center">Khách chưa gọi dịch vụ nào.</Alert>
                             ) : (

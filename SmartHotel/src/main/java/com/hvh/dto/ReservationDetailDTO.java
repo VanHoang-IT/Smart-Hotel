@@ -19,8 +19,8 @@ public class ReservationDetailDTO {
     private List<PaymentItem> payments;
 
     // --- Nested types ---
-
     public static class RoomItem {
+
         private Long id;
         private String roomName;
         private BigDecimal pricePerNight;
@@ -31,12 +31,21 @@ public class ReservationDetailDTO {
             this.pricePerNight = pricePerNight;
         }
 
-        public Long getId() { return id; }
-        public String getRoomName() { return roomName; }
-        public BigDecimal getPricePerNight() { return pricePerNight; }
+        public Long getId() {
+            return id;
+        }
+
+        public String getRoomName() {
+            return roomName;
+        }
+
+        public BigDecimal getPricePerNight() {
+            return pricePerNight;
+        }
     }
 
     public static class ServiceOrderItem {
+
         private Long id;
         private String serviceName;
         private Integer qty;
@@ -56,16 +65,37 @@ public class ReservationDetailDTO {
             this.orderedAt = orderedAt;
         }
 
-        public Long getId() { return id; }
-        public String getServiceName() { return serviceName; }
-        public Integer getQty() { return qty; }
-        public BigDecimal getUnitPrice() { return unitPrice; }
-        public BigDecimal getAmount() { return amount; }
-        public String getStatus() { return status; }
-        public Date getOrderedAt() { return orderedAt; }
+        public Long getId() {
+            return id;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public Integer getQty() {
+            return qty;
+        }
+
+        public BigDecimal getUnitPrice() {
+            return unitPrice;
+        }
+
+        public BigDecimal getAmount() {
+            return amount;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public Date getOrderedAt() {
+            return orderedAt;
+        }
     }
 
     public static class PaymentItem {
+
         private Long id;
         private BigDecimal totalAmount;
         private String method;
@@ -85,44 +115,113 @@ public class ReservationDetailDTO {
             this.createdAt = createdAt;
         }
 
-        public Long getId() { return id; }
-        public BigDecimal getTotalAmount() { return totalAmount; }
-        public String getMethod() { return method; }
-        public String getStatus() { return status; }
-        public String getTransactionId() { return transactionId; }
-        public Date getPaidAt() { return paidAt; }
-        public Date getCreatedAt() { return createdAt; }
+        public Long getId() {
+            return id;
+        }
+
+        public BigDecimal getTotalAmount() {
+            return totalAmount;
+        }
+
+        public String getMethod() {
+            return method;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public String getTransactionId() {
+            return transactionId;
+        }
+
+        public Date getPaidAt() {
+            return paidAt;
+        }
+
+        public Date getCreatedAt() {
+            return createdAt;
+        }
     }
 
     // --- Getters/Setters ---
+    public Long getId() {
+        return id;
+    }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Date getCheckIn() { return checkIn; }
-    public void setCheckIn(Date checkIn) { this.checkIn = checkIn; }
+    public Date getCheckIn() {
+        return checkIn;
+    }
 
-    public Date getCheckOut() { return checkOut; }
-    public void setCheckOut(Date checkOut) { this.checkOut = checkOut; }
+    public void setCheckIn(Date checkIn) {
+        this.checkIn = checkIn;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public Date getCheckOut() {
+        return checkOut;
+    }
 
-    public String getCustomerName() { return customerName; }
-    public void setCustomerName(String customerName) { this.customerName = customerName; }
+    public void setCheckOut(Date checkOut) {
+        this.checkOut = checkOut;
+    }
 
-    public String getCreatedByName() { return createdByName; }
-    public void setCreatedByName(String createdByName) { this.createdByName = createdByName; }
+    public String getStatus() {
+        return status;
+    }
 
-    public Date getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-    public List<RoomItem> getRooms() { return rooms; }
-    public void setRooms(List<RoomItem> rooms) { this.rooms = rooms; }
+    public String getCustomerName() {
+        return customerName;
+    }
 
-    public List<ServiceOrderItem> getServiceOrders() { return serviceOrders; }
-    public void setServiceOrders(List<ServiceOrderItem> serviceOrders) { this.serviceOrders = serviceOrders; }
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
-    public List<PaymentItem> getPayments() { return payments; }
-    public void setPayments(List<PaymentItem> payments) { this.payments = payments; }
+    public String getCreatedByName() {
+        return createdByName;
+    }
+
+    public void setCreatedByName(String createdByName) {
+        this.createdByName = createdByName;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<RoomItem> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(List<RoomItem> rooms) {
+        this.rooms = rooms;
+    }
+
+    public List<ServiceOrderItem> getServiceOrders() {
+        return serviceOrders;
+    }
+
+    public void setServiceOrders(List<ServiceOrderItem> serviceOrders) {
+        this.serviceOrders = serviceOrders;
+    }
+
+    public List<PaymentItem> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentItem> payments) {
+        this.payments = payments;
+    }
 }
