@@ -11,6 +11,7 @@ import com.hvh.pojo.Room;
 import com.hvh.repository.PaymentRepository;
 import com.hvh.repository.ReservationRepository;
 import com.hvh.repository.RoomRepository;
+import com.hvh.service.MailService;
 import com.hvh.service.PaymentService;
 import com.hvh.utils.MoMoSecurity;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,8 @@ public class PaymentServiceImpl implements PaymentService {
     private RestTemplate restTemplate;
     @Autowired
     private RoomRepository roomRepo;
+    @Autowired
+    private MailService mailService;
     
     private final String partnerCode = "MOMO";
     private final String accessKey = "F8BBA842ECF85";
@@ -54,23 +58,26 @@ public class PaymentServiceImpl implements PaymentService {
         String method = payload.get("method").toString();
         Reservation res = this.reservationRepo.getReservationById(resId);
         if (res != null) {
+            Set<ReservationRoom> reservationRooms = res.getReservationRoomSet();
+
             res.setStatus("PENDING");
             this.reservationRepo.addOrUpdateReservation(res);
 
-            if (res.getReservationRoomSet() != null && isToday(res.getCheckIn())) {
-                for (com.hvh.pojo.ReservationRoom rr : res.getReservationRoomSet()) {
-                    com.hvh.pojo.Room room = rr.getRoomId();
+            if (reservationRooms != null && isToday(res.getCheckIn())) {
+                for (ReservationRoom rr : reservationRooms) {
+                    Room room = rr.getRoomId();
                     room.setStatus("OCCUPIED");
                     this.roomRepo.addOrUpdateRoom(room);
                 }
             }
             Payment payment = new Payment();
-            payment.setAmount(amount);
+            payment.setTotalAmount(amount);
             payment.setMethod(method);
             payment.setStatus("PENDING"); 
             payment.setCreatedAt(new Date());
             payment.setReservationId(res);
             this.paymentRepo.addPayment(payment);
+            this.mailService.sendInvoiceEmail(res, payment);
         }
     }
 
@@ -126,18 +133,20 @@ public class PaymentServiceImpl implements PaymentService {
             Long resId = Long.parseLong(orderId.split("_")[0]);
             Reservation res = this.reservationRepo.getReservationById(resId);
             if (res != null) {
+                java.util.Set<ReservationRoom> reservationRooms = res.getReservationRoomSet();
+
                 res.setStatus("CONFIRMED");
                 this.reservationRepo.addOrUpdateReservation(res);
-                if (res.getReservationRoomSet() != null && isToday(res.getCheckIn())) {
-                    for (ReservationRoom rr : res.getReservationRoomSet()) {
-                        com.hvh.pojo.Room room = rr.getRoomId();
+                if (reservationRooms != null && isToday(res.getCheckIn())) {
+                    for (ReservationRoom rr : reservationRooms) {
+                        Room room = rr.getRoomId();
                         room.setStatus("OCCUPIED");
                         this.roomRepo.addOrUpdateRoom(room);
                     }
                 }
                 Payment p = new Payment();
                 p.setReservationId(res);
-                p.setAmount(new BigDecimal(callbackData.get("amount").toString()));
+                p.setTotalAmount(new BigDecimal(callbackData.get("amount").toString()));
                 p.setMethod("E_WALLET");
                 p.setTransactionId(callbackData.get("transId").toString());
                 p.setStatus("COMPLETED");
@@ -145,6 +154,7 @@ public class PaymentServiceImpl implements PaymentService {
                 p.setCreatedAt(new Date());
 
                 this.paymentRepo.addPayment(p);
+                this.mailService.sendInvoiceEmail(res, p);
             }
         }
     }

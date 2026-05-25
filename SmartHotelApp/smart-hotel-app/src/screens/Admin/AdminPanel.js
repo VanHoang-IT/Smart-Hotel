@@ -260,7 +260,7 @@ const AdminPanel = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await authApis().post(endpoints.extraServices.replace("/services", "/secure/services"), svcForm);
+      await authApis().post(endpoints.adminAddService, svcForm);
       notify("success", "Thêm dịch vụ thành công!");
       setSvcForm({ name: "", price: "", description: "" });
       loadAll();

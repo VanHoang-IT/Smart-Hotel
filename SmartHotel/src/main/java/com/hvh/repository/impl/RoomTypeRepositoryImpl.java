@@ -6,9 +6,11 @@ package com.hvh.repository.impl;
 
 import com.hvh.pojo.RoomType;
 import com.hvh.repository.RoomTypeRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.util.List;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
@@ -26,10 +28,13 @@ public class RoomTypeRepositoryImpl implements RoomTypeRepository{
     private LocalSessionFactoryBean factory;
     
     @Override
-    public List<RoomType> getType(){
+    public List<RoomType> getType() {
         Session session = this.factory.getObject().getCurrentSession();
-        Query query = session.createQuery("FROM RoomType", RoomType.class);
-        return query.getResultList();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<RoomType> q = b.createQuery(RoomType.class);
+        Root<RoomType> root = q.from(RoomType.class);
+        q.select(root);
+        return session.createQuery(q).getResultList();
     }
 
     @Override

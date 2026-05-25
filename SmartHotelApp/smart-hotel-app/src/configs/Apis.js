@@ -37,6 +37,7 @@ export const endpoints = {
   adminUpdateTaskStatus: (id) => `/secure/admin/housekeeping/${id}/status`,
   adminDeleteTask: (id) => `/secure/admin/housekeeping/${id}`,
   adminStaff: "/secure/admin/staff",
+  adminAddService: "/secure/services",
   adminUploadImage: "/secure/admin/upload-image",
   adminRoomImages: (id) => `/secure/admin/rooms/${id}/images`,
   adminDeleteRoomImage: (id) => `/secure/admin/room-images/${id}`,

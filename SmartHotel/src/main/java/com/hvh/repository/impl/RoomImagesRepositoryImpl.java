@@ -1,7 +1,11 @@
 package com.hvh.repository.impl;
 
+import com.hvh.pojo.Room;
 import com.hvh.pojo.RoomImages;
 import com.hvh.repository.RoomImagesRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.util.List;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +23,18 @@ public class RoomImagesRepositoryImpl implements RoomImagesRepository {
     @Override
     public List<RoomImages> getByRoomId(Long roomId) {
         Session session = this.factory.getObject().getCurrentSession();
-        return session.createQuery(
-                "FROM RoomImages ri WHERE ri.roomId.id = :roomId", RoomImages.class)
-                .setParameter("roomId", roomId)
-                .getResultList();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<RoomImages> q = b.createQuery(RoomImages.class);
+        Root<RoomImages> root = q.from(RoomImages.class);
+        q.select(root).where(b.equal(root.get("roomId").get("id"), roomId));
+        return session.createQuery(q).getResultList();
     }
 
     @Override
     public void addImage(RoomImages img) {
         Session session = this.factory.getObject().getCurrentSession();
         if (img.getRoomId() != null && img.getRoomId().getId() != null) {
-            img.setRoomId(session.getReference(com.hvh.pojo.Room.class, img.getRoomId().getId()));
+            img.setRoomId(session.getReference(Room.class, img.getRoomId().getId()));
         }
         session.persist(img);
     }

@@ -32,6 +32,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 )
 @EnableWebMvc
 @EnableTransactionManagement
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity(prePostEnabled = true)
 public class WebAppContextConfigs implements WebMvcConfigurer {
 
     @Override

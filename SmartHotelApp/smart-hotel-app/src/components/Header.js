@@ -32,49 +32,33 @@ const Header = () => {
 
         <Navbar.Collapse>
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">
-              Trang chủ
-            </Nav.Link>
+            <Nav.Link as={Link} to="/">Trang chủ</Nav.Link>
 
             <NavDropdown title="Danh mục phòng" id="room-dropdown">
               {roomTypes.map((rt) => (
-                <NavDropdown.Item
-                  key={rt.id}
-                  as={Link}
-                  to={`/room-types/${rt.id}`}
-                >
+                <NavDropdown.Item key={rt.id} as={Link} to={`/room-types/${rt.id}`}>
                   {rt.name}
                 </NavDropdown.Item>
               ))}
             </NavDropdown>
-            <Nav.Link as={Link} to="/cart">
-              Giỏ hàng
-            </Nav.Link>
+
+            <Nav.Link as={Link} to="/cart">Giỏ hàng</Nav.Link>
+
             {user && user.role === "RECEPTIONIST" && (
-              <Nav.Link as={Link} to="/reservation">
-                Đơn đặt phòng
-              </Nav.Link>
+              <Nav.Link as={Link} to="/reservation">Đơn đặt phòng</Nav.Link>
             )}
-            {user && user.role === "ROLE_CUSTOMER" && (
-              <Nav.Link as={Link} to="/my-reservations">
-                Lịch sử đặt phòng
-              </Nav.Link>
-            )}
+
+            <Nav.Link as={Link} to="/my-reservations">Lịch sử đặt phòng</Nav.Link>
+
             {user && user.role === "ROLE_ADMIN" && (
-              <Nav.Link as={Link} to="/admin">
-                Quản trị
-              </Nav.Link>
+              <Nav.Link as={Link} to="/admin">Quản trị</Nav.Link>
             )}
           </Nav>
 
           {user === null ? (
             <>
-              <Link to="/register" className="nav-link text-danger m-2">
-                Đăng ký
-              </Link>
-              <Link to="/login" className="nav-link text-danger m-2">
-                Đăng nhập
-              </Link>
+              <Link to="/register" className="nav-link text-danger m-2">Đăng ký</Link>
+              <Link to="/login" className="nav-link text-danger m-2">Đăng nhập</Link>
             </>
           ) : (
             <>
@@ -86,10 +70,7 @@ const Header = () => {
                 />{" "}
                 Chào {user.username}!
               </Link>
-              <Button
-                variant="info"
-                onClick={() => dispatch({ type: "LOGOUT" })}
-              >
+              <Button variant="info" onClick={() => dispatch({ type: "LOGOUT" })}>
                 Đăng xuất
               </Button>
             </>

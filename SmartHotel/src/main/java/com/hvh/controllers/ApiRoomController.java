@@ -49,7 +49,7 @@ public class ApiRoomController {
     }
 
     @DeleteMapping("/secure/rooms/{roomId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable(value = "roomId") int id) {
         this.roomService.deleteRoom(id);

@@ -67,17 +67,17 @@ public class ReservationDetailDTO {
 
     public static class PaymentItem {
         private Long id;
-        private BigDecimal amount;
+        private BigDecimal totalAmount;
         private String method;
         private String status;
         private String transactionId;
         private Date paidAt;
         private Date createdAt;
 
-        public PaymentItem(Long id, BigDecimal amount, String method, String status,
+        public PaymentItem(Long id, BigDecimal totalAmount, String method, String status,
                 String transactionId, Date paidAt, Date createdAt) {
             this.id = id;
-            this.amount = amount;
+            this.totalAmount = totalAmount;
             this.method = method;
             this.status = status;
             this.transactionId = transactionId;
@@ -86,7 +86,7 @@ public class ReservationDetailDTO {
         }
 
         public Long getId() { return id; }
-        public BigDecimal getAmount() { return amount; }
+        public BigDecimal getTotalAmount() { return totalAmount; }
         public String getMethod() { return method; }
         public String getStatus() { return status; }
         public String getTransactionId() { return transactionId; }

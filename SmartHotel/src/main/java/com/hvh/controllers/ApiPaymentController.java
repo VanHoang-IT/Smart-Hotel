@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpStatusCodeException;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -32,6 +33,7 @@ public class ApiPaymentController {
     private PaymentService paymentService;
 
     @PostMapping("/secure/payments")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<?> createPayment(@RequestBody Map<String, Object> payload) {
         try {
             this.paymentService.addPayment(payload);
@@ -42,6 +44,7 @@ public class ApiPaymentController {
     }
 
     @PostMapping("/secure/payments/momo-link")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<?> getMoMoLink(@RequestBody Map<String, Object> params) {
         try {
             Long resId = Long.parseLong(params.get("reservationId").toString());
@@ -50,7 +53,7 @@ public class ApiPaymentController {
 
             return new ResponseEntity<>(result, HttpStatus.OK);
             
-        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+        } catch (HttpStatusCodeException e) {
             String momoError = e.getResponseBodyAsString();
             return new ResponseEntity<>(momoError, HttpStatus.BAD_REQUEST);
             
@@ -72,7 +75,7 @@ public class ApiPaymentController {
     }
 
     @PatchMapping("/secure/payments/{id}/status")
-    @PreAuthorize("hasAnyAuthority('STAFF', 'ADMIN')")
+    @PreAuthorize("hasAuthority('RECEPTIONIST')")
     public ResponseEntity<String> updatePaymentStatus(
             @PathVariable("id") long id,
             @RequestBody Map<String, String> body) {
