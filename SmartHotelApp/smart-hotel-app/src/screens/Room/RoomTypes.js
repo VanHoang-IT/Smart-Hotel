@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Badge, Alert } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
@@ -9,7 +9,7 @@ const renderRoomStatus = (status) => {
     case "AVAILABLE":
       return <Badge bg="success">Sẵn sàng</Badge>;
     case "OCCUPIED":
-      return <Badge bg="danger">Đã đặt trước</Badge>;
+      return <Badge bg="danger">Đã đặt trước hôm nay</Badge>;
     case "CLEANING":
       return <Badge bg="warning" text="dark">Đang dọn dẹp</Badge>;
     case "MAINTENANCE":
@@ -25,6 +25,8 @@ const RoomType = () => {
   const [loading, setLoading] = useState(true);
   const [typeName, setTypeName] = useState("");
   const [typeDescription, setTypeDescription] = useState("");
+  const [visibleCount, setVisibleCount] = useState(8);
+  const loadingMoreRef = useRef(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -32,6 +34,7 @@ const RoomType = () => {
         setLoading(true);
         setTypeName("");
         setTypeDescription("");
+        setVisibleCount(8);
 
         const [roomsRes, typesRes] = await Promise.all([
           Apis.get(`${endpoints["rooms"]}?typeId=${typeId}`),
@@ -54,6 +57,37 @@ const RoomType = () => {
     loadData();
   }, [typeId]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loadingMoreRef.current) return;
+
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      if (scrollTop + windowHeight >= documentHeight - 300) {
+        loadingMoreRef.current = true;
+
+        setVisibleCount((prev) => {
+          if (prev >= rooms.length) return prev;
+          return prev + 8;
+        });
+
+        setTimeout(() => {
+          loadingMoreRef.current = false;
+        }, 300);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [rooms.length]);
+
+  const visibleRooms = rooms.slice(0, visibleCount);
+
   if (loading) return <MySpinner />;
 
   return (
@@ -67,7 +101,7 @@ const RoomType = () => {
       )}
 
       <Row>
-        {rooms.map((r) => {
+        {visibleRooms.map((r) => {
           const isOccupied = r.status === "OCCUPIED";
           return (
             <Col xs={12} md={6} lg={3} key={r.id} className="p-2">
@@ -79,6 +113,8 @@ const RoomType = () => {
                   <Card.Img
                     variant="top"
                     src={r.mainImage}
+                    alt={r.name}
+                    loading="lazy"
                     style={{ height: "250px", objectFit: "cover" }}
                   />
                 </Link>
@@ -106,7 +142,7 @@ const RoomType = () => {
                     variant={isOccupied ? "secondary" : "dark"}
                     className="mt-4 border-radius-5"
                   >
-                    {isOccupied ? "ĐÃ ĐẶT TRƯỚC" : "ĐẶT PHÒNG"}
+                    {isOccupied ? "ĐÃ ĐẶT TRƯỚC HÔM NAY" : "ĐẶT PHÒNG"}
                   </Button>
                 </Card.Body>
               </Card>
