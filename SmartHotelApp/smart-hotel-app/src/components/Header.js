@@ -56,6 +56,9 @@ const Header = () => {
             {user && user.role === "ROLE_ADMIN" && (
               <Nav.Link as={Link} to="/admin">Quản trị</Nav.Link>
             )}
+            {user && user.role === "ROLE_ADMIN" && (
+              <Nav.Link as={Link} to="/stats">Thống kê</Nav.Link>
+            )}
           </Nav>
 
           {user === null ? (
