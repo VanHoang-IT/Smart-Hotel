@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author 03358
  */
 @Service
-@Transactional // Đảm bảo Session Hibernate luôn mở để truy cập các bảng liên quan
+@Transactional
 public class ReviewServiceImpl implements ReviewService {
 
     @Autowired

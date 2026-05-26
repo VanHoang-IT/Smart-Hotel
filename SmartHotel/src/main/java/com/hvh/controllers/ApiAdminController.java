@@ -9,6 +9,7 @@ import com.hvh.service.HousekeepingTaskService;
 import com.hvh.service.RoomImagesService;
 import com.hvh.service.RoomService;
 import com.hvh.service.RoomTypeService;
+import com.hvh.service.StatisticService;
 import com.hvh.service.UserService;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -40,7 +41,10 @@ public class ApiAdminController {
     private RoomImagesService roomImagesService;
     @Autowired
     private Cloudinary cloudinary;
-
+    @Autowired
+    private StatisticService statisticService;
+    
+    //UPLOAD ẢNH
     @PostMapping("/upload-image")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
@@ -56,7 +60,8 @@ public class ApiAdminController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
+    
+    //QUẢN LÝ USER
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUsers() {
         return new ResponseEntity<>(this.userService.getUsers(), HttpStatus.OK);
@@ -77,7 +82,8 @@ public class ApiAdminController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
+    
+    //QUẢN LÝ PHÒNG
     @PostMapping("/rooms")
     public ResponseEntity<?> addRoom(@RequestBody Map<String, Object> body) {
         try {
@@ -188,7 +194,8 @@ public class ApiAdminController {
     public void deleteRoomImage(@PathVariable("imageId") Long imageId) {
         this.roomImagesService.deleteImage(imageId);
     }
-
+    
+    //QUẢN LÝ LOẠI PHÒNG
     @PostMapping("/room-types")
     public ResponseEntity<?> addRoomType(@RequestBody RoomType rt) {
         try {
@@ -228,7 +235,8 @@ public class ApiAdminController {
     public void deleteRoomType(@PathVariable("id") Long id) {
         this.roomTypeService.deleteRoomType(id);
     }
-
+    
+    //QUẢN LÝ VIỆC CỦA STAFF
     @GetMapping("/housekeeping")
     public ResponseEntity<List<Map<String, Object>>> getTasks() {
         return new ResponseEntity<>(this.housekeepingService.getAll(), HttpStatus.OK);
@@ -273,5 +281,11 @@ public class ApiAdminController {
                 .filter(u -> u.getRole() != null && u.getRole().contains("STAFF"))
                 .collect(Collectors.toList());
         return new ResponseEntity<>(staff, HttpStatus.OK);
+    }
+
+    //THỐNG KÊ
+    @GetMapping("/revenue/monthly")
+    public ResponseEntity<List<Object[]>> getMonthlyRevenue() {
+        return new ResponseEntity<>(this.statisticService.getMonthlyRevenue(), HttpStatus.OK);
     }
 }

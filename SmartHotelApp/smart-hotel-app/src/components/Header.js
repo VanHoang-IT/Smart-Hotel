@@ -44,14 +44,20 @@ const Header = () => {
 
             <Nav.Link as={Link} to="/cart">Giỏ hàng</Nav.Link>
 
+            <Nav.Link as={Link} to="/my-reservations">Lịch sử đặt phòng</Nav.Link>
+
             {user && user.role === "RECEPTIONIST" && (
               <Nav.Link as={Link} to="/reservation">Đơn đặt phòng</Nav.Link>
             )}
-
-            <Nav.Link as={Link} to="/my-reservations">Lịch sử đặt phòng</Nav.Link>
+            {user && user.role === "RECEPTIONIST" && (
+              <Nav.Link as={Link} to="/room-status">Trạng thái phòng</Nav.Link>
+            )}
 
             {user && user.role === "ROLE_ADMIN" && (
               <Nav.Link as={Link} to="/admin">Quản trị</Nav.Link>
+            )}
+            {user && user.role === "ROLE_ADMIN" && (
+              <Nav.Link as={Link} to="/stats">Thống kê</Nav.Link>
             )}
           </Nav>
 

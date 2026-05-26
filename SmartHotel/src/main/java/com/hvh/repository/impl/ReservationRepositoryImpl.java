@@ -138,4 +138,12 @@ public class ReservationRepositoryImpl implements ReservationRepository{
         return res;
     }
 
+    @Override
+    public void deleteReservation(long id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        Reservation res = session.get(Reservation.class, id);
+        if (res == null) throw new RuntimeException("Không tìm thấy đơn đặt phòng: " + id);
+        session.remove(res);
+    }
+
 }

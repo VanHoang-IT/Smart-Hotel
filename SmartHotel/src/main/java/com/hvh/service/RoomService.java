@@ -18,6 +18,6 @@ public interface RoomService {
     public Room getRoomById(long id);
     public void deleteRoom(long id);
     List<Room> getRoomAvailable(String checkIn, String checkOut);
-    List<java.util.Map<String, Object>> getRoomBookings(int roomId);
+    List<Map<String, Object>> getRoomBookings(int roomId);
     void addOrUpdateRoomJson(Room r);
 }

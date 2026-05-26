@@ -13,6 +13,7 @@ import com.hvh.repository.ReservationRepository;
 import com.hvh.repository.RoomRepository;
 import com.hvh.service.MailService;
 import com.hvh.service.PaymentService;
+import com.hvh.service.ServiceOrderService;
 import com.hvh.utils.MoMoSecurity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,6 +45,8 @@ public class PaymentServiceImpl implements PaymentService {
     private RoomRepository roomRepo;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private ServiceOrderService serviceOrderService;
     
     private final String partnerCode = "MOMO";
     private final String accessKey = "F8BBA842ECF85";
@@ -54,10 +57,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public void addPayment(Map<String, Object> payload) {
         Long resId = Long.valueOf(payload.get("reservationId").toString());
-        BigDecimal amount = new BigDecimal(payload.get("amount").toString());
         String method = payload.get("method").toString();
         Reservation res = this.reservationRepo.getReservationById(resId);
         if (res != null) {
+            BigDecimal amount = this.serviceOrderService.getTotalAmountByReservation(resId);
             Set<ReservationRoom> reservationRooms = res.getReservationRoomSet();
 
             res.setStatus("PENDING");
@@ -88,6 +91,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Map<String, Object> createMoMoPayment(Long reservationId, Long amount) throws Exception {
+        BigDecimal calculatedAmount = this.serviceOrderService.getTotalAmountByReservation(reservationId);
+        Long payableAmount = calculatedAmount.longValue();
         String orderId = reservationId + "_" + System.currentTimeMillis();
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderInfo = "Thanh toán SmartHotel. Đơn: " + reservationId;
@@ -97,7 +102,7 @@ public class PaymentServiceImpl implements PaymentService {
         String extraData = "";
 
         String rawHash = "accessKey=" + accessKey
-                + "&amount=" + amount
+                + "&amount=" + payableAmount
                 + "&extraData=" + extraData
                 + "&ipnUrl=" + ipnUrl
                 + "&orderId=" + orderId
@@ -112,7 +117,7 @@ public class PaymentServiceImpl implements PaymentService {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("partnerCode", partnerCode);
         requestBody.put("requestId", requestId);
-        requestBody.put("amount", amount);
+        requestBody.put("amount", payableAmount);
         requestBody.put("orderId", orderId);
         requestBody.put("orderInfo", orderInfo);
         requestBody.put("redirectUrl", redirectUrl);

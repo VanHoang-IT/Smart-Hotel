@@ -5,8 +5,19 @@ import { MyBookingContext, MyUserContext } from "../../configs/Contexts";
 import Apis, { endpoints, authApis } from "../../configs/Apis";
 import cookies from 'react-cookies';
 
+const getNights = (checkIn, checkOut) => {
+    if (!checkIn || !checkOut) return 1;
+
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const diff = end.getTime() - start.getTime();
+    const nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    return Math.max(nights, 1);
+};
+
 const Cart = () => {
-    const [booking, dispatch] = useContext(MyBookingContext);
+    const [, dispatch] = useContext(MyBookingContext);
     const [user] = useContext(MyUserContext);
     const [cart, setCart] = useState(cookies.load('cart') || {});
     const [allServices, setAllServices] = useState([]);
@@ -48,15 +59,25 @@ const Cart = () => {
     const calculateTotal = () => {
         let total = 0;
         cartItems.forEach(item => {
-            total += item.price;
+            const nights = getNights(item.checkIn, item.checkOut);
+            total += Number(item.price) * nights;
             if (item.services && item.services.length > 0) {
                 item.services.forEach(sId => {
                     const s = allServices.find(service => service.id === sId);
-                    if (s) total += s.price;
+                    if (s) total += Number(s.price);
                 });
             }
         });
         return total;
+    };
+
+    const getServiceQuantities = () => {
+        return cartItems
+            .flatMap(item => item.services || [])
+            .reduce((quantities, serviceId) => {
+                quantities[serviceId] = (quantities[serviceId] || 0) + 1;
+                return quantities;
+            }, {});
     };
 
     const removeItem = (id) => {
@@ -72,7 +93,6 @@ const Cart = () => {
 
     const handlePaymentClick = () => {
         if (!user) {
-            alert("Bạn cần đăng nhập để thực hiện thanh toán!");
             navigate("/login?next=/cart"); 
             return;
         }
@@ -102,12 +122,13 @@ const Cart = () => {
             if (res.status === 201 || res.status === 200) {
                 const newReservationId = res.data.id;
 
-                const allSelectedServiceIds = [...new Set(cartItems.flatMap(item => item.services))];
-                if (allSelectedServiceIds.length > 0) {
-                    const servicePromises = allSelectedServiceIds.map(sId => 
+                const serviceQuantities = getServiceQuantities();
+                const serviceEntries = Object.entries(serviceQuantities);
+                if (serviceEntries.length > 0) {
+                    const servicePromises = serviceEntries.map(([sId, qty]) => 
                         authApis().post(endpoints.serviceOrders(newReservationId), {
-                            serviceId: sId,
-                            qty: 1
+                            serviceId: Number(sId),
+                            qty: qty
                         })
                     );
                     await Promise.all(servicePromises);
@@ -119,7 +140,7 @@ const Cart = () => {
                         amount: calculateTotal(),
                         method: "CASH"
                     });
-                    alert("Đặt phòng thành công! Vui lòng thanh toán tiền mặt vào ngày checkin.");
+                    alert("Đặt trước thành công, vui lòng đem tiền vào ngày checkIn để thanh toán");
                     finishPayment();
                 } 
                 else if (methodType === "MOMO") {
@@ -153,7 +174,7 @@ const Cart = () => {
     if (cartItems.length === 0) {
         return (
             <Container className="mt-5 text-center">
-                <Alert variant="info">Giỏ hàng của bạn đang trống.</Alert>
+                <Alert variant="info">Danh sách phòng trống</Alert>
                 <Button onClick={() => navigate("/")}>Quay lại chọn phòng</Button>
             </Container>
         );
@@ -161,12 +182,12 @@ const Cart = () => {
 
     return (
         <Container className="mt-5 mb-5">
-            <h2 className="text-center mb-4 text-primary fw-bold">GIỎ HÀNG THANH TOÁN</h2>
+            <h2 className="text-center mb-4 text-primary fw-bold">Danh sách phòng cần thanh toán</h2>
             <Row>
                 <Col lg={8}>
                     <Card className="shadow-sm border-0 mb-4">
                         <Card.Header className="bg-white py-3">
-                            <h5 className="mb-0 fw-bold">Chi tiết đơn hàng tạm tính</h5>
+                            <h5 className="mb-0 fw-bold">Chi tiết giá phòng</h5>
                         </Card.Header>
                         <Card.Body>
                             <Table hover responsive className="align-middle">
@@ -174,13 +195,17 @@ const Cart = () => {
                                     <tr>
                                         <th>Mã phòng</th>
                                         <th>Thời gian</th>
-                                        <th>Dịch vụ đi kèm</th>
-                                        <th className="text-end">Tiền phòng</th>
+                                        <th>Danh sách dịch vụ kèm theo</th>
+                                        <th className="text-end">Tổng tiền phòng</th>
                                         <th className="text-center">Hủy</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {cartItems.map((item) => (
+                                    {cartItems.map((item) => {
+                                        const nights = getNights(item.checkIn, item.checkOut);
+                                        const roomTotal = Number(item.price) * nights;
+
+                                        return (
                                         <tr key={item.id}>
                                             <td className="fw-bold text-primary">Phòng {item.id}</td>
                                             <td>
@@ -200,12 +225,18 @@ const Cart = () => {
                                                     </div>
                                                 ) : <span className="text-muted small">Không có</span>}
                                             </td>
-                                            <td className="text-end fw-bold">{item.price.toLocaleString()} VNĐ</td>
+                                            <td className="text-end fw-bold">
+                                                {roomTotal.toLocaleString()} VND
+                                                <small className="d-block text-muted">
+                                                    {Number(item.price).toLocaleString()} x {nights} đêm
+                                                </small>
+                                            </td>
                                             <td className="text-center">
                                                 <Button variant="outline-danger" size="sm" className="border-0" onClick={() => removeItem(item.id)}>X</Button>
                                             </td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                 </tbody>
                             </Table>
                         </Card.Body>
@@ -215,17 +246,17 @@ const Cart = () => {
                 <Col lg={4}>
                     <Card className="shadow-sm border-0 sticky-top" style={{top: '20px'}}>
                         <Card.Header className="bg-primary text-white py-3">
-                            <h5 className="mb-0 fw-bold text-center">TỔNG THANH TOÁN</h5>
+                            <h5 className="mb-0 fw-bold text-center">Tổng tiền thanh toán</h5>
                         </Card.Header>
                         <Card.Body className="p-4">
                             <h3 className="text-center text-danger fw-bold mb-4">
                                 {calculateTotal().toLocaleString()} VNĐ
                             </h3>
                             <Button variant={user ? "success" : "warning"} className="w-100 mb-3 py-3 fw-bold" onClick={handlePaymentClick} disabled={loading}>
-                                {loading ? "ĐANG XỬ LÝ..." : (user ? "TIẾN HÀNH THANH TOÁN" : "ĐĂNG NHẬP ĐỂ THANH TOÁN")}
+                                {loading ? "ĐANG XỬ LÝ..." : (user ? "Tiến hành thanh toán" : "Đăng nhập trước khi thanh toán")}
                             </Button>
                             <Button variant="outline-secondary" className="w-100 py-2" onClick={() => navigate("/")}>
-                                CHỌN THÊM PHÒNG
+                                Chọn thêm phòng
                             </Button>
                         </Card.Body>
                     </Card>

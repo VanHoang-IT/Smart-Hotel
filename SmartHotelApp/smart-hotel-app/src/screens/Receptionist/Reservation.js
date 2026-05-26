@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Alert, Badge, Spinner, Card } from "react-bootstrap";
+import { Container, Table, Alert, Badge, Spinner, Card, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { authApis, endpoints } from "../../configs/Apis";
 
@@ -12,11 +12,19 @@ const Reservation = () => {
     useEffect(() => {
         const loadReservations = async () => {
             try {
+                setLoading(true);
+                const profileRes = await authApis().get(endpoints.profile);
+                const userRole = profileRes.data.role || "";
+
+                if (!userRole.includes("RECEPTIONIST")) {
+                    navigate("/");
+                    return;
+                }
+
                 let res = await authApis().get(endpoints.reservations);
-                console.log("API Response:", res.data);
                 setReservations(res.data);
             } catch (err) {
-                console.error("Lỗi khi tải danh sách đặt phòng:", err);
+                console.error(err);
                 setError("Không thể tải dữ liệu đặt phòng. Vui lòng kiểm tra lại quyền truy cập hoặc đăng nhập lại.");
             } finally {
                 setLoading(false);
@@ -47,15 +55,27 @@ const Reservation = () => {
         navigate(`/reservation-detail/${id}`);
     };
 
+    const handleDelete = async (e, id) => {
+        e.stopPropagation();
+        if (!window.confirm(`Bạn có chắc muốn xóa đơn #${id}? Hành động này không thể hoàn tác!`)) return;
+        try {
+            await authApis().delete(endpoints.deleteReservation(id));
+            setReservations((prev) => prev.filter((r) => r.id !== id));
+        } catch (err) {
+            console.error(err);
+            alert("Xóa thất bại!");
+        }
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return "N/A";
-        
-        const safeString = dateString.replace(" ", "T"); 
+
+        const safeString = dateString.replace(" ", "T");
         const date = new Date(safeString);
-        
+
         return `${date.toLocaleTimeString("vi-VN")} - ${date.toLocaleDateString("vi-VN")}`;
     };
-    
+
     if (loading) {
         return (
             <Container className="mt-5 text-center">
@@ -89,15 +109,16 @@ const Reservation = () => {
                             <thead className="table-light">
                                 <tr>
                                     <th>Mã đơn</th>
-                                    <th>Ngày nhận phòng (Check-in)</th>
-                                    <th>Ngày trả phòng (Check-out)</th>
+                                    <th>Ngày nhận phòng</th>
+                                    <th>Ngày trả phòng</th>
                                     <th>Trạng thái</th>
+                                    <th>Thao tác</th>
                                 </tr>
-                            </thead>
+                            </thead >
                             <tbody>
                                 {reservations.map((res) => (
-                                    <tr 
-                                        key={res.id} 
+                                    <tr
+                                        key={res.id}
                                         onClick={() => handleRowClick(res.id)}
                                         style={{ cursor: "pointer" }}
                                         title="Click để xem chi tiết"
@@ -106,6 +127,15 @@ const Reservation = () => {
                                         <td>{res.checkIn ? new Date(res.checkIn).toLocaleDateString("vi-VN") : "N/A"}</td>
                                         <td>{res.checkOut ? new Date(res.checkOut).toLocaleDateString("vi-VN") : "N/A"}</td>
                                         <td>{renderStatusBadge(res.status)}</td>
+                                        <td>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={(e) => handleDelete(e, res.id)}
+                                            >
+                                                Xóa
+                                            </Button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

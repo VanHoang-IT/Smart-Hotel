@@ -6,9 +6,11 @@ package com.hvh.service.impl;
 
 import com.hvh.dto.ServiceOrderRequestDTO;
 import com.hvh.dto.ServiceOrderResponseDTO;
+import com.hvh.pojo.Payment;
 import com.hvh.pojo.Reservation;
 import com.hvh.pojo.ServiceOrder;
 import com.hvh.pojo.Services;
+import com.hvh.repository.PaymentRepository;
 import com.hvh.repository.ReservationRepository;
 import com.hvh.repository.ServiceOrderRepository;
 import com.hvh.repository.ServiceRepository;
@@ -37,6 +39,9 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
 
     @Autowired
     private ReservationRepository resRepo;
+
+    @Autowired
+    private PaymentRepository paymentRepo;
 
     @Override
     @Transactional(readOnly = true)
@@ -102,6 +107,16 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
 
         order.setUpdatedAt(new Date());
         this.serviceOrderRepo.addOrUpdate(order);
+
+        if (dto.getReservationId() != null) {
+            BigDecimal newTotal = getTotalAmountByReservation(dto.getReservationId());
+            List<Payment> payments = this.paymentRepo.getPaymentsByReservation(dto.getReservationId());
+            if (!payments.isEmpty()) {
+                Payment payment = payments.get(0);
+                payment.setTotalAmount(newTotal);
+                this.paymentRepo.updatePayment(payment);
+            }
+        }
     }
 
     @Override
@@ -127,6 +142,15 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
             order.setStatus(status);
             order.setUpdatedAt(new Date());
             this.serviceOrderRepo.addOrUpdate(order);
+
+            Long resId = order.getReservationId().getId();
+            BigDecimal newTotal = getTotalAmountByReservation(resId);
+            List<Payment> payments = this.paymentRepo.getPaymentsByReservation(resId);
+            if (!payments.isEmpty()) {
+                Payment payment = payments.get(0);
+                payment.setTotalAmount(newTotal);
+                this.paymentRepo.updatePayment(payment);
+            }
         } else {
             throw new RuntimeException("Không tìm thấy đơn dịch vụ với ID: " + id);
         }
@@ -155,7 +179,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
         List<ServiceOrder> orders = this.serviceOrderRepo.getServiceOrders(params);
 
         BigDecimal serviceTotal = orders.stream()
-                .filter(o -> "COMPLETED".equals(o.getStatus()))
+                .filter(o -> !"CANCELED".equals(o.getStatus()))
                 .map(ServiceOrder::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         return roomTotal.add(serviceTotal);
