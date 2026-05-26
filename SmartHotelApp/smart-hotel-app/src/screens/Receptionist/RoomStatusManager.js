@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Table,
@@ -43,10 +44,19 @@ const RoomStatusManager = () => {
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const navigate = useNavigate();
 
   const loadRooms = async () => {
     try {
       setLoading(true);
+      const profileRes = await authApis().get(endpoints.profile);
+      const userRole = profileRes.data.role || "";
+      
+      if (!userRole.includes("RECEPTIONIST")) {
+        navigate("/");
+        return;
+      }
+
       const res = await Apis.get(endpoints.rooms);
       setRooms(res.data);
     } catch (ex) {
