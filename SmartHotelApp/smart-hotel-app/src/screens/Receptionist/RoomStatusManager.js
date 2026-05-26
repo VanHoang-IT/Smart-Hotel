@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -14,6 +14,7 @@ import Apis, { authApis, endpoints } from "../../configs/Apis";
 import Calendar from "../../components/Calender";
 
 const STATUS_OPTIONS = ["AVAILABLE", "OCCUPIED", "CLEANING", "MAINTENANCE"];
+const PAGE_SIZE = 8;
 
 const statusLabel = (status) => {
   switch (status) {
@@ -41,34 +42,97 @@ const statusLabel = (status) => {
 const RoomStatusManager = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const observer = useRef();
   const navigate = useNavigate();
 
-  const loadRooms = async () => {
+  const loadRooms = useCallback(async (pageNumber) => {
     try {
-      setLoading(true);
-      const profileRes = await authApis().get(endpoints.profile);
-      const userRole = profileRes.data.role || "";
-      
-      if (!userRole.includes("RECEPTIONIST")) {
-        navigate("/");
-        return;
+      if (pageNumber === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
       }
 
-      const res = await Apis.get(endpoints.rooms);
-      setRooms(res.data);
+      const res = await Apis.get(endpoints.rooms, {
+        params: { page: pageNumber },
+      });
+      const nextRooms = Array.isArray(res.data) ? res.data : [];
+
+      setRooms((currentRooms) => {
+        if (pageNumber === 1) {
+          return nextRooms;
+        }
+
+        const existingIds = new Set(currentRooms.map((r) => r.id));
+        const newRooms = nextRooms.filter((r) => !existingIds.has(r.id));
+        return [...currentRooms, ...newRooms];
+      });
+      setHasMore(nextRooms.length === PAGE_SIZE);
+      setError(null);
     } catch (ex) {
       console.error(ex);
       setError("Không thể tải danh sách phòng.");
+      setHasMore(false);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadRooms();
+    const init = async () => {
+      try {
+        const profileRes = await authApis().get(endpoints.profile);
+        const userRole = profileRes.data.role || "";
+
+        if (!userRole.includes("RECEPTIONIST")) {
+          setLoading(false);
+          navigate("/");
+          return;
+        }
+
+        loadRooms(1);
+      } catch (ex) {
+        console.error(ex);
+        setError("Không thể tải danh sách phòng.");
+        setLoading(false);
+      }
+    };
+
+    init();
+  }, [loadRooms, navigate]);
+
+  useEffect(() => {
+    if (page > 1) {
+      loadRooms(page);
+    }
+  }, [page, loadRooms]);
+
+  const lastRoomRef = useCallback((node) => {
+    if (loading || loadingMore) return;
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage((currentPage) => currentPage + 1);
+      }
+    }, { rootMargin: "200px" });
+
+    if (node) observer.current.observe(node);
+  }, [hasMore, loading, loadingMore]);
+
+  useEffect(() => {
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+    };
   }, []);
 
   const handleStatusChange = async (roomId, newStatus) => {
@@ -130,8 +194,11 @@ const RoomStatusManager = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {rooms.map((room) => (
-                    <tr key={room.id}>
+                  {rooms.map((room, index) => {
+                    const isLastRoom = index === rooms.length - 1;
+
+                    return (
+                    <tr key={room.id} ref={isLastRoom ? lastRoomRef : null}>
                       <td className="fw-bold">{room.name}</td>
                       <td>{room.floor ?? "—"}</td>
                       <td>{room.roomType?.name ?? "—"}</td>
@@ -173,9 +240,15 @@ const RoomStatusManager = () => {
                         </span>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </Table>
+              {loadingMore && (
+                <div className="text-center py-3">
+                  <Spinner animation="border" size="sm" variant="primary" />
+                </div>
+              )}
 
               <Modal
                 show={!!selectedRoom}

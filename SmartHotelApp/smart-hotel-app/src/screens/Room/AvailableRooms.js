@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Row, Col, Card, Button } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
@@ -12,6 +12,8 @@ const AvailableRooms = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
+  const [visibleCount, setVisibleCount] = useState(4);
+  const loadingMoreRef = useRef(false);
 
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
@@ -21,6 +23,8 @@ const AvailableRooms = () => {
       try {
         setLoading(true);
         setError(null);
+        setVisibleCount(4);
+
         const res = await Apis.get(endpoints.availableRooms, {
           params: { checkIn, checkOut },
         });
@@ -35,6 +39,38 @@ const AvailableRooms = () => {
 
     loadRooms();
   }, [checkIn, checkOut]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loadingMoreRef.current) return;
+
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      if (scrollTop + windowHeight >= documentHeight - 300) {
+        loadingMoreRef.current = true;
+
+        setVisibleCount((prev) => {
+          if (prev >= rooms.length) return prev;
+          return prev + 4;
+        });
+
+        setTimeout(() => {
+          loadingMoreRef.current = false;
+        }, 300);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [rooms.length]);
+
+  const visibleRooms = rooms.slice(0, visibleCount);
+
   if (loading) return <MySpinner />;
   if (error) return <Alert variant="danger" className="mt-3 mx-3">{error}</Alert>;
 
@@ -59,7 +95,7 @@ const AvailableRooms = () => {
         <Row>
           <Col lg={8}>
             <Row>
-              {rooms.map((r) => (
+              {visibleRooms.map((r) => (
                 <Col xs={12} md={6} lg={12} key={r.id} className="p-2">
                   <Card className="shadow-sm border-2 m-1">
                     <Link to={`/rooms/${r.id}`}>

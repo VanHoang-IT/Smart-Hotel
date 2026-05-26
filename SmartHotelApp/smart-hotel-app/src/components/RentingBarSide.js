@@ -1,14 +1,24 @@
 import { useContext, useEffect, useState } from "react";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { MyBookingContext, MyUserContext } from "../configs/Contexts";
+import { MyBookingContext } from "../configs/Contexts";
 import Apis, { endpoints } from "../configs/Apis";
 import cookies from 'react-cookies';
+
+const getNights = (checkIn, checkOut) => {
+  if (!checkIn || !checkOut) return 1;
+
+  const start = new Date(checkIn);
+  const end = new Date(checkOut);
+  const diff = end.getTime() - start.getTime();
+  const nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+  return Math.max(nights, 1);
+};
 
 const RentingBarSide = ({ roomPrice = 0, roomId }) => {
   const navigate = useNavigate();
   const [booking, dispatch] = useContext(MyBookingContext);
-  const [user] = useContext(MyUserContext);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
 
@@ -26,7 +36,7 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
 
   const handleAddToCart = () => {
     if (!booking.checkIn || !booking.checkOut) {
-      alert("Vui lòng chọn ngày nhận và ngày trả phòng hợp lệ!");
+      alert("Vui lÃ²ng chá»n ngÃ y nháº­n vÃ  ngÃ y tráº£ phÃ²ng há»£p lá»‡!");
       return;
     }
 
@@ -79,9 +89,11 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
 
   const currentServicesPrice = services
     .filter(s => selectedServices.includes(s.id))
-    .reduce((sum, s) => sum + s.price, 0);
+    .reduce((sum, s) => sum + Number(s.price), 0);
 
-  const totalPrice = roomPrice + currentServicesPrice;
+  const nights = getNights(booking.checkIn, booking.checkOut);
+  const roomTotal = Number(roomPrice) * nights;
+  const totalPrice = roomTotal + currentServicesPrice;
 
   return (
     <div className="mt-4">
@@ -89,9 +101,9 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
         <Row className="justify-content-end">
           <Col>
             <div className="border p-4 rounded bg-white shadow-sm">
-              <h3 className="mb-4">ĐẶT PHÒNG</h3>
+              <h3 className="mb-4">Ngày đặt phòng</h3>
               <Form.Group className="mb-4">
-                <Form.Label>Ngày đến</Form.Label>
+                <Form.Label>CheckIn</Form.Label>
                 <Form.Control
                   type="date"
                   value={booking.checkIn}
@@ -100,7 +112,7 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
                 />
               </Form.Group>
               <Form.Group className="mb-4">
-                <Form.Label>Ngày đi</Form.Label>
+                <Form.Label>CheckOut</Form.Label>
                 <Form.Control
                   type="date"
                   value={booking.checkOut}
@@ -109,7 +121,7 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
                 />
               </Form.Group>
               <div className="mt-4">
-                <h5 className="mb-3">Dịch vụ cho phòng {roomId}</h5>
+                <h5 className="mb-3">Danh sách dịch vụ phòng {roomId}</h5>
                 <hr />
                 {services.map((s) => (
                   <div key={s.id} className="d-flex justify-content-between align-items-center mb-2">
@@ -127,15 +139,20 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
               <div className="mt-4 p-3 rounded" style={{ backgroundColor: '#f8f9fa' }}>
                 <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Giá phòng:</span>
-                    <span className="fw-semibold">{roomPrice.toLocaleString()} VNĐ</span>
+                    <span className="fw-semibold">
+                      {roomTotal.toLocaleString()} VNĐ
+                      <small className="d-block text-end text-muted">
+                        {Number(roomPrice).toLocaleString()} x {nights} đêm
+                      </small>
+                    </span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                    <span className="text-muted">Tiền dịch vụ:</span>
+                    <span className="text-muted">Tiền dịch vụ</span>
                     <span className="fw-semibold">{currentServicesPrice.toLocaleString()} VNĐ</span>
                 </div>
                 <hr />
                 <div className="d-flex justify-content-between align-items-center">
-                    <span className="fw-bold text-danger">TỔNG CỘNG:</span>
+                    <span className="fw-bold text-danger">Tổng tiền:</span>
                     <span className="fw-bold text-danger fs-5">{totalPrice.toLocaleString()} VNĐ</span>
                 </div>
               </div>
@@ -145,7 +162,7 @@ const RentingBarSide = ({ roomPrice = 0, roomId }) => {
                 variant={isBlocked ? "secondary" : "primary"}
                 className="w-100 mt-3 fw-bold"
               >
-                {isBlocked ? "NGÀY ĐÃ ĐƯỢC ĐẶT" : "THÊM VÀO GIỎ HÀNG"}
+                {isBlocked ? "Phòng đã được đặt vào ngày này" : "Đặt phòng ngay"}
               </Button>
             </div>
           </Col>
