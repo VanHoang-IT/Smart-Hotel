@@ -12,11 +12,19 @@ const Reservation = () => {
     useEffect(() => {
         const loadReservations = async () => {
             try {
+                setLoading(true);
+                const profileRes = await authApis().get(endpoints.profile);
+                const userRole = profileRes.data.role || "";
+
+                if (!userRole.includes("RECEPTIONIST")) {
+                    navigate("/");
+                    return;
+                }
+
                 let res = await authApis().get(endpoints.reservations);
-                console.log("API Response:", res.data);
                 setReservations(res.data);
             } catch (err) {
-                console.error("Lỗi khi tải danh sách đặt phòng:", err);
+                console.error(err);
                 setError("Không thể tải dữ liệu đặt phòng. Vui lòng kiểm tra lại quyền truy cập hoặc đăng nhập lại.");
             } finally {
                 setLoading(false);
@@ -106,7 +114,7 @@ const Reservation = () => {
                                     <th>Trạng thái</th>
                                     <th>Thao tác</th>
                                 </tr>
-                            </thead>
+                            </thead >
                             <tbody>
                                 {reservations.map((res) => (
                                     <tr
