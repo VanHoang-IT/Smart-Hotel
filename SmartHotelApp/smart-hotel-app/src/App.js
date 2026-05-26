@@ -22,6 +22,7 @@ import ReservationDetail from "./screens/Reservation/ReservationDetails";
 import MyReservations from "./screens/Reservation/MyReservations";
 import AdminPanel from "./screens/Admin/AdminPanel";
 import RoomStatusManager from "./screens/Receptionist/RoomStatusManager";
+import Stats from "./screens/Admin/Stats";
 
 const App = () => {
   const [user, dispatch] = useReducer(
@@ -58,6 +59,7 @@ const App = () => {
             <Route path="/my-reservations" element={<MyReservations />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/room-status" element={<RoomStatusManager />} />
+            <Route path="/stats" element={<Stats />} />
           </Routes>
 
           <Footer />

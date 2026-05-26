@@ -43,6 +43,7 @@ export const endpoints = {
   adminUploadImage: "/secure/admin/upload-image",
   adminRoomImages: (id) => `/secure/admin/rooms/${id}/images`,
   adminDeleteRoomImage: (id) => `/secure/admin/room-images/${id}`,
+  adminRevenueMonthly: "/secure/admin/revenue/monthly",
 };
 
 export const authApis = () => {
