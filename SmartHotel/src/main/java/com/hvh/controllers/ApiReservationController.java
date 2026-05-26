@@ -113,7 +113,7 @@ public class ApiReservationController {
 
     @PostMapping("/secure/reservations/{id}/service-orders")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('RECEPTIONIST')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER','RECEPTIONIST')")
     public void createServiceOrder(@PathVariable("id") Long reservationId, @RequestBody ServiceOrderRequestDTO orderDto) {
         orderDto.setReservationId(reservationId);
         this.serOrderService.addOrUpdate(orderDto);
