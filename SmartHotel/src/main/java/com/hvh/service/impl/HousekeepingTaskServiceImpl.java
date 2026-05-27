@@ -1,5 +1,12 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.hvh.service.impl;
-
+/**
+ *
+ * @author ASUS
+ */
 import com.hvh.pojo.HousekeepingTask;
 import com.hvh.pojo.Room;
 import com.hvh.pojo.User;
@@ -12,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,27 +40,18 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
         List<HousekeepingTask> tasks = this.taskRepo.getAll();
         List<Map<String, Object>> result = new ArrayList<>();
         for (HousekeepingTask t : tasks) {
-            Map<String, Object> m = new HashMap<>();
-            m.put("id", t.getId());
-            m.put("task", t.getTask());
-            m.put("status", t.getStatus());
-            m.put("dueTime", t.getDueTime());
-            m.put("notes", t.getNotes());
-            m.put("createdAt", t.getCreatedAt());
-            if (t.getRoomId() != null) {
-                Map<String, Object> room = new HashMap<>();
-                room.put("id", t.getRoomId().getId());
-                room.put("name", t.getRoomId().getName());
-                m.put("room", room);
-            }
-            if (t.getAssigneeId() != null) {
-                Map<String, Object> assignee = new HashMap<>();
-                assignee.put("id", t.getAssigneeId().getId());
-                assignee.put("username", t.getAssigneeId().getUsername());
-                assignee.put("fullName", t.getAssigneeId().getFullName());
-                m.put("assignee", assignee);
-            }
-            result.add(m);
+            result.add(this.toMap(t));
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getTasksByAssignee(Long assigneeId) {
+        List<HousekeepingTask> tasks = this.taskRepo.getByAssigneeId(assigneeId);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (HousekeepingTask t : tasks) {
+            result.add(this.toMap(t));
         }
         return result;
     }
@@ -76,7 +75,8 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
             try {
                 task.setDueTime(new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm")
                         .parse(payload.get("dueTime").toString()));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
 
         Long roomId = Long.valueOf(payload.get("roomId").toString());
@@ -96,7 +96,30 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
     @Transactional
     public void updateStatus(Long id, String status) {
         HousekeepingTask task = this.taskRepo.getById(id);
-        if (task == null) throw new RuntimeException("Không tìm thấy task: " + id);
+        if (task == null) {
+            throw new RuntimeException("Khong tim thay task: " + id);
+        }
+        task.setStatus(status);
+        task.setUpdatedAt(new Date());
+        this.taskRepo.addOrUpdate(task);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusByAssignee(Long taskId, Long assigneeId, String status) {
+        HousekeepingTask task = this.taskRepo.getById(taskId);
+        if (task == null) {
+            throw new RuntimeException("Khong tim thay task: " + taskId);
+        }
+        if (task.getAssigneeId() == null || !task.getAssigneeId().getId().equals(assigneeId)) {
+            throw new RuntimeException("Ban khong co quyen cap nhat task nay");
+        }
+
+        Set<String> allowed = Set.of("TODO", "IN_PROGRESS", "DONE");
+        if (!allowed.contains(status)) {
+            throw new RuntimeException("Trang thai khong hop le");
+        }
+
         task.setStatus(status);
         task.setUpdatedAt(new Date());
         this.taskRepo.addOrUpdate(task);
@@ -106,5 +129,29 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
     @Transactional
     public void delete(Long id) {
         this.taskRepo.delete(id);
+    }
+
+    private Map<String, Object> toMap(HousekeepingTask t) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("id", t.getId());
+        m.put("task", t.getTask());
+        m.put("status", t.getStatus());
+        m.put("dueTime", t.getDueTime());
+        m.put("notes", t.getNotes());
+        m.put("createdAt", t.getCreatedAt());
+        if (t.getRoomId() != null) {
+            Map<String, Object> room = new HashMap<>();
+            room.put("id", t.getRoomId().getId());
+            room.put("name", t.getRoomId().getName());
+            m.put("room", room);
+        }
+        if (t.getAssigneeId() != null) {
+            Map<String, Object> assignee = new HashMap<>();
+            assignee.put("id", t.getAssigneeId().getId());
+            assignee.put("username", t.getAssigneeId().getUsername());
+            assignee.put("fullName", t.getAssigneeId().getFullName());
+            m.put("assignee", assignee);
+        }
+        return m;
     }
 }
