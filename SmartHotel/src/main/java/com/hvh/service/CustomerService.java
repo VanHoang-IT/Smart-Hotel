@@ -12,4 +12,6 @@ import com.hvh.pojo.CustomerProfile;
  */
 public interface CustomerService {
     CustomerProfile getCustomerById(Long id);
+    CustomerProfile getCustomerByUserId(Long userId);
+    CustomerProfile createCustomerProfile(Long userId, CustomerProfile profileData);
 }

@@ -13,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -46,10 +45,6 @@ public class CustomerProfile implements Serializable {
     @Size(max = 500)
     @Column(name = "address")
     private String address;
-    @Lob
-    @Size(max = 65535)
-    @Column(name = "notes")
-    private String notes;
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -150,14 +145,6 @@ public class CustomerProfile implements Serializable {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
     }
     
 }
