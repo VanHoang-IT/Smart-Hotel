@@ -58,18 +58,24 @@ const Home = () => {
     }
   }, [page, loadRooms]);
 
-  const lastRoomRef = useCallback((node) => {
-    if (loading || loadingMore) return;
-    if (observer.current) observer.current.disconnect();
+  const lastRoomRef = useCallback(
+    (node) => {
+      if (loading || loadingMore) return;
+      if (observer.current) observer.current.disconnect();
 
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage((currentPage) => currentPage + 1);
-      }
-    }, { rootMargin: "200px" });
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore) {
+            setPage((currentPage) => currentPage + 1);
+          }
+        },
+        { rootMargin: "200px" },
+      );
 
-    if (node) observer.current.observe(node);
-  }, [hasMore, loading, loadingMore]);
+      if (node) observer.current.observe(node);
+    },
+    [hasMore, loading, loadingMore],
+  );
 
   useEffect(() => {
     return () => {
@@ -86,7 +92,11 @@ const Home = () => {
       case "OCCUPIED":
         return <Badge bg="danger">Đã đặt trước hôm nay</Badge>;
       case "CLEANING":
-        return <Badge bg="warning" text="dark">Đang dọn dẹp</Badge>;
+        return (
+          <Badge bg="warning" text="dark">
+            Đang dọn dẹp
+          </Badge>
+        );
       case "MAINTENANCE":
         return <Badge bg="secondary">Đang bảo trì</Badge>;
       default:
@@ -122,7 +132,10 @@ const Home = () => {
               className="p-2 w-200 h-25"
             >
               <Card className=" shadow-sm border-2 m-1">
-                <Link to={isOccupied ? "#" : `/rooms/${r.id}`} style={{ pointerEvents: isOccupied ? 'none' : 'auto' }}>
+                <Link
+                  to={isOccupied ? "#" : `/rooms/${r.id}`}
+                  style={{ pointerEvents: isOccupied ? "none" : "auto" }}
+                >
                   <div>
                     <Card.Img
                       variant="top"
@@ -136,14 +149,14 @@ const Home = () => {
                   <Link
                     to={isOccupied ? "#" : `/rooms/${r.id}`}
                     className="text-decoration-none text-dark"
-                    style={{ pointerEvents: isOccupied ? 'none' : 'auto' }}
+                    style={{ pointerEvents: isOccupied ? "none" : "auto" }}
                   >
                     <Card.Title>{r.name}</Card.Title>
                   </Link>
                   <Card.Text>
                     {Number(r.price).toLocaleString("vi-VN")} VND / đêm
                   </Card.Text>
-                  
+
                   <Card.Text>
                     <strong>Trạng thái: </strong> {renderRoomStatus(r.status)}
                   </Card.Text>
@@ -152,9 +165,8 @@ const Home = () => {
 
                 <Card.Body>
                   <Button
-                    as={isOccupied ? "button" : Link}
-                    to={isOccupied ? undefined : `/rooms/${r.id}`}
-                    disabled={isOccupied}
+                    as={Link}
+                    to={`/rooms/${r.id}`}
                     variant={isOccupied ? "secondary" : "dark"}
                     className="mt-4 border-radius-5"
                   >

@@ -1,6 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Container, Row, Col, Card, Button, Badge, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Badge,
+  Alert,
+} from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import MySpinner from "../../components/MySpinner";
 
@@ -11,7 +19,11 @@ const renderRoomStatus = (status) => {
     case "OCCUPIED":
       return <Badge bg="danger">Đã đặt trước hôm nay</Badge>;
     case "CLEANING":
-      return <Badge bg="warning" text="dark">Đang dọn dẹp</Badge>;
+      return (
+        <Badge bg="warning" text="dark">
+          Đang dọn dẹp
+        </Badge>
+      );
     case "MAINTENANCE":
       return <Badge bg="secondary">Đang bảo trì</Badge>;
     default:
@@ -43,7 +55,9 @@ const RoomType = () => {
 
         setRooms(roomsRes.data);
 
-        const roomType = typesRes.data.find((t) => String(t.id) === String(typeId));
+        const roomType = typesRes.data.find(
+          (t) => String(t.id) === String(typeId),
+        );
         if (roomType) {
           setTypeName(roomType.name || "");
           setTypeDescription(roomType.description || "");
@@ -92,8 +106,12 @@ const RoomType = () => {
 
   return (
     <Container className="my-5">
-      <h2 className="text-uppercase fs-1 mb-3">{typeName || "Danh mục phòng"}</h2>
-      {typeDescription && <p className="text-muted fs-5 mb-3">{typeDescription}</p>}
+      <h2 className="text-uppercase fs-1 mb-3">
+        {typeName || "Danh mục phòng"}
+      </h2>
+      {typeDescription && (
+        <p className="text-muted fs-5 mb-3">{typeDescription}</p>
+      )}
       <hr className="mb-4" />
 
       {rooms.length === 0 && (
@@ -130,15 +148,15 @@ const RoomType = () => {
                     {Number(r.price).toLocaleString("vi-VN")} VND / đêm
                   </Card.Text>
                   <Card.Text>
-                    <strong>Trạng thái: </strong>{renderRoomStatus(r.status)}
+                    <strong>Trạng thái: </strong>
+                    {renderRoomStatus(r.status)}
                   </Card.Text>
                   <Card.Text>{r.note}</Card.Text>
                 </Card.Body>
                 <Card.Body>
                   <Button
-                    as={isOccupied ? "button" : Link}
-                    to={isOccupied ? undefined : `/rooms/${r.id}`}
-                    disabled={isOccupied}
+                    as={Link}
+                    to={`/rooms/${r.id}`}
                     variant={isOccupied ? "secondary" : "dark"}
                     className="mt-4 border-radius-5"
                   >

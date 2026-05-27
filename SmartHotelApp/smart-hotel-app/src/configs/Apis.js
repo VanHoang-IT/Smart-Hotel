@@ -11,6 +11,8 @@ export const endpoints = {
   createReservation:'/secure/reservations',
   login: "/login",
   profile: "/secure/profile",
+  customerProfileMe: "/secure/customer-profile/me",
+  createCustomerProfile: "/secure/customer-profile",
   reservations: "/secure/reservations",
   reservationDetail: (id) => `/secure/reservations/${id}`,
   updateReservationStatus: (id) => `/secure/reservations/${id}/status`,
