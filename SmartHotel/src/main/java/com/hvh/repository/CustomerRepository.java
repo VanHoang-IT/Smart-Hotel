@@ -12,5 +12,7 @@ import com.hvh.pojo.CustomerProfile;
  */
 public interface CustomerRepository {
     CustomerProfile getCustomerById(Long id);
+    CustomerProfile getCustomerByUserId(Long userId);
     void addCustomerProfile(CustomerProfile profile);
+    void updateCustomerProfile(CustomerProfile profile);
 }

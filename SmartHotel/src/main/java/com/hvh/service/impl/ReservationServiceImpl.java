@@ -15,7 +15,6 @@ import com.hvh.repository.ReservationRepository;
 import com.hvh.repository.UserRepository;
 import com.hvh.service.ReservationService;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,21 +65,21 @@ public class ReservationServiceImpl implements ReservationService {
             this.resRepo.addOrUpdateReservation(res);
             savedReservation = res;
         } else {
-            User user = this.userRepo.getUserById(dto.getCustomerId());
-            
-            if (user != null) {
-                CustomerProfile profile = user.getCustomerProfile();
-                
-                if (profile == null) {
-                    profile = new CustomerProfile();
-                    profile.setUserId(user);
-                    profile.setLoyaltyPoint(0);
-                    this.customerRepo.addCustomerProfile(profile);
-                }
-                
-                dto.setCustomerId(profile.getId());
+            if (dto.getCustomerId() == null) {
+                throw new RuntimeException("CUSTOMER_ID_REQUIRED");
             }
-            
+            User user = this.userRepo.getUserById(dto.getCustomerId());
+
+            if (user == null) {
+                throw new RuntimeException("USER_NOT_FOUND");
+            }
+
+            CustomerProfile profile = this.customerRepo.getCustomerByUserId(user.getId());
+            if (profile == null) {
+                throw new IllegalStateException("CUSTOMER_PROFILE_REQUIRED");
+            }
+
+            dto.setCustomerId(profile.getId());
             savedReservation = this.resRepo.createReservation(dto);
         } 
         

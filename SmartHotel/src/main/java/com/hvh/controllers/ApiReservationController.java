@@ -58,12 +58,21 @@ public class ApiReservationController {
     @PreAuthorize("hasAnyAuthority('ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_CUSTOMER', 'RECEPTIONIST')")
     public ResponseEntity<?> createReservation(@RequestBody ReservationRequestDTO dto, Authentication auth) {
         User currentUser = this.userService.getUserByUsername(auth.getName());
+        if ("ROLE_CUSTOMER".equals(currentUser.getRole())) {
+            dto.setCustomerId(currentUser.getId());
+        }
         dto.setCreatedBy(currentUser.getId());
-        Reservation newReservation = this.resService.addOrUpdateReservation(dto);
-        Map<String, Long> response = new HashMap<>();
-        response.put("id", newReservation.getId());
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            Reservation newReservation = this.resService.addOrUpdateReservation(dto);
+            Map<String, Long> response = new HashMap<>();
+            response.put("id", newReservation.getId());
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (IllegalStateException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("code", "CUSTOMER_PROFILE_REQUIRED");
+            error.put("message", "Please complete customer profile before reservation");
+            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/secure/reservations")
@@ -113,7 +122,6 @@ public class ApiReservationController {
 
     @PostMapping("/secure/reservations/{id}/service-orders")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER','RECEPTIONIST')")
     public void createServiceOrder(@PathVariable("id") Long reservationId, @RequestBody ServiceOrderRequestDTO orderDto) {
         orderDto.setReservationId(reservationId);
         this.serOrderService.addOrUpdate(orderDto);

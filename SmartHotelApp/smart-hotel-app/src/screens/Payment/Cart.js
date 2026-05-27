@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import { Container, Table, Button, Card, Row, Col, Alert, Modal } from "react-bootstrap";
+import { Container, Table, Button, Card, Row, Col, Alert, Modal, Form } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MyBookingContext, MyUserContext } from "../../configs/Contexts";
 import Apis, { endpoints, authApis } from "../../configs/Apis";
@@ -26,6 +26,12 @@ const Cart = () => {
     const location = useLocation();
     const hasProcessedPayment = useRef(false);
     const [showModal, setShowModal] = useState(false);
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [profileForm, setProfileForm] = useState({
+        dob: "",
+        address: "",
+    });
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -91,12 +97,50 @@ const Cart = () => {
         });
     };
 
-    const handlePaymentClick = () => {
+    const loadCustomerProfile = async () => {
+        const res = await authApis().get(endpoints.customerProfileMe);
+        return res.data?.customerProfile || null;
+    };
+
+    const handlePaymentClick = async () => {
         if (!user) {
             navigate("/login?next=/cart"); 
             return;
         }
-        setShowModal(true);
+
+        try {
+            const customerProfile = await loadCustomerProfile();
+            if (!customerProfile) {
+                setShowProfileModal(true);
+                return;
+            }
+            setShowModal(true);
+        } catch (ex) {
+            console.error(ex);
+            alert("Khong the kiem tra thong tin khach hang.");
+        }
+    };
+
+    const createCustomerProfile = async () => {
+        if (!profileForm.dob || !profileForm.address.trim()) {
+            alert("Vui long nhap ngay sinh va dia chi.");
+            return;
+        }
+
+        try {
+            setProfileLoading(true);
+            await authApis().post(endpoints.createCustomerProfile, {
+                dob: profileForm.dob,
+                address: profileForm.address.trim(),
+            });
+            setShowProfileModal(false);
+            setShowModal(true);
+        } catch (ex) {
+            const message = ex.response?.data?.message || "Khong tao duoc customer profile.";
+            alert(message);
+        } finally {
+            setProfileLoading(false);
+        }
     };
 
     const processPayment = async (methodType) => {
@@ -158,6 +202,13 @@ const Cart = () => {
                 }
             }
         } catch (ex) {
+            const errorCode = ex.response?.data?.code;
+            if (errorCode === "CUSTOMER_PROFILE_REQUIRED") {
+                setShowModal(false);
+                setShowProfileModal(true);
+                setLoading(false);
+                return;
+            }
             let errorMsg = ex.response && ex.response.data ? ex.response.data : ex.message;
             console.error("Chi tiết lỗi API:", errorMsg);
             alert("Lỗi thanh toán: " + errorMsg);
@@ -262,6 +313,39 @@ const Cart = () => {
                     </Card>
                 </Col>
             </Row>
+
+            <Modal show={showProfileModal} onHide={() => setShowProfileModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="fw-bold text-primary">Thông tin khách hàng</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-4">
+                    <Form.Group className="mb-3">
+                        <Form.Label>Ngày sinh</Form.Label>
+                        <Form.Control
+                            type="date"
+                            value={profileForm.dob}
+                            onChange={(e) => setProfileForm({ ...profileForm, dob: e.target.value })}
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Địa chỉ</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={profileForm.address}
+                            onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                            placeholder="Nhap dia chi"
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowProfileModal(false)} disabled={profileLoading}>
+                        Đóng
+                    </Button>
+                    <Button variant="primary" onClick={createCustomerProfile} disabled={profileLoading}>
+                        {profileLoading ? "Dang luu..." : "Luu thong tin va tiep tuc"}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
                 <Modal.Header closeButton>
