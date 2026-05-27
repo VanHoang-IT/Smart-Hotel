@@ -1,10 +1,17 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.hvh.utils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Formatter;
-
+/**
+ *
+ * @author ASUS
+ */
 public class MoMoSecurity {
     public static String signHmacSHA256(String data, String secretKey) throws Exception {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
