@@ -51,12 +51,17 @@ export const endpoints = {
   adminRoomImages: (id) => `/secure/admin/rooms/${id}/images`,
   adminDeleteRoomImage: (id) => `/secure/admin/room-images/${id}`,
   adminRevenueMonthly: "/secure/admin/revenue/monthly",
+  chatRoom: "/secure/chat/room",
+  chatSend: "/secure/chat/send",
+  chatMessages: "/secure/chat/messages",
+  chatRooms: "/secure/chat/rooms",
+  chatSeen: (roomId) => `/secure/chat/rooms/${roomId}/seen`,
 };
 
 export const authApis = () => {
   console.info(cookies.load("token"));
   return axios.create({
-    baseURL: "http://localhost:8080/SmartHotel/api/",
+    baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: {
       Authorization: `Bearer ${cookies.load("token")}`,
     },
@@ -64,5 +69,5 @@ export const authApis = () => {
 };
 
 export default axios.create({
-  baseURL: "http://localhost:8080/SmartHotel/api/",
+  baseURL: process.env.REACT_APP_API_BASE_URL,
 });

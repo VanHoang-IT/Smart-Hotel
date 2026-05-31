@@ -26,6 +26,8 @@ import Stats from "./screens/Admin/Stats";
 import Review from "./components/Review";
 import ReviewReservation from "./screens/Review/ReviewReservation";
 import MyTasks from "./screens/Staff/MyTask";
+import ReceptionistChat from "./screens/Receptionist/ReceptionistChat";
+import ChatBox from "./components/ChatBox";
 
 const App = () => {
   const [user, dispatch] = useReducer(
@@ -71,10 +73,12 @@ const App = () => {
               path="/review/:reservationId"
               element={<ReviewReservation />}
             />
+            <Route path="/receptionist-chat" element={<ReceptionistChat />} />
           </Routes>
 
           <Footer />
         </BrowserRouter>
+        <ChatBox />
       </MyBookingContext.Provider>
     </MyUserContext.Provider>
   );

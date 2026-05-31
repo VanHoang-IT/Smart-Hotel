@@ -118,13 +118,17 @@ const Header = () => {
                 </Nav.Link>
               )}
 
-              {/* 👇 Thêm link cho STAFF — đổi "STAFF" nếu role thực tế khác */}
               {user &&
                 (user.role === "STAFF" || user.role === "ROLE_STAFF") && (
                   <Nav.Link as={Link} to="/my-tasks">
                     Công việc của tôi
                   </Nav.Link>
                 )}
+              {user && user.role === "RECEPTIONIST" && (
+                <Nav.Link as={Link} to="/receptionist-chat">
+                  <i className="bi bi-chat-dots-fill" /> Hỗ trợ
+                </Nav.Link>
+              )}
             </Nav>
 
             {user === null ? (
