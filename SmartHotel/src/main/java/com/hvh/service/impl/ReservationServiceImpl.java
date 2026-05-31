@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.hvh.repository.ReviewRepository;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -36,6 +37,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private PaymentRepository paymentRepo;
+
+    @Autowired
+    private ReviewRepository reviewRepo;
 
     @Override
     @Transactional(readOnly = true)
@@ -59,9 +63,15 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation savedReservation = null;
         if (dto.getId() != null) {
             Reservation res = this.resRepo.getReservationById(dto.getId());
-            if (dto.getCheckIn() != null) res.setCheckIn(dto.getCheckIn());
-            if (dto.getCheckOut() != null) res.setCheckOut(dto.getCheckOut());
-            if (dto.getStatus() != null) res.setStatus(dto.getStatus());
+            if (dto.getCheckIn() != null) {
+                res.setCheckIn(dto.getCheckIn());
+            }
+            if (dto.getCheckOut() != null) {
+                res.setCheckOut(dto.getCheckOut());
+            }
+            if (dto.getStatus() != null) {
+                res.setStatus(dto.getStatus());
+            }
             this.resRepo.addOrUpdateReservation(res);
             savedReservation = res;
         } else {
@@ -81,8 +91,8 @@ public class ReservationServiceImpl implements ReservationService {
 
             dto.setCustomerId(profile.getId());
             savedReservation = this.resRepo.createReservation(dto);
-        } 
-        
+        }
+
         return savedReservation;
     }
 
@@ -90,7 +100,9 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional(readOnly = true)
     public ReservationDetailDTO getReservationDetailById(long id) {
         Reservation res = this.resRepo.getReservationById(id);
-        if (res == null) return null;
+        if (res == null) {
+            return null;
+        }
 
         ReservationDetailDTO dto = new ReservationDetailDTO();
         dto.setId(res.getId());
@@ -106,18 +118,17 @@ public class ReservationServiceImpl implements ReservationService {
             dto.setCreatedByName(res.getCreatedBy().getFullName());
         }
 
-        // Rooms
         List<ReservationDetailDTO.RoomItem> rooms = new ArrayList<>();
         if (res.getReservationRoomSet() != null) {
             for (ReservationRoom rr : res.getReservationRoomSet()) {
                 String roomName = rr.getRoomId() != null ? rr.getRoomId().getName() : null;
+                Long roomId = rr.getRoomId() != null ? rr.getRoomId().getId() : null;
                 rooms.add(new ReservationDetailDTO.RoomItem(
-                        rr.getId(), roomName, rr.getPricePerNight()));
+                        rr.getId(), roomId, roomName, rr.getPricePerNight()));
             }
         }
         dto.setRooms(rooms);
 
-        // Service orders
         List<ReservationDetailDTO.ServiceOrderItem> orders = new ArrayList<>();
         if (res.getServiceOrderSet() != null) {
             for (ServiceOrder so : res.getServiceOrderSet()) {
@@ -130,7 +141,6 @@ public class ReservationServiceImpl implements ReservationService {
         }
         dto.setServiceOrders(orders);
 
-        // Payments
         List<Payment> payments = this.paymentRepo.getPaymentsByReservation(id);
         List<ReservationDetailDTO.PaymentItem> paymentItems = new ArrayList<>();
         for (Payment p : payments) {
@@ -157,18 +167,29 @@ public class ReservationServiceImpl implements ReservationService {
 
     private ReservationResponseDTO toResponseDTO(Reservation res) {
         ReservationResponseDTO dto = new ReservationResponseDTO();
+
         dto.setId(res.getId());
         dto.setCheckIn(res.getCheckIn());
         dto.setCheckOut(res.getCheckOut());
         dto.setStatus(res.getStatus());
 
-        if (res.getCustomerId() != null && res.getCustomerId().getUserId() != null) {
-            dto.setCustomerName(res.getCustomerId().getUserId().getFullName());
+        if (res.getCustomerId() != null
+                && res.getCustomerId().getUserId() != null) {
+            dto.setCustomerName(
+                    res.getCustomerId()
+                            .getUserId()
+                            .getFullName());
         }
 
         if (res.getCreatedBy() != null) {
-            dto.setCreatedByName(res.getCreatedBy().getUsername());
+            dto.setCreatedByName(
+                    res.getCreatedBy()
+                            .getUsername());
         }
+
+        dto.setReviewed(
+                reviewRepo.existsByReservationId(
+                        res.getId()));
 
         return dto;
     }

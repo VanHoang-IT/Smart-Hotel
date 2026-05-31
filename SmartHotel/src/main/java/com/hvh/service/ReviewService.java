@@ -16,10 +16,19 @@ import java.util.Map;
  * @author 03358
  */
 public interface ReviewService {
+
     List<ReviewResponseDTO> getReviews(Map<String, String> params);
-    List<ReviewResponseDTO> getReviewsByRoomId(Long roomId); 
-    ReviewResponseDTO addReview(ReviewRequestDTO dto, User user);
+
+    List<ReviewResponseDTO> getReviewsByRoomId(Long roomId);
+
+    ReviewResponseDTO addReview(
+            Long reservationId,
+            ReviewRequestDTO dto,
+            User currentUser);
+
     ReviewResponseDTO updateReview(Long id, ReviewRequestDTO dto, User user);
+
     Review getReviewById(Long id);
+
     void deleteReview(Long id);
 }

@@ -87,13 +87,21 @@ public class ReservationResponseDTO {
     public void setCreatedByName(String createdByName) {
         this.createdByName = createdByName;
     }
+    
+    public Boolean getReviewed() {
+    return reviewed;
+}
+
+public void setReviewed(Boolean reviewed) {
+    this.reviewed = reviewed;
+}
     private Long id;
     private Date checkIn;
     private Date checkOut;
     private String status;
     private String customerName;
     private String createdByName;
-
+     private Boolean reviewed;
     public ReservationResponseDTO() {}
 
 

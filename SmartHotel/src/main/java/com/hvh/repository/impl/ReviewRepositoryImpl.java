@@ -87,16 +87,19 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         String hql = "SELECT r FROM Review r "
                 + "JOIN r.reservationId res "
                 + "JOIN res.reservationRoomSet rr "
-                + "WHERE rr.roomId.id = :id";
+                + "WHERE rr.roomId.id = :id "
+                + "AND r.visible = true "
+                + "ORDER BY r.createdAt DESC";
 
-        Query q = s.createQuery(hql, Review.class);
+        Query<Review> q = s.createQuery(hql, Review.class);
         q.setParameter("id", roomId);
 
         return q.getResultList();
     }
 
     @Override
-    public void addReviewOrUpdate(Review r) {
+    public void addReviewOrUpdate(Review r
+    ) {
         Session s = this.factory.getObject().getCurrentSession();
         if (r.getId() != null) {
             s.merge(r);
@@ -106,16 +109,33 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
-    public Review getReviewById(Long id) {
+    public Review getReviewById(Long id
+    ) {
         return this.factory.getObject().getCurrentSession().get(Review.class, id);
     }
 
     @Override
-    public void deleteReview(Long id) {
+    public void deleteReview(Long id
+    ) {
         Session s = this.factory.getObject().getCurrentSession();
         Review r = this.getReviewById(id);
         if (r != null) {
             s.remove(r);
         }
+    }
+
+    @Override
+    public boolean existsByReservationId(Long reservationId) {
+        Session s = this.factory.getObject().getCurrentSession();
+
+        String hql = "SELECT COUNT(r.id) "
+           + "FROM Review r "
+           + "WHERE r.reservationId.id = :reservationId";
+
+        Long count = s.createQuery(hql, Long.class)
+                .setParameter("reservationId", reservationId)
+                .getSingleResult();
+
+        return count > 0;
     }
 }

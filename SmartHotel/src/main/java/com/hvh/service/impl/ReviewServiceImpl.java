@@ -109,17 +109,30 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewResponseDTO addReview(ReviewRequestDTO dto, User currentUser) {
-        Reservation res = this.resRepo.getReservationById(dto.getReservationId());
+    public ReviewResponseDTO addReview(
+            Long reservationId,
+            ReviewRequestDTO dto,
+            User currentUser) {
+
+        Reservation res = this.resRepo.getReservationById(reservationId);
+
+        if (res == null) {
+            throw new RuntimeException("Đơn đặt phòng không tồn tại!");
+        }
+
+        if (!res.getCustomerId().getUserId().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Bạn không có quyền đánh giá đơn này!");
+        }
 
         Review r = new Review();
+        r.setReservationId(res);
         r.setRating(dto.getRating());
         r.setComment(dto.getComment());
-        r.setReservationId(res);
         r.setCreatedAt(new Date());
         r.setVisible(true);
 
         this.reviewRepo.addReviewOrUpdate(r);
+
         return this.mapToDTO(r);
     }
 }

@@ -41,17 +41,4 @@ public class ApiReviewController {
         
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
-    @PostMapping("/secure/reviews")
-    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
-    public ResponseEntity<?> create(@RequestBody ReviewRequestDTO reviewDto, Authentication auth) {
-        try {
-            String username = auth.getName();
-            User currentUser = this.userService.getUserByUsername(username);
-            ReviewResponseDTO response = this.reviewService.addReview(reviewDto, currentUser);
-            
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (Exception ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-        }
-    }
 }

@@ -1,4 +1,13 @@
-import { Nav, Navbar, Container, NavDropdown, Button, Modal, Spinner, Alert } from "react-bootstrap";
+import {
+  Nav,
+  Navbar,
+  Container,
+  NavDropdown,
+  Button,
+  Modal,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
 import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import Apis, { authApis, endpoints } from "../configs/Apis";
@@ -64,38 +73,68 @@ const Header = () => {
 
           <Navbar.Collapse>
             <Nav className="me-auto">
-              <Nav.Link as={Link} to="/">Trang chủ</Nav.Link>
+              <Nav.Link as={Link} to="/">
+                Trang chủ
+              </Nav.Link>
 
               <NavDropdown title="Danh mục phòng" id="room-dropdown">
                 {roomTypes.map((rt) => (
-                  <NavDropdown.Item key={rt.id} as={Link} to={`/room-types/${rt.id}`}>
+                  <NavDropdown.Item
+                    key={rt.id}
+                    as={Link}
+                    to={`/room-types/${rt.id}`}
+                  >
                     {rt.name}
                   </NavDropdown.Item>
                 ))}
               </NavDropdown>
 
-              <Nav.Link as={Link} to="/cart">Giỏ hàng</Nav.Link>
-              <Nav.Link as={Link} to="/my-reservations">Lịch sử đặt phòng</Nav.Link>
+              <Nav.Link as={Link} to="/cart">
+                Giỏ hàng
+              </Nav.Link>
+              <Nav.Link as={Link} to="/my-reservations">
+                Lịch sử đặt phòng
+              </Nav.Link>
 
               {user && user.role === "RECEPTIONIST" && (
-                <Nav.Link as={Link} to="/reservation">Đơn đặt phòng</Nav.Link>
+                <Nav.Link as={Link} to="/reservation">
+                  Đơn đặt phòng
+                </Nav.Link>
               )}
               {user && user.role === "RECEPTIONIST" && (
-                <Nav.Link as={Link} to="/room-status">Trạng thái phòng</Nav.Link>
+                <Nav.Link as={Link} to="/room-status">
+                  Trạng thái phòng
+                </Nav.Link>
               )}
 
               {user && user.role === "ROLE_ADMIN" && (
-                <Nav.Link as={Link} to="/admin">Quản trị</Nav.Link>
+                <Nav.Link as={Link} to="/admin">
+                  Quản trị
+                </Nav.Link>
               )}
               {user && user.role === "ROLE_ADMIN" && (
-                <Nav.Link as={Link} to="/stats">Thống kê</Nav.Link>
+                <Nav.Link as={Link} to="/stats">
+                  Thống kê
+                </Nav.Link>
               )}
+
+              {/* 👇 Thêm link cho STAFF — đổi "STAFF" nếu role thực tế khác */}
+              {user &&
+                (user.role === "STAFF" || user.role === "ROLE_STAFF") && (
+                  <Nav.Link as={Link} to="/my-tasks">
+                    Công việc của tôi
+                  </Nav.Link>
+                )}
             </Nav>
 
             {user === null ? (
               <>
-                <Link to="/register" className="nav-link text-danger m-2">Đăng ký</Link>
-                <Link to="/login" className="nav-link text-danger m-2">Đăng nhập</Link>
+                <Link to="/register" className="nav-link text-danger m-2">
+                  Đăng ký
+                </Link>
+                <Link to="/login" className="nav-link text-danger m-2">
+                  Đăng nhập
+                </Link>
               </>
             ) : (
               <>
@@ -112,7 +151,10 @@ const Header = () => {
                   />{" "}
                   Chào {user.username}!
                 </Button>
-                <Button variant="info" onClick={() => dispatch({ type: "LOGOUT" })}>
+                <Button
+                  variant="info"
+                  onClick={() => dispatch({ type: "LOGOUT" })}
+                >
                   Đăng xuất
                 </Button>
               </>
@@ -121,7 +163,11 @@ const Header = () => {
         </Container>
       </Navbar>
 
-      <Modal show={showProfileModal} onHide={() => setShowProfileModal(false)} centered>
+      <Modal
+        show={showProfileModal}
+        onHide={() => setShowProfileModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Thông tin khách hàng</Modal.Title>
         </Modal.Header>
@@ -133,24 +179,45 @@ const Header = () => {
           )}
 
           {!profileLoading && profileError && (
-            <Alert variant="danger" className="mb-0">{profileError}</Alert>
+            <Alert variant="danger" className="mb-0">
+              {profileError}
+            </Alert>
           )}
 
           {!profileLoading && !profileError && profileData && (
             <>
-              <p><strong>Username:</strong> {profileData.user?.username || "-"}</p>
-              <p><strong>Họ tên:</strong> {profileData.user?.fullName || "-"}</p>
-              <p><strong>Email:</strong> {profileData.user?.email || "-"}</p>
-              <p><strong>Số điện thoại:</strong> {profileData.user?.phone || "-"}</p>
+              <p>
+                <strong>Username:</strong> {profileData.user?.username || "-"}
+              </p>
+              <p>
+                <strong>Họ tên:</strong> {profileData.user?.fullName || "-"}
+              </p>
+              <p>
+                <strong>Email:</strong> {profileData.user?.email || "-"}
+              </p>
+              <p>
+                <strong>Số điện thoại:</strong> {profileData.user?.phone || "-"}
+              </p>
               <hr />
               {profileData.customerProfile ? (
                 <>
-                  <p><strong>Ngày sinh:</strong> {formatDateDisplay(profileData.customerProfile?.dob)}</p>
-                  <p><strong>Địa chỉ:</strong> {profileData.customerProfile?.address || "-"}</p>
-                  <p><strong>Điểm tích lũy:</strong> {profileData.customerProfile?.loyaltyPoint ?? 0}</p>
+                  <p>
+                    <strong>Ngày sinh:</strong>{" "}
+                    {formatDateDisplay(profileData.customerProfile?.dob)}
+                  </p>
+                  <p>
+                    <strong>Địa chỉ:</strong>{" "}
+                    {profileData.customerProfile?.address || "-"}
+                  </p>
+                  <p>
+                    <strong>Điểm tích lũy:</strong>{" "}
+                    {profileData.customerProfile?.loyaltyPoint ?? 0}
+                  </p>
                 </>
               ) : (
-                <Alert variant="warning" className="mb-0">Bạn chưa có hồ sơ khách hàng.</Alert>
+                <Alert variant="warning" className="mb-0">
+                  Bạn chưa có hồ sơ khách hàng.
+                </Alert>
               )}
             </>
           )}

@@ -8,9 +8,9 @@ import Policy from "../../components/Policy";
 import AvailabilityCalendar from "../../components/Calender";
 import Location from "../../components/Location";
 import ImageCarousel from "../../components/ImageCarousel";
-import BookingBarSide from "../../components/BookingBarSide";
 import RentingBarSide from "../../components/RentingBarSide";
 import MySpinner from "../../components/MySpinner";
+import Review from "../../components/Review";
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -27,7 +27,7 @@ const RoomDetails = () => {
           Apis.get(endpoints.roomImages(id)),
         ]);
         setRooms(roomRes.data);
-        setImages(imgRes.data.map(img => img.imageUrl));
+        setImages(imgRes.data.map((img) => img.imageUrl));
       } catch (ex) {
         console.error(ex);
       } finally {
@@ -38,7 +38,10 @@ const RoomDetails = () => {
   }, [id]);
   if (loading || !rooms) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
         <MySpinner />
       </div>
     );
@@ -85,6 +88,9 @@ const RoomDetails = () => {
             </div>
             <div className="col-lg-4">
               <RentingBarSide roomPrice={rooms.price} roomId={rooms.id} />
+            </div>
+            <div className="col-lg-10 m-5">
+              <Review roomId={id} />
             </div>
           </div>
         </div>

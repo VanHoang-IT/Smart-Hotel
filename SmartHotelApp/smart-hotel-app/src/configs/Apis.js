@@ -8,7 +8,7 @@ export const endpoints = {
   roomDetails: (id) => `/rooms/${id}`,
   extraServices: "/services",
   register: "/users",
-  createReservation:'/secure/reservations',
+  createReservation: "/secure/reservations",
   login: "/login",
   profile: "/secure/profile",
   customerProfileMe: "/secure/customer-profile/me",
@@ -27,7 +27,12 @@ export const endpoints = {
   roomBookings: (id) => `/rooms/${id}/bookings`,
   roomImages: (id) => `/rooms/${id}/images`,
   myReservations: "/secure/reservations/my",
-  
+  roomReviews: (id) => `/rooms/${id}/reviews`,
+  createReview: (reservationId) =>
+    `/secure/reservations/${reservationId}/review`,
+  myHousekeepingTasks: "/secure/staff/housekeeping/my-tasks",
+  updateHousekeepingStatus: (id) => `/secure/staff/housekeeping/${id}/status`,
+
   adminUsers: "/secure/admin/users",
   adminUpdateRole: (id) => `/secure/admin/users/${id}/role`,
   adminAddRoom: "/secure/admin/rooms",

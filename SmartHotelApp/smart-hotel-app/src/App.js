@@ -23,6 +23,9 @@ import MyReservations from "./screens/Reservation/MyReservations";
 import AdminPanel from "./screens/Admin/AdminPanel";
 import RoomStatusManager from "./screens/Receptionist/RoomStatusManager";
 import Stats from "./screens/Admin/Stats";
+import Review from "./components/Review";
+import ReviewReservation from "./screens/Review/ReviewReservation";
+import MyTasks from "./screens/Staff/MyTask";
 
 const App = () => {
   const [user, dispatch] = useReducer(
@@ -55,11 +58,19 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/reservation" element={<Reservation />} />
-            <Route path="/reservation-detail/:id" element={<ReservationDetail />} />
+            <Route
+              path="/reservation-detail/:id"
+              element={<ReservationDetail />}
+            />
+            <Route path="/my-tasks" element={<MyTasks />} />
             <Route path="/my-reservations" element={<MyReservations />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/room-status" element={<RoomStatusManager />} />
             <Route path="/stats" element={<Stats />} />
+            <Route
+              path="/review/:reservationId"
+              element={<ReviewReservation />}
+            />
           </Routes>
 
           <Footer />

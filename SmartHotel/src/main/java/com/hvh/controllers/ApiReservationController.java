@@ -7,11 +7,14 @@ package com.hvh.controllers;
 import com.hvh.dto.ReservationDetailDTO;
 import com.hvh.dto.ReservationRequestDTO;
 import com.hvh.dto.ReservationResponseDTO;
+import com.hvh.dto.ReviewRequestDTO;
+import com.hvh.dto.ReviewResponseDTO;
 import com.hvh.dto.ServiceOrderRequestDTO;
 import com.hvh.dto.ServiceOrderResponseDTO;
 import com.hvh.pojo.Reservation;
 import com.hvh.pojo.User;
 import com.hvh.service.ReservationService;
+import com.hvh.service.ReviewService;
 import com.hvh.service.ServiceOrderService;
 import com.hvh.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -53,6 +56,9 @@ public class ApiReservationController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @PostMapping("/secure/reservations")
     @PreAuthorize("hasAnyAuthority('ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_CUSTOMER', 'RECEPTIONIST')")
@@ -167,4 +173,20 @@ public class ApiReservationController {
         }
     }
 
+    @PostMapping("/secure/reservations/{id}/review")
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
+    public ResponseEntity<?> createReview(
+            @PathVariable("id") Long reservationId,
+            @RequestBody ReviewRequestDTO dto,
+            Authentication auth) {
+
+        User currentUser
+                = this.userService.getUserByUsername(auth.getName());
+        ReviewResponseDTO review = this.reviewService.addReview(
+                        reservationId,
+                        dto,
+                        currentUser);
+
+        return new ResponseEntity<>(review, HttpStatus.CREATED);
+    }
 }

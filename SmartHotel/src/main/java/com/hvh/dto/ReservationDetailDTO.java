@@ -22,11 +22,13 @@ public class ReservationDetailDTO {
     public static class RoomItem {
 
         private Long id;
+        private Long roomId;
         private String roomName;
         private BigDecimal pricePerNight;
 
-        public RoomItem(Long id, String roomName, BigDecimal pricePerNight) {
+        public RoomItem(Long id, Long roomId, String roomName, BigDecimal pricePerNight) {
             this.id = id;
+            this.roomId = roomId;
             this.roomName = roomName;
             this.pricePerNight = pricePerNight;
         }
@@ -34,6 +36,10 @@ public class ReservationDetailDTO {
         public Long getId() {
             return id;
         }
+
+        public Long getRoomId() {
+            return roomId;
+        }        // 👈 thêm getter
 
         public String getRoomName() {
             return roomName;

@@ -18,4 +18,5 @@ public interface ReviewRepository {
     Review getReviewById(Long id);
     void deleteReview(Long id);
     List<Review> getReviewsByRoomId(Long roomId); 
+    boolean existsByReservationId(Long reservationId);
 }
