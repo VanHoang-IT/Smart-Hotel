@@ -18,6 +18,7 @@ export const endpoints = {
   updateReservationStatus: (id) => `/secure/reservations/${id}/status`,
   payments: "/secure/payments",
   momoLink: "/secure/payments/momo-link",
+  vnpayLink: "/secure/payments/vnpay-link",
   cancelReservation: (id) => `/secure/reservations/${id}/cancel`,
   deleteReservation: (id) => `/secure/reservations/${id}`,
   serviceOrders: (id) => `/secure/reservations/${id}/service-orders`,
@@ -32,6 +33,7 @@ export const endpoints = {
     `/secure/reservations/${reservationId}/review`,
   myHousekeepingTasks: "/secure/staff/housekeeping/my-tasks",
   updateHousekeepingStatus: (id) => `/secure/staff/housekeeping/${id}/status`,
+  vnpayConfirm: "/secure/payments/vnpay-confirm",
 
   adminUsers: "/secure/admin/users",
   adminUpdateRole: (id) => `/secure/admin/users/${id}/role`,
@@ -64,10 +66,14 @@ export const authApis = () => {
     baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: {
       Authorization: `Bearer ${cookies.load("token")}`,
+      "ngrok-skip-browser-warning": "true",
     },
   });
 };
 
 export default axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
+  headers: {
+    "ngrok-skip-browser-warning": "true",
+  },
 });

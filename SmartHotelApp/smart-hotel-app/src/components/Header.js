@@ -36,7 +36,9 @@ const Header = () => {
     const loadRoomTypes = async () => {
       try {
         const res = await Apis.get(endpoints.roomTypes);
-        setRoomTypes(res.data);
+        setRoomTypes(
+          Array.isArray(res.data) ? res.data : res.data.content || [],
+        );
       } catch (ex) {
         console.error(ex);
       }

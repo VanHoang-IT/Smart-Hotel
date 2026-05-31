@@ -13,9 +13,19 @@ import java.util.Map;
  * @author 03358
  */
 public interface PaymentService {
+
     void addPayment(Map<String, Object> payload);
+
     List<Payment> getPaymentsByReservation(long resId);
+
     Map<String, Object> createMoMoPayment(Long reservationId, Long amount) throws Exception;
+
     void processMoMoPayment(Map<String, Object> callbackData);
+
     void updateStatus(long id, String status);
+
+    Map<String, Object> createVNPayPayment(Long reservationId) throws Exception;
+
+    void processVNPayReturn(Map<String, String> params);
+    void confirmVNPayManual(Long reservationId);
 }

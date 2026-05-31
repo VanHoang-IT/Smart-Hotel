@@ -15,6 +15,7 @@ import com.hvh.service.MailService;
 import com.hvh.service.PaymentService;
 import com.hvh.service.ServiceOrderService;
 import com.hvh.utils.MoMoSecurity;
+import com.hvh.utils.VNPaySecurity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,11 +49,16 @@ public class PaymentServiceImpl implements PaymentService {
     private MailService mailService;
     @Autowired
     private ServiceOrderService serviceOrderService;
-    
+
     private final String partnerCode = "MOMO";
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+
+    private final String vnp_TmnCode = "FUWUS60W";
+    private final String vnp_HashSecret = "N8VMEABXGLY2RDB48U1I0WIN9GKA8A1U";
+    private final String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    private final String vnp_ReturnUrl = "http://localhost:3000/cart";
 
     @Override
     @Transactional
@@ -76,7 +83,7 @@ public class PaymentServiceImpl implements PaymentService {
             Payment payment = new Payment();
             payment.setTotalAmount(amount);
             payment.setMethod(method);
-            payment.setStatus("PENDING"); 
+            payment.setStatus("PENDING");
             payment.setCreatedAt(new Date());
             payment.setReservationId(res);
             this.paymentRepo.addPayment(payment);
@@ -165,7 +172,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private boolean isToday(Date date) {
-        if (date == null) return false;
+        if (date == null) {
+            return false;
+        }
         LocalDate checkInDate;
         if (date instanceof java.sql.Date) {
             checkInDate = ((java.sql.Date) date).toLocalDate();
@@ -187,5 +196,105 @@ public class PaymentServiceImpl implements PaymentService {
             p.setPaidAt(new Date());
         }
         this.paymentRepo.updatePayment(p);
+    }
+
+    @Override
+    public Map<String, Object> createVNPayPayment(Long reservationId) throws Exception {
+        BigDecimal amount = this.serviceOrderService.getTotalAmountByReservation(reservationId);
+        long vnpAmount = amount.longValue() * 100;
+        String vnp_TxnRef = reservationId + "_" + System.currentTimeMillis();
+        String vnp_OrderInfo = "Thanh toan don " + reservationId;
+
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyyMMddHHmmss");
+        sdf.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        String vnp_CreateDate = sdf.format(new Date());
+
+        Map<String, String> params = new TreeMap<>();
+        params.put("vnp_Version", "2.1.0");
+        params.put("vnp_Command", "pay");
+        params.put("vnp_TmnCode", vnp_TmnCode);
+        params.put("vnp_Amount", String.valueOf(vnpAmount));
+        params.put("vnp_CurrCode", "VND");
+        params.put("vnp_TxnRef", vnp_TxnRef);
+        params.put("vnp_OrderInfo", vnp_OrderInfo);
+        params.put("vnp_OrderType", "other");
+        params.put("vnp_Locale", "vn");
+        params.put("vnp_ReturnUrl", vnp_ReturnUrl);
+        params.put("vnp_IpAddr", "127.0.0.1");
+        params.put("vnp_CreateDate", vnp_CreateDate);
+
+        String queryString = VNPaySecurity.buildQueryString(params, vnp_HashSecret);
+        String paymentUrl = vnp_Url + "?" + queryString;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("payUrl", paymentUrl);
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public void processVNPayReturn(Map<String, String> params) {
+        String vnp_ResponseCode = params.get("vnp_ResponseCode");
+        if ("00".equals(vnp_ResponseCode)) {
+            String txnRef = params.get("vnp_TxnRef");
+            Long resId = Long.parseLong(txnRef.split("_")[0]);
+            Reservation res = this.reservationRepo.getReservationById(resId);
+            if (res != null) {
+                res.setStatus("CONFIRMED");
+                this.reservationRepo.addOrUpdateReservation(res);
+
+                Set<ReservationRoom> reservationRooms = res.getReservationRoomSet();
+                if (reservationRooms != null && isToday(res.getCheckIn())) {
+                    for (ReservationRoom rr : reservationRooms) {
+                        Room room = rr.getRoomId();
+                        room.setStatus("OCCUPIED");
+                        this.roomRepo.addOrUpdateRoom(room);
+                    }
+                }
+
+                Payment p = new Payment();
+                p.setReservationId(res);
+                p.setTotalAmount(new BigDecimal(params.get("vnp_Amount"))
+                        .divide(BigDecimal.valueOf(100)));
+                p.setMethod("TRANSFER");
+                p.setTransactionId(params.get("vnp_TransactionNo"));
+                p.setStatus("COMPLETED");
+                p.setPaidAt(new Date());
+                p.setCreatedAt(new Date());
+                this.paymentRepo.addPayment(p);
+                this.mailService.sendInvoiceEmail(res, p);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void confirmVNPayManual(Long reservationId) {
+        Reservation res = this.reservationRepo.getReservationById(reservationId);
+        if (res != null) {
+            res.setStatus("CONFIRMED");
+            this.reservationRepo.addOrUpdateReservation(res);
+
+            Set<ReservationRoom> reservationRooms = res.getReservationRoomSet();
+            if (reservationRooms != null && isToday(res.getCheckIn())) {
+                for (ReservationRoom rr : reservationRooms) {
+                    Room room = rr.getRoomId();
+                    room.setStatus("OCCUPIED");
+                    this.roomRepo.addOrUpdateRoom(room);
+                }
+            }
+
+            BigDecimal amount = this.serviceOrderService.getTotalAmountByReservation(reservationId);
+            Payment p = new Payment();
+            p.setReservationId(res);
+            p.setTotalAmount(amount);
+            p.setMethod("TRANSFER");
+            p.setTransactionId("VNPAY_" + System.currentTimeMillis());
+            p.setStatus("COMPLETED");
+            p.setPaidAt(new Date());
+            p.setCreatedAt(new Date());
+            this.paymentRepo.addPayment(p);
+            this.mailService.sendInvoiceEmail(res, p);
+        }
     }
 }
