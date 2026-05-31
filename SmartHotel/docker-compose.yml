@@ -1,0 +1,29 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: smarthotel-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Abcd123
+      MYSQL_DATABASE: smarthoteldb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pAbcd123"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: .
+    container_name: smarthotel-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  mysql_data:
