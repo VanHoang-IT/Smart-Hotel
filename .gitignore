@@ -24,4 +24,4 @@ hs_err_pid*
 replay_pid*
 /SmartHotel/target/
 
-src/main/resources/smarthotel-fc975-firebase-adminsdk-fbsvc-63386df18b.json
+SmartHotel/src/main/resources/smarthotel-fc975-firebase-adminsdk-fbsvc-63386df18b.json
