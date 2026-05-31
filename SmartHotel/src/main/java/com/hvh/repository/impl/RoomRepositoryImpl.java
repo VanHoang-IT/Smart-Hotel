@@ -74,6 +74,11 @@ public class RoomRepositoryImpl implements RoomRepository {
                 predicates.add(b.equal(root.get("roomTypeId").get("id"), Integer.parseInt(typeId)));
             }
 
+            String status = params.get("status");
+            if (status != null && !status.isBlank()) {
+                predicates.add(b.equal(root.get("status"), status));
+            }
+            
             q.where(predicates.toArray(Predicate[]::new));
         }
 
@@ -139,9 +144,9 @@ public class RoomRepositoryImpl implements RoomRepository {
             Root<ReservationRoom> rr = blockedQuery.from(ReservationRoom.class);
             blockedQuery.select(rr.get("roomId").get("id")).distinct(true)
                     .where(
-                        rr.get("reservationId").get("status").in("PENDING", "CONFIRMED", "CHECKED_IN"),
-                        cb.lessThan(rr.get("reservationId").get("checkIn"), checkOutDate),
-                        cb.greaterThan(rr.get("reservationId").get("checkOut"), checkInDate)
+                            rr.get("reservationId").get("status").in("PENDING", "CONFIRMED", "CHECKED_IN"),
+                            cb.lessThan(rr.get("reservationId").get("checkIn"), checkOutDate),
+                            cb.greaterThan(rr.get("reservationId").get("checkOut"), checkInDate)
                     );
             List<Long> blockedIds = session.createQuery(blockedQuery).getResultList();
 

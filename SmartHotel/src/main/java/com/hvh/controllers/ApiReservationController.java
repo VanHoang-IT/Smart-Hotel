@@ -163,7 +163,7 @@ public class ApiReservationController {
             @RequestBody Map<String, String> body) {
         String status = body.get("status");
         if (status == null || status.isBlank()) {
-            return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Phải có status", HttpStatus.BAD_REQUEST);
         }
         try {
             this.serOrderService.updateStatus(id, status);

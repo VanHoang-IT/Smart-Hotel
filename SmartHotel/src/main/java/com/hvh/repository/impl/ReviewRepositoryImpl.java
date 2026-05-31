@@ -5,11 +5,13 @@
 package com.hvh.repository.impl;
 
 import com.hvh.pojo.Reservation;
+import com.hvh.pojo.ReservationRoom;
 import com.hvh.pojo.Review;
 import com.hvh.repository.ReviewRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -84,17 +86,21 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     @Override
     public List<Review> getReviewsByRoomId(Long roomId) {
         Session s = this.factory.getObject().getCurrentSession();
-        String hql = "SELECT r FROM Review r "
-                + "JOIN r.reservationId res "
-                + "JOIN res.reservationRoomSet rr "
-                + "WHERE rr.roomId.id = :id "
-                + "AND r.visible = true "
-                + "ORDER BY r.createdAt DESC";
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<Review> cq = cb.createQuery(Review.class);
 
-        Query<Review> q = s.createQuery(hql, Review.class);
-        q.setParameter("id", roomId);
+        Root<Review> review = cq.from(Review.class);
+        Join<Review, Reservation> reservation = review.join("reservationId");
+        Join<Reservation, ReservationRoom> reservationRoom = reservation.join("reservationRoomSet");
 
-        return q.getResultList();
+        cq.select(review)
+                .where(
+                        cb.equal(reservationRoom.get("roomId").get("id"), roomId),
+                        cb.isTrue(review.get("visible"))
+                )
+                .orderBy(cb.desc(review.get("createdAt")));
+
+        return s.createQuery(cq).getResultList();
     }
 
     @Override
@@ -127,15 +133,15 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     @Override
     public boolean existsByReservationId(Long reservationId) {
         Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = s.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 
-        String hql = "SELECT COUNT(r.id) "
-           + "FROM Review r "
-           + "WHERE r.reservationId.id = :reservationId";
+        Root<Review> review = cq.from(Review.class);
 
-        Long count = s.createQuery(hql, Long.class)
-                .setParameter("reservationId", reservationId)
-                .getSingleResult();
+        cq.select(cb.count(review.get("id")))
+                .where(cb.equal(review.get("reservationId").get("id"), reservationId));
 
+        Long count = s.createQuery(cq).getSingleResult();
         return count > 0;
     }
 }

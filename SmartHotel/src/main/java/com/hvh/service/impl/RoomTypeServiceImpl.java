@@ -10,6 +10,7 @@ import com.hvh.service.RoomTypeService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -37,7 +38,7 @@ public class RoomTypeServiceImpl implements RoomTypeService{
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void deleteRoomType(Long id) {
         this.typeRepo.delete(id);
     }
