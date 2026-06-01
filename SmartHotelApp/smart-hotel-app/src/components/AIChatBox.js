@@ -1,7 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import Apis, { endpoints } from "../configs/Apis";
+import { MyUserContext } from "../configs/Contexts";
 
 const AIChatBox = () => {
+  const [user] = useContext(MyUserContext);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -83,6 +85,15 @@ Hãy tư vấn ngắn gọn, thân thiện bằng tiếng Việt. Gợi ý phòn
       hour: "2-digit",
       minute: "2-digit",
     });
+
+  if (
+    user &&
+    (user.role === "RECEPTIONIST" ||
+      user.role === "ROLE_ADMIN" ||
+      user.role === "ROLE_STAFF")
+  ) {
+    return null;
+  }
 
   return (
     <div className="ai-chatbox-wrapper">

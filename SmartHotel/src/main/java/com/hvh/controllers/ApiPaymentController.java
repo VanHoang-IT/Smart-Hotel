@@ -1,6 +1,6 @@
 package com.hvh.controllers;
 
-import com.hvh.service.PaymentService;
+import com.hvh.facade.BookingFacade;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpStatusCodeException;
 
 @RestController
 @RequestMapping("/api")
@@ -24,13 +23,13 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class ApiPaymentController {
 
     @Autowired
-    private PaymentService paymentService;
+    private BookingFacade bookingFacade;
 
     @PostMapping("/secure/payments")
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<?> createPayment(@RequestBody Map<String, Object> payload) {
         try {
-            this.paymentService.addPayment(payload);
+            bookingFacade.processPayment(payload);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -43,10 +42,8 @@ public class ApiPaymentController {
         try {
             Long resId = Long.parseLong(params.get("reservationId").toString());
             Long amount = Long.parseLong(params.get("amount").toString());
-            Map<String, Object> result = this.paymentService.createMoMoPayment(resId, amount);
+            Map<String, Object> result = bookingFacade.processMoMoPayment(resId, amount);
             return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (HttpStatusCodeException e) {
-            return new ResponseEntity<>(e.getResponseBodyAsString(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -56,7 +53,7 @@ public class ApiPaymentController {
     @PostMapping("/public/payments/momo-callback")
     public ResponseEntity<Void> momoCallback(@RequestBody Map<String, Object> body) {
         try {
-            this.paymentService.processMoMoPayment(body);
+            bookingFacade.processMoMoCallback(body);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,7 +65,7 @@ public class ApiPaymentController {
     public ResponseEntity<?> getVNPayLink(@RequestBody Map<String, Object> params) {
         try {
             Long resId = Long.parseLong(params.get("reservationId").toString());
-            Map<String, Object> result = this.paymentService.createVNPayPayment(resId);
+            Map<String, Object> result = bookingFacade.processVNPayPayment(resId);
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,14 +77,14 @@ public class ApiPaymentController {
     public void vnpayReturn(
             @RequestParam Map<String, String> params,
             HttpServletResponse response) throws Exception {
-        this.paymentService.processVNPayReturn(params);
+        bookingFacade.processVNPayReturn(params);
         response.sendRedirect("http://localhost:3000/cart?payment=vnpay-success");
     }
 
     @GetMapping("/public/payments/vnpay-ipn")
     public ResponseEntity<String> vnpayIpn(@RequestParam Map<String, String> params) {
         try {
-            this.paymentService.processVNPayReturn(params);
+            bookingFacade.processVNPayReturn(params);
             return new ResponseEntity<>("00", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("99", HttpStatus.BAD_REQUEST);
@@ -104,7 +101,7 @@ public class ApiPaymentController {
             return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
         }
         try {
-            this.paymentService.updateStatus(id, status);
+            bookingFacade.updatePaymentStatus(id, status);
             return new ResponseEntity<>(status, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -116,7 +113,7 @@ public class ApiPaymentController {
     public ResponseEntity<?> confirmVNPay(@RequestBody Map<String, Object> params) {
         try {
             Long resId = Long.parseLong(params.get("reservationId").toString());
-            this.paymentService.confirmVNPayManual(resId);
+            bookingFacade.confirmVNPayManual(resId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
