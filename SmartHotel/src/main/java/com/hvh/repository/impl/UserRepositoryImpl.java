@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.hvh.repository.impl;
 
 import com.hvh.pojo.User;
@@ -11,19 +7,18 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import java.util.List;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-/**
- *
- * @author 03358
- */
 @Repository
 @Transactional
 public class UserRepositoryImpl implements UserRepository {
+
+    private static final int PAGE_SIZE = 10;
 
     @Autowired
     private LocalSessionFactoryBean factory;
@@ -46,20 +41,16 @@ public class UserRepositoryImpl implements UserRepository {
     public User addUser(User u) {
         Session session = this.factory.getObject().getCurrentSession();
         session.persist(u);
-
         return u;
     }
 
     @Override
     public boolean authenticate(String username, String password) {
         User u = this.getUserByUsername(username);
-
-        if (u == null)
-            return false;
-
+        if (u == null) return false;
         return this.passwordEncoder.matches(password, u.getPassword());
     }
-    
+
     @Override
     public User getUserById(Long id) {
         Session session = this.factory.getObject().getCurrentSession();
@@ -74,6 +65,20 @@ public class UserRepositoryImpl implements UserRepository {
         Root<User> root = q.from(User.class);
         q.select(root).orderBy(b.asc(root.get("id")));
         return session.createQuery(q).getResultList();
+    }
+
+    @Override
+    public List<User> getUsers(int page) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<User> q = b.createQuery(User.class);
+        Root<User> root = q.from(User.class);
+        q.select(root).orderBy(b.asc(root.get("id")));
+        int start = (page - 1) * PAGE_SIZE;
+        Query query = session.createQuery(q);
+        query.setFirstResult(start);
+        query.setMaxResults(PAGE_SIZE);
+        return query.getResultList();
     }
 
     @Override

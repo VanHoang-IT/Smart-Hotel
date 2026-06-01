@@ -94,11 +94,23 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public java.util.List<User> getUsers(int page) {
+        return this.userRepo.getUsers(page);
+    }
+
+    @Override
     @Transactional
     public void updateRole(Long id, String role) {
+        validateRole(role);
         User u = this.userRepo.getUserById(id);
         if (u == null) throw new RuntimeException("Không tìm thấy user: " + id);
         u.setRole(role);
         this.userRepo.updateUser(u);
+    }
+
+    private void validateRole(String role) {
+        if (role == null || role.isBlank()) {
+            throw new IllegalArgumentException("Role không được trống");
+        }
     }
 }

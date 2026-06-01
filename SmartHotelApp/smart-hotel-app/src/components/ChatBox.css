@@ -9,6 +9,12 @@
   gap: 12px;
 }
 
+.chatbox-wrapper .chatbox-window {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+}
+
 .chatbox-toggle {
   display: flex;
   align-items: center;
@@ -25,7 +31,6 @@
 }
 
 .chatbox-toggle:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,60,94,.45); }
-.chatbox-toggle.open  { border-radius: 50%; padding: 12px; }
 
 .chatbox-window {
   width: 340px;
@@ -61,8 +66,25 @@
   font-size: 1.2rem;
 }
 
+.chatbox-header-info { flex: 1; }
 .chatbox-header-name   { font-weight: 700; font-size: .92rem; }
 .chatbox-header-status { font-size: .73rem; opacity: .85; display: flex; align-items: center; gap: 4px; }
+
+/* Nút đóng nằm trong header */
+.chatbox-close {
+  background: rgba(255,255,255,.18);
+  border: none;
+  color: #fff;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: background .2s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.chatbox-close:hover { background: rgba(255,255,255,.32); }
 
 .status-dot {
   width: 7px; height: 7px;
@@ -124,15 +146,22 @@
 .chatbox-send:hover:not(:disabled) { transform: scale(1.1); box-shadow: 0 4px 12px rgba(45,106,159,.4); }
 .chatbox-send:disabled { opacity: .4; cursor: not-allowed; }
 
+/* AI wrapper */
 .ai-chatbox-wrapper {
   position: fixed;
   bottom: 24px;
-  right: 180px;
+  right: 160px;
   z-index: 9999;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+}
+
+.ai-chatbox-wrapper .chatbox-window {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
 }
 
 .ai-toggle {
@@ -159,8 +188,7 @@
 }
 
 .ai-typing span {
-  width: 7px;
-  height: 7px;
+  width: 7px; height: 7px;
   background: #94a3b8;
   border-radius: 50%;
   animation: typing 1.2s infinite;

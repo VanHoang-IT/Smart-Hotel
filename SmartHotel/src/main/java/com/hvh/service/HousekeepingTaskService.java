@@ -13,6 +13,7 @@ import java.util.Map;
 
 public interface HousekeepingTaskService {
     List<Map<String, Object>> getAll();
+    List<Map<String, Object>> getAll(int page);
     List<Map<String, Object>> getTasksByAssignee(Long assigneeId);
     void addOrUpdate(Map<String, Object> payload);
     void updateStatus(Long id, String status);

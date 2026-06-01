@@ -106,7 +106,81 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public void addOrUpdateRoomJson(Room r) {
+        validateRoom(r);
         this.roomRepo.addOrUpdateRoom(r);
+    }
+
+    @Override
+    @Transactional
+    public void createRoom(Map<String, Object> body) {
+        String name = body.get("name") != null ? body.get("name").toString().trim() : null;
+        String price = body.get("price") != null ? body.get("price").toString().trim() : null;
+        String roomTypeIdStr = body.get("roomTypeId") != null ? body.get("roomTypeId").toString().trim() : null;
+
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Tên phòng không được trống");
+        }
+        if (price == null || price.isEmpty()) {
+            throw new IllegalArgumentException("Giá không được trống");
+        }
+        if (roomTypeIdStr == null || roomTypeIdStr.isEmpty()) {
+            throw new IllegalArgumentException("Loại phòng không được trống");
+        }
+
+        Room r = new Room();
+        r.setName(name);
+        r.setPrice(new java.math.BigDecimal(price));
+        r.setStatus(body.getOrDefault("status", "AVAILABLE").toString());
+        r.setNote(body.get("note") != null ? body.get("note").toString() : null);
+        r.setMainImage(body.get("mainImage") != null ? body.get("mainImage").toString() : null);
+        if (body.get("floor") != null && !body.get("floor").toString().trim().isEmpty()) {
+            r.setFloor(Integer.parseInt(body.get("floor").toString().trim()));
+        }
+        r.setRoomTypeId(new com.hvh.pojo.RoomType(Long.valueOf(roomTypeIdStr)));
+        this.roomRepo.addOrUpdateRoom(r);
+    }
+
+    @Override
+    @Transactional
+    public void updateRoom(Long id, Map<String, Object> body) {
+        Room r = this.roomRepo.getRoomById(id);
+        if (r == null) {
+            throw new RuntimeException("Không tìm thấy phòng");
+        }
+        if (body.get("name") != null && !body.get("name").toString().trim().isEmpty()) {
+            r.setName(body.get("name").toString().trim());
+        }
+        if (body.get("price") != null && !body.get("price").toString().trim().isEmpty()) {
+            r.setPrice(new java.math.BigDecimal(body.get("price").toString().trim()));
+        }
+        if (body.get("status") != null) {
+            r.setStatus(body.get("status").toString());
+        }
+        if (body.get("note") != null) {
+            r.setNote(body.get("note").toString());
+        }
+        if (body.get("floor") != null && !body.get("floor").toString().trim().isEmpty()) {
+            r.setFloor(Integer.parseInt(body.get("floor").toString().trim()));
+        }
+        if (body.get("mainImage") != null && !body.get("mainImage").toString().isEmpty()) {
+            r.setMainImage(body.get("mainImage").toString());
+        }
+        if (body.get("roomTypeId") != null && !body.get("roomTypeId").toString().trim().isEmpty()) {
+            r.setRoomTypeId(new com.hvh.pojo.RoomType(Long.valueOf(body.get("roomTypeId").toString().trim())));
+        }
+        this.roomRepo.addOrUpdateRoom(r);
+    }
+
+    private void validateRoom(Room r) {
+        if (r.getName() == null || r.getName().isBlank()) {
+            throw new IllegalArgumentException("Tên phòng không được trống");
+        }
+        if (r.getPrice() == null) {
+            throw new IllegalArgumentException("Giá không được trống");
+        }
+        if (r.getRoomTypeId() == null) {
+            throw new IllegalArgumentException("Loại phòng không được trống");
+        }
     }
 
 }

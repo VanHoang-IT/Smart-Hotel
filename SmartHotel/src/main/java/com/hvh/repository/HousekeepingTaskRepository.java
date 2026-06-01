@@ -12,6 +12,7 @@ import java.util.List;
 
 public interface HousekeepingTaskRepository {
     List<HousekeepingTask> getAll();
+    List<HousekeepingTask> getAll(int page);
     List<HousekeepingTask> getByAssigneeId(Long assigneeId);
     HousekeepingTask getById(Long id);
     void addOrUpdate(HousekeepingTask task);

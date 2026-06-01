@@ -20,7 +20,7 @@ public class DispatcherServletInit extends AbstractAnnotationConfigDispatcherSer
             HibernateConfigs.class,
             SpringSecurityConfigs.class,
             ThymeleafConfigs.class,
-            WebSocketConfig.class
+            WebSocketConfig.class,
         };
     }
 

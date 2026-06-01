@@ -17,6 +17,7 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 /**
  *
  * @author 03358
@@ -29,8 +30,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
             "com.hvh.service",
             "com.hvh.configs",
             "com.hvh.facade",
-            "com.hvh.payment",
-        }
+            "com.hvh.payment",}
 )
 @EnableWebMvc
 @EnableTransactionManagement

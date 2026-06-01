@@ -20,4 +20,6 @@ public interface RoomService {
     List<Room> getRoomAvailable(String checkIn, String checkOut);
     List<Map<String, Object>> getRoomBookings(int roomId);
     void addOrUpdateRoomJson(Room r);
+    void createRoom(Map<String, Object> body);
+    void updateRoom(Long id, Map<String, Object> body);
 }

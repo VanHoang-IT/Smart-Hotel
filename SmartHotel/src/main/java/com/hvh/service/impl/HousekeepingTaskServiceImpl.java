@@ -39,9 +39,16 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
     public List<Map<String, Object>> getAll() {
         List<HousekeepingTask> tasks = this.taskRepo.getAll();
         List<Map<String, Object>> result = new ArrayList<>();
-        for (HousekeepingTask t : tasks) {
-            result.add(this.toMap(t));
-        }
+        for (HousekeepingTask t : tasks) result.add(this.toMap(t));
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAll(int page) {
+        List<HousekeepingTask> tasks = this.taskRepo.getAll(page);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (HousekeepingTask t : tasks) result.add(this.toMap(t));
         return result;
     }
 
@@ -59,6 +66,7 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
     @Override
     @Transactional
     public void addOrUpdate(Map<String, Object> payload) {
+        validateTask(payload);
         HousekeepingTask task = new HousekeepingTask();
 
         if (payload.get("id") != null) {
@@ -95,6 +103,9 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
     @Override
     @Transactional
     public void updateStatus(Long id, String status) {
+        if (status == null || status.isBlank()) {
+            throw new IllegalArgumentException("Status không được trống");
+        }
         HousekeepingTask task = this.taskRepo.getById(id);
         if (task == null) {
             throw new RuntimeException("Khong tim thay task: " + id);
@@ -129,6 +140,15 @@ public class HousekeepingTaskServiceImpl implements HousekeepingTaskService {
     @Transactional
     public void delete(Long id) {
         this.taskRepo.delete(id);
+    }
+
+    private void validateTask(Map<String, Object> payload) {
+        if (payload.get("task") == null || payload.get("task").toString().isBlank()) {
+            throw new IllegalArgumentException("Tên task không được trống");
+        }
+        if (payload.get("roomId") == null || payload.get("roomId").toString().isBlank()) {
+            throw new IllegalArgumentException("Phòng không được trống");
+        }
     }
 
     private Map<String, Object> toMap(HousekeepingTask t) {

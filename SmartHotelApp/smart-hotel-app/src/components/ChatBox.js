@@ -99,32 +99,31 @@ const ChatBox = () => {
 
   return (
     <div className="chatbox-wrapper">
-      <button
-        className={`chatbox-toggle ${isOpen ? "open" : ""}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? (
-          <i className="bi bi-x-lg" />
-        ) : (
-          <>
-            <i className="bi bi-chat-dots-fill" />
-            <span>Lễ tân</span>
-          </>
-        )}
-      </button>
+      {/* Nút mở */}
+      {!isOpen && (
+        <button className="chatbox-toggle" onClick={() => setIsOpen(true)}>
+          <i className="bi bi-chat-dots-fill" />
+          <span>Lễ tân</span>
+        </button>
+      )}
 
+      {/* Cửa sổ chat */}
       {isOpen && (
         <div className="chatbox-window">
           <div className="chatbox-header">
             <div className="chatbox-header-avatar">
               <i className="bi bi-person-badge-fill" />
             </div>
-            <div>
+            <div className="chatbox-header-info">
               <div className="chatbox-header-name">Lễ tân Smart Hotel</div>
               <div className="chatbox-header-status">
                 <span className="status-dot" /> Trực tuyến
               </div>
             </div>
+            {/* Nút X trong header */}
+            <button className="chatbox-close" onClick={() => setIsOpen(false)}>
+              <i className="bi bi-x-lg" />
+            </button>
           </div>
 
           <div className="chatbox-messages">

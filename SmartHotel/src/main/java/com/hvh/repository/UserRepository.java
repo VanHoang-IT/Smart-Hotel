@@ -17,5 +17,6 @@ public interface UserRepository {
     boolean authenticate(String username, String password);
     User getUserById(Long id);
     List<User> getUsers();
+    List<User> getUsers(int page);
     void updateUser(User u);
 }

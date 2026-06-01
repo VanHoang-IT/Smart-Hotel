@@ -6,6 +6,7 @@ package com.hvh.service;
 
 import com.hvh.pojo.RoomType;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -16,4 +17,5 @@ public interface RoomTypeService {
     void addOrUpdate(RoomType rt);
     RoomType getRoomTypeById(Long id);
     void deleteRoomType(Long id);
+    void updateRoomType(Long id, Map<String, Object> body);
 }

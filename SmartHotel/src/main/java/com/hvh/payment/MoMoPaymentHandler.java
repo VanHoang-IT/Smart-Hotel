@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class MoMoPaymentHandler extends PaymentHandler {
@@ -15,15 +16,28 @@ public class MoMoPaymentHandler extends PaymentHandler {
     @Autowired
     private RestTemplate restTemplate;
 
-    private final String partnerCode = "MOMO";
-    private final String accessKey = "F8BBA842ECF85";
-    private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-    private final String endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-    private final String redirectUrl = "http://localhost:3000/cart";
-    private final String ipnUrl = "https://why-embody-playful.ngrok-free.dev/SmartHotel/api/public/payments/momo-callback";
+    @Value("${momo.partner_code}")
+    private String partnerCode;
+
+    @Value("${momo.access_key}")
+    private String accessKey;
+
+    @Value("${momo.secret_key}")
+    private String secretKey;
+
+    @Value("${momo.endpoint}")
+    private String endpoint;
+
+    @Value("${momo.redirect_url}")
+    private String redirectUrl;
+
+    @Value("${momo.ipn_url}")
+    private String ipnUrl;
 
     @Override
-    public String getMethod() { return "MOMO"; }
+    public String getMethod() {
+        return "MOMO";
+    }
 
     @Override
     public Map<String, Object> createPaymentUrl(Long reservationId) throws Exception {
