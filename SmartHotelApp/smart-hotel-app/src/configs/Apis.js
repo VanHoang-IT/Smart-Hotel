@@ -58,6 +58,7 @@ export const endpoints = {
   chatMessages: "/secure/chat/messages",
   chatRooms: "/secure/chat/rooms",
   chatSeen: (roomId) => `/secure/chat/rooms/${roomId}/seen`,
+  aiChat: "/public/ai-chat",
 };
 
 export const authApis = () => {
