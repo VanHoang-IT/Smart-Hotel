@@ -38,7 +38,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
             "com.hvh.controllers",
             "com.hvh.repository",
             "com.hvh.service",
-            "com.hvh.facade"
+            "com.hvh.facade",
+            "com.hvh.payment",
         }
 )
 public class SpringSecurityConfigs {

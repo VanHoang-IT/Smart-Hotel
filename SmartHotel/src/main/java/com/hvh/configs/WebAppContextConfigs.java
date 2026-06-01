@@ -29,7 +29,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
             "com.hvh.repository",
             "com.hvh.service",
             "com.hvh.configs",
-            "com.hvh.facade"
+            "com.hvh.facade",
+            "com.hvh.payment",
         }
 )
 @EnableWebMvc

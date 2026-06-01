@@ -132,6 +132,18 @@ const MyReservations = () => {
                           Xem chi tiết
                         </Button>
 
+                        {r.status === "PENDING" && (
+                          <Button
+                            variant="outline-warning"
+                            size="sm"
+                            onClick={() =>
+                              navigate(`/reservation-detail/${r.id}`)
+                            }
+                          >
+                            Thanh toán
+                          </Button>
+                        )}
+
                         {(r.status === "CONFIRMED" ||
                           r.status === "CHECKED_OUT") &&
                           !r.reviewed && (

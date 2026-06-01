@@ -14,7 +14,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MyBookingContext, MyUserContext } from "../../configs/Contexts";
 import Apis, { endpoints, authApis } from "../../configs/Apis";
 import cookies from "react-cookies";
-import { QRCodeSVG } from "qrcode.react";
 
 const getNights = (checkIn, checkOut) => {
   if (!checkIn || !checkOut) return 1;
@@ -36,10 +35,6 @@ const Cart = () => {
   const hasProcessedPayment = useRef(false);
   const [showModal, setShowModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
-  const [vnpayReservationId, setVnpayReservationId] = useState(null);
-  const [vnpayTotal, setVnpayTotal] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(300);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileForm, setProfileForm] = useState({ dob: "", address: "" });
 
@@ -48,6 +43,14 @@ const Cart = () => {
     const resultCode = queryParams.get("resultCode");
     const partnerCode = queryParams.get("partnerCode");
     const vnpResponseCode = queryParams.get("vnp_ResponseCode");
+    const payment = queryParams.get("payment");
+
+    if (payment === "vnpay-success" && !hasProcessedPayment.current) {
+      hasProcessedPayment.current = true;
+      alert("Thanh toán VNPay thành công!");
+      finishPayment();
+      return;
+    }
 
     if (vnpResponseCode !== null && !hasProcessedPayment.current) {
       hasProcessedPayment.current = true;
@@ -74,28 +77,6 @@ const Cart = () => {
   }, [location.search]);
 
   useEffect(() => {
-    if (!showQRModal) {
-      setTimeLeft(300);
-      return;
-    }
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setShowQRModal(false);
-          alert(
-            "Đơn hàng đã bị hủy vì không thanh toán trong thời gian quy định!",
-          );
-          navigate("/");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [showQRModal]);
-
-  useEffect(() => {
     const loadServices = async () => {
       try {
         let res = await Apis.get(endpoints["extraServices"]);
@@ -104,14 +85,6 @@ const Cart = () => {
     };
     loadServices();
   }, []);
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
-    const s = (seconds % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
-  };
 
   const cartItems = Object.values(cart);
 
@@ -251,10 +224,15 @@ const Cart = () => {
             setLoading(false);
           }
         } else if (methodType === "VNPAY") {
-          setVnpayReservationId(newReservationId);
-          setVnpayTotal(calculateTotal());
-          setShowQRModal(true);
-          setLoading(false);
+          const vnpayRes = await authApis().post(endpoints.vnpayLink, {
+            reservationId: newReservationId,
+          });
+          if (vnpayRes.data && vnpayRes.data.payUrl) {
+            window.location.href = vnpayRes.data.payUrl;
+          } else {
+            alert("Không khởi tạo được link VNPay. Thử lại sau!");
+            setLoading(false);
+          }
         }
       }
     } catch (ex) {
@@ -270,19 +248,6 @@ const Cart = () => {
       console.error("Chi tiết lỗi API:", errorMsg);
       alert("Lỗi thanh toán: " + errorMsg);
       setLoading(false);
-    }
-  };
-
-  const confirmVNPay = async () => {
-    try {
-      await authApis().post(endpoints.vnpayConfirm, {
-        reservationId: vnpayReservationId,
-      });
-      setShowQRModal(false);
-      alert("Thanh toán VNPay thành công!");
-      finishPayment();
-    } catch (ex) {
-      alert("Lỗi xác nhận thanh toán: " + ex.message);
     }
   };
 
@@ -518,56 +483,6 @@ const Cart = () => {
             onClick={() => setShowModal(false)}
           >
             Quay lại giỏ hàng
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      <Modal show={showQRModal} onHide={() => setShowQRModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title className="fw-bold text-primary">
-            Thanh toán VNPay
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="text-center p-4">
-          <div
-            className={`mb-3 p-2 rounded fw-bold fs-4 ${timeLeft <= 60 ? "text-danger" : "text-warning"}`}
-          >
-            ⏱ {formatTime(timeLeft)}
-          </div>
-          <p className="text-muted small mb-3">
-            Vui lòng thanh toán trong thời gian quy định
-          </p>
-          <QRCodeSVG
-            value={`SmartHotel|ReservationId:${vnpayReservationId}|Amount:${vnpayTotal}|Bank:VNPay`}
-            size={200}
-            bgColor="#ffffff"
-            fgColor="#000000"
-            level="H"
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "8px",
-            }}
-          />
-          <h4 className="fw-bold text-danger mt-3">
-            {vnpayTotal.toLocaleString()} VNĐ
-          </h4>
-          <p className="text-muted small">Mã đơn: #{vnpayReservationId}</p>
-          <Button
-            variant="success"
-            className="w-100 mt-3 py-3 fw-bold"
-            onClick={confirmVNPay}
-          >
-            ✓ Xác nhận đã thanh toán
-          </Button>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="link"
-            className="text-muted text-decoration-none"
-            onClick={() => setShowQRModal(false)}
-          >
-            Hủy
           </Button>
         </Modal.Footer>
       </Modal>
