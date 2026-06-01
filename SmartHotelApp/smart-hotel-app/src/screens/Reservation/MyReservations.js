@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import {
   Container,
   Table,
@@ -36,24 +36,29 @@ const MyReservations = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const load = useCallback(async () => {
+    try {
+      const res = await authApis().get(endpoints.myReservations);
+      setReservations(res.data);
+    } catch (err) {
+      setError("Không thể tải lịch sử đặt phòng. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) {
       navigate("/login?next=/my-reservations");
       return;
     }
-
-    const load = async () => {
-      try {
-        const res = await authApis().get(endpoints.myReservations);
-        setReservations(res.data);
-      } catch (err) {
-        setError("Không thể tải lịch sử đặt phòng. Vui lòng thử lại.");
-      } finally {
-        setLoading(false);
-      }
-    };
     load();
-  }, [user]);
+  }, [user, load]);
+
+  useEffect(() => {
+    window.addEventListener("reservationUpdated", load);
+    return () => window.removeEventListener("reservationUpdated", load);
+  }, [load]);
 
   if (!user) return null;
 
@@ -131,7 +136,6 @@ const MyReservations = () => {
                         >
                           Xem chi tiết
                         </Button>
-
                         {r.status === "PENDING" && (
                           <Button
                             variant="outline-warning"
@@ -143,7 +147,6 @@ const MyReservations = () => {
                             Thanh toán
                           </Button>
                         )}
-
                         {(r.status === "CONFIRMED" ||
                           r.status === "CHECKED_OUT") &&
                           !r.reviewed && (
@@ -155,7 +158,6 @@ const MyReservations = () => {
                               Nhận xét
                             </Button>
                           )}
-
                         {(r.status === "CONFIRMED" ||
                           r.status === "CHECKED_OUT") &&
                           r.reviewed && <Badge bg="success">Đã đánh giá</Badge>}

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.hvh.repository.ReviewRepository;
+import com.hvh.service.NotificationService;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -40,6 +41,30 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private ReviewRepository reviewRepo;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Override
+    @Transactional
+    public void updateStatus(long id, String status) {
+        Reservation res = this.resRepo.getReservationById(id);
+        if (res == null) {
+            throw new RuntimeException("Không tìm thấy reservation với ID: " + id);
+        }
+        res.setStatus(status);
+        this.resRepo.addOrUpdateReservation(res);
+
+        try {
+            Long userId = res.getCustomerId() != null && res.getCustomerId().getUserId() != null
+                    ? res.getCustomerId().getUserId().getId() : null;
+            if (userId != null) {
+                notificationService.sendReservationNotification(id, status, userId);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi notification: " + e.getMessage());
+        }
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -152,17 +177,6 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setPayments(paymentItems);
 
         return dto;
-    }
-
-    @Override
-    @Transactional
-    public void updateStatus(long id, String status) {
-        Reservation res = this.resRepo.getReservationById(id);
-        if (res == null) {
-            throw new RuntimeException("Không tìm thấy reservation với ID: " + id);
-        }
-        res.setStatus(status);
-        this.resRepo.addOrUpdateReservation(res);
     }
 
     private ReservationResponseDTO toResponseDTO(Reservation res) {

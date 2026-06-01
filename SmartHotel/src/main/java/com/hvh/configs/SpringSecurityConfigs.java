@@ -39,8 +39,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
             "com.hvh.repository",
             "com.hvh.service",
             "com.hvh.facade",
-            "com.hvh.payment",
-        }
+            "com.hvh.payment",}
 )
 public class SpringSecurityConfigs {
 
@@ -57,12 +56,13 @@ public class SpringSecurityConfigs {
         return new HandlerMappingIntrospector();
     }
 
-     @Bean
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.addFilterBefore(new JwtFilter(userDetailsService), UsernamePasswordAuthenticationFilter.class);
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(c -> c.disable()).authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/", "/admin").hasRole("ADMIN")
+                .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/api/secure/admin/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/api/secure/**").authenticated()
                 .requestMatchers("/api/**").permitAll()
@@ -110,7 +110,7 @@ public class SpringSecurityConfigs {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "ngrok-skip-browser-warning"));
         config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true); 
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

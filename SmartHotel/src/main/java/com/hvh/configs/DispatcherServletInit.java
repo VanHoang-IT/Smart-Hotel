@@ -19,7 +19,8 @@ public class DispatcherServletInit extends AbstractAnnotationConfigDispatcherSer
         return new Class[]{
             HibernateConfigs.class,
             SpringSecurityConfigs.class,
-            ThymeleafConfigs.class
+            ThymeleafConfigs.class,
+            WebSocketConfig.class
         };
     }
 

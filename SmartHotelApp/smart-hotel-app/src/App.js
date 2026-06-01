@@ -29,6 +29,7 @@ import MyTasks from "./screens/Staff/MyTask";
 import ReceptionistChat from "./screens/Receptionist/ReceptionistChat";
 import ChatBox from "./components/ChatBox";
 import AIChatBox from "./components/AIChatBox";
+import NotificationListener from "./components/NotificationListener";
 
 const App = () => {
   const [user, dispatch] = useReducer(
@@ -81,6 +82,7 @@ const App = () => {
         </BrowserRouter>
         <ChatBox />
         <AIChatBox />
+        <NotificationListener />
       </MyBookingContext.Provider>
     </MyUserContext.Provider>
   );

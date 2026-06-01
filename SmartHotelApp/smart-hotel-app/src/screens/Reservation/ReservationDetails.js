@@ -38,6 +38,7 @@ const ReservationDetail = () => {
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
+
   const resStatuses = [
     "PENDING",
     "CONFIRMED",
@@ -48,24 +49,35 @@ const ReservationDetail = () => {
   const soStatuses = ["PENDING", "PROCESSING", "COMPLETED", "CANCELED"];
   const paymentStatuses = ["PENDING", "COMPLETED", "FAILED", "REFUNDED"];
 
+  const loadData = async () => {
+    try {
+      const [resDetail, svcRes] = await Promise.all([
+        authApis().get(endpoints.reservationDetail(id)),
+        Apis.get(endpoints.extraServices),
+      ]);
+      setReservation(resDetail.data);
+      setServiceOrders(resDetail.data.serviceOrders || []);
+      setServices(svcRes.data);
+      if (svcRes.data.length > 0) setSelectedServiceId(svcRes.data[0].id);
+    } catch (ex) {
+      console.error("Lỗi tải chi tiết:", ex);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [resDetail, svcRes] = await Promise.all([
-          authApis().get(endpoints.reservationDetail(id)),
-          Apis.get(endpoints.extraServices),
-        ]);
-        setReservation(resDetail.data);
-        setServiceOrders(resDetail.data.serviceOrders || []);
-        setServices(svcRes.data);
-        if (svcRes.data.length > 0) setSelectedServiceId(svcRes.data[0].id);
-      } catch (ex) {
-        console.error("Lỗi tải chi tiết:", ex);
-      } finally {
-        setLoading(false);
+    loadData();
+  }, [id]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e.detail.reservationId === Number(id)) {
+        setReservation((prev) => ({ ...prev, status: e.detail.status }));
       }
     };
-    loadData();
+    window.addEventListener("reservationUpdated", handleUpdate);
+    return () => window.removeEventListener("reservationUpdated", handleUpdate);
   }, [id]);
 
   const handleAddService = async (e) => {
@@ -75,30 +87,26 @@ const ReservationDetail = () => {
       setAdding(true);
       await authApis().post(endpoints.serviceOrders(id), {
         serviceId: selectedServiceId,
-        qty: qty,
+        qty,
       });
-      const [resDetail] = await Promise.all([
-        authApis().get(endpoints.reservationDetail(id)),
-      ]);
+      const resDetail = await authApis().get(endpoints.reservationDetail(id));
       setReservation(resDetail.data);
       setServiceOrders(resDetail.data.serviceOrders || []);
       setQty(1);
     } catch (ex) {
-      console.error(ex);
       alert("Thêm dịch vụ thất bại!");
     } finally {
       setAdding(false);
     }
   };
+
   const handlePayVNPay = async () => {
     try {
       setPayLoading(true);
       const res = await authApis().post(endpoints.vnpayLink, {
         reservationId: id,
       });
-      if (res.data && res.data.payUrl) {
-        window.location.href = res.data.payUrl;
-      }
+      if (res.data?.payUrl) window.location.href = res.data.payUrl;
     } catch (ex) {
       alert("Lỗi tạo link thanh toán!");
     } finally {
@@ -113,15 +121,14 @@ const ReservationDetail = () => {
         reservationId: id,
         amount: 0,
       });
-      if (res.data && res.data.payUrl) {
-        window.location.href = res.data.payUrl;
-      }
+      if (res.data?.payUrl) window.location.href = res.data.payUrl;
     } catch (ex) {
       alert("Lỗi tạo link thanh toán!");
     } finally {
       setPayLoading(false);
     }
   };
+
   const handleUpdateResStatus = async (newStatus) => {
     try {
       await authApis().patch(endpoints.updateReservationStatus(id), {
@@ -185,7 +192,6 @@ const ReservationDetail = () => {
       <h2 className="mb-4 fw-bold text-primary">
         Chi tiết Đơn Đặt Phòng #{id}
       </h2>
-
       <Row>
         <Col lg={4}>
           <Card className="shadow-sm border-0 mb-4">
@@ -256,11 +262,12 @@ const ReservationDetail = () => {
               Phòng Đã Đặt
             </Card.Header>
             <Card.Body>
-              {reservation.rooms && reservation.rooms.length > 0 ? (
+              {reservation.rooms?.length > 0 ? (
                 <ul>
                   {reservation.rooms.map((r) => (
                     <li key={r.id}>
-                      Phòng <strong>{r.roomName}</strong> <br />
+                      Phòng <strong>{r.roomName}</strong>
+                      <br />
                       <span className="text-muted">
                         {Number(r.pricePerNight).toLocaleString()}đ / đêm
                       </span>
@@ -278,7 +285,7 @@ const ReservationDetail = () => {
               Thanh Toán
             </Card.Header>
             <Card.Body>
-              {reservation.payments && reservation.payments.length > 0
+              {reservation.payments?.length > 0
                 ? reservation.payments.map((payment) => (
                     <div key={payment.id} className="mb-3 border-bottom pb-2">
                       <p>
@@ -350,7 +357,7 @@ const ReservationDetail = () => {
                       {payLoading ? (
                         <Spinner animation="border" size="sm" />
                       ) : (
-                        " Thanh toán qua VNPay"
+                        "💳 Thanh toán qua VNPay"
                       )}
                     </Button>
                     <Button
@@ -361,7 +368,7 @@ const ReservationDetail = () => {
                       {payLoading ? (
                         <Spinner animation="border" size="sm" />
                       ) : (
-                        " Thanh toán qua MoMo"
+                        "💰 Thanh toán qua MoMo"
                       )}
                     </Button>
                   </div>
