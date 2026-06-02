@@ -52,7 +52,7 @@ public class ApiStaffController {
             Authentication auth) {
         String status = body.get("status");
         if (status == null || status.isBlank()) {
-            return new ResponseEntity<>("Status is required", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         User currentUser = this.userService.getUserByUsername(auth.getName());

@@ -11,6 +11,7 @@ import com.hvh.repository.UserRepository;
 import com.hvh.service.UserService;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -89,12 +90,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public java.util.List<User> getUsers() {
+    public List<User> getUsers() {
         return this.userRepo.getUsers();
     }
 
     @Override
-    public java.util.List<User> getUsers(int page) {
+    public List<User> getUsers(int page) {
         return this.userRepo.getUsers(page);
     }
 

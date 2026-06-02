@@ -15,7 +15,5 @@ public interface ServiceOrderService {
     void addOrUpdate(ServiceOrderRequestDTO orderDto);
     ServiceOrderResponseDTO getById(Long id);
     void updateStatus(Long id, String status);
-    void cancelOrder(Long id);
     BigDecimal getTotalAmountByReservation(Long resId);
-    List<ServiceOrderResponseDTO> getPendingOrders();
 }

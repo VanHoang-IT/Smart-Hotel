@@ -10,8 +10,6 @@ import com.hvh.service.CustomerService;
 import com.hvh.service.UserService;
 import java.security.Principal;
 import java.sql.Date;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,10 +58,7 @@ public class ApiCustomerProfileController {
 
         if (request.getDob() == null || request.getDob().isBlank()
                 || request.getAddress() == null || request.getAddress().isBlank()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("code", "INVALID_CUSTOMER_PROFILE_DATA");
-            error.put("message", "dob and address are required");
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         User currentUser = this.userService.getUserByUsername(principal.getName());
@@ -76,15 +71,9 @@ public class ApiCustomerProfileController {
             CustomerProfile created = this.customerService.createCustomerProfile(currentUser.getId(), profileData);
             return new ResponseEntity<>(toCustomerProfileDto(created), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("code", "INVALID_CUSTOMER_PROFILE_DATA");
-            error.put("message", "dob must be in yyyy-MM-dd format");
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (IllegalStateException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("code", "CUSTOMER_PROFILE_ALREADY_EXISTS");
-            error.put("message", "Customer profile already exists");
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Repository;
  
 @Repository
@@ -54,7 +55,7 @@ public class ChatRepositoryImpl implements ChatRepository {
             }
         });
  
-        try { latch.await(3, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+        try { latch.await(3, TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
         return roomId;
     }
  
@@ -102,7 +103,7 @@ public class ChatRepositoryImpl implements ChatRepository {
                     }
                 });
  
-        try { latch.await(5, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+        try { latch.await(5, TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
         return result;
     }
  
@@ -132,7 +133,7 @@ public class ChatRepositoryImpl implements ChatRepository {
             }
         });
  
-        try { latch.await(5, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+        try { latch.await(5, TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
         return result;
     }
  
@@ -157,6 +158,6 @@ public class ChatRepositoryImpl implements ChatRepository {
                         latch.countDown();
                     }
                 });
-        try { latch.await(5, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+        try { latch.await(5, TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
     }
 }

@@ -105,13 +105,6 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public void addOrUpdateRoomJson(Room r) {
-        validateRoom(r);
-        this.roomRepo.addOrUpdateRoom(r);
-    }
-
-    @Override
-    @Transactional
     public void createRoom(Map<String, Object> body) {
         String name = body.get("name") != null ? body.get("name").toString().trim() : null;
         String price = body.get("price") != null ? body.get("price").toString().trim() : null;

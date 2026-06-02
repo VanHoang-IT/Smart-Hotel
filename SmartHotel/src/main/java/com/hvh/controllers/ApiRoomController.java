@@ -88,7 +88,7 @@ public class ApiRoomController {
         Room r = this.roomService.getRoomById(id);
         if (r == null) return ResponseEntity.notFound().build();
         r.setStatus(status);
-        this.roomService.addOrUpdateRoomJson(r);
+        this.roomService.addOrUpdateRoom(r);
         return ResponseEntity.noContent().build();
     }
 }

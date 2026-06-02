@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -127,14 +128,6 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<ServiceOrderResponseDTO> getPendingOrders() {
-        Map<String, String> params = new HashMap<>();
-        params.put("status", "PENDING");
-        return this.getServiceOrders(params);
-    }
-
-    @Override
     @Transactional
     public void updateStatus(Long id, String status) {
         ServiceOrder order = this.serviceOrderRepo.getById(id);
@@ -166,7 +159,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
         }
 
         long diffInMillies = res.getCheckOut().getTime() - res.getCheckIn().getTime();
-        long calculatedNights = java.util.concurrent.TimeUnit.DAYS.convert(diffInMillies, java.util.concurrent.TimeUnit.MILLISECONDS);
+        long calculatedNights = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 
         final long nights = Math.max(calculatedNights, 1);
 
@@ -183,25 +176,6 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
                 .map(ServiceOrder::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         return roomTotal.add(serviceTotal);
-    }
-
-    @Override
-    @Transactional
-    public void cancelOrder(Long id) {
-        ServiceOrder order = this.serviceOrderRepo.getById(id);
-        if (order != null) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            boolean isStaffOrAdmin = auth.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("STAFF") || a.getAuthority().equals("ADMIN"));
-
-            if (!isStaffOrAdmin && !"PENDING".equals(order.getStatus())) {
-                throw new RuntimeException("Không thể hủy dịch vụ đã thực hiện!");
-            }
-
-            order.setStatus("CANCELED");
-            order.setUpdatedAt(new Date());
-            this.serviceOrderRepo.addOrUpdate(order);
-        }
     }
 
     private ServiceOrderResponseDTO toResponseDTO(ServiceOrder order) {

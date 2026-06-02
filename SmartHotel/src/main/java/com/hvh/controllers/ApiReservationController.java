@@ -39,10 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- *
- * @author 03358
- */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
@@ -74,10 +70,7 @@ public class ApiReservationController {
             response.put("id", newReservation.getId());
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (IllegalStateException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("code", "CUSTOMER_PROFILE_REQUIRED");
-            error.put("message", "Please complete customer profile before reservation");
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
@@ -111,18 +104,18 @@ public class ApiReservationController {
 
     @PatchMapping("/secure/reservations/{id}/status")
     @PreAuthorize("hasAuthority('RECEPTIONIST')")
-    public ResponseEntity<String> updateReservationStatus(
+    public ResponseEntity<?> updateReservationStatus(
             @PathVariable("id") long id,
             @RequestBody Map<String, String> body) {
         String status = body.get("status");
         if (status == null || status.isBlank()) {
-            return new ResponseEntity<>("Phải có status", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         try {
             this.resService.updateStatus(id, status);
             return new ResponseEntity<>(status, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -137,16 +130,13 @@ public class ApiReservationController {
     public ResponseEntity<List<ServiceOrderResponseDTO>> getOrdersByReservation(@PathVariable("id") Long resId) {
         Map<String, String> params = new HashMap<>();
         params.put("reservationId", resId.toString());
-
-        List<ServiceOrderResponseDTO> orders = this.serOrderService.getServiceOrders(params);
-        return new ResponseEntity<>(orders, HttpStatus.OK);
+        return new ResponseEntity<>(this.serOrderService.getServiceOrders(params), HttpStatus.OK);
     }
 
     @GetMapping("/secure/reservations/{id}/service-total")
     @PreAuthorize("hasAnyAuthority('ROLE_STAFF', 'ROLE_ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<BigDecimal> getTotalServiceAmount(@PathVariable("id") Long resId) {
-        BigDecimal total = this.serOrderService.getTotalAmountByReservation(resId);
-        return new ResponseEntity<>(total, HttpStatus.OK);
+        return new ResponseEntity<>(this.serOrderService.getTotalAmountByReservation(resId), HttpStatus.OK);
     }
 
     @DeleteMapping("/secure/reservations/{id}")
@@ -158,18 +148,18 @@ public class ApiReservationController {
 
     @PatchMapping("/secure/service-orders/{id}/status")
     @PreAuthorize("hasAuthority('RECEPTIONIST')")
-    public ResponseEntity<String> updateServiceOrderStatus(
+    public ResponseEntity<?> updateServiceOrderStatus(
             @PathVariable("id") Long id,
             @RequestBody Map<String, String> body) {
         String status = body.get("status");
         if (status == null || status.isBlank()) {
-            return new ResponseEntity<>("Phải có status", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         try {
             this.serOrderService.updateStatus(id, status);
             return new ResponseEntity<>(status, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -179,14 +169,8 @@ public class ApiReservationController {
             @PathVariable("id") Long reservationId,
             @RequestBody ReviewRequestDTO dto,
             Authentication auth) {
-
-        User currentUser
-                = this.userService.getUserByUsername(auth.getName());
-        ReviewResponseDTO review = this.reviewService.addReview(
-                        reservationId,
-                        dto,
-                        currentUser);
-
+        User currentUser = this.userService.getUserByUsername(auth.getName());
+        ReviewResponseDTO review = this.reviewService.addReview(reservationId, dto, currentUser);
         return new ResponseEntity<>(review, HttpStatus.CREATED);
     }
 }

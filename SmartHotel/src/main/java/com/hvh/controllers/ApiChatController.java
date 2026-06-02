@@ -72,43 +72,42 @@ public class ApiChatController {
     public ResponseEntity<?> aiChat(@RequestBody Map<String, Object> payload) {
         try {
             RestTemplate restTemplate = new RestTemplate();
-
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiApiKey;
+            String url = "https://api.freetheai.xyz/v1/chat/completions";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer " + geminiApiKey);
 
             List<Map<String, Object>> messages = (List<Map<String, Object>>) payload.get("messages");
             String systemPrompt = (String) payload.get("system");
 
-            List<Map<String, Object>> contents = new ArrayList<>();
-
+            List<Map<String, Object>> chatMessages = new ArrayList<>();
+            if (systemPrompt != null) {
+                Map<String, Object> sysMsg = new HashMap<>();
+                sysMsg.put("role", "system");
+                sysMsg.put("content", systemPrompt);
+                chatMessages.add(sysMsg);
+            }
             for (Map<String, Object> msg : messages) {
-                Map<String, Object> content = new HashMap<>();
-                content.put("role", "user".equals(msg.get("role")) ? "user" : "model");
-                content.put("parts", List.of(Map.of("text", msg.get("content"))));
-                contents.add(content);
+                Map<String, Object> m = new HashMap<>();
+                m.put("role", "user".equals(msg.get("role")) ? "user" : "assistant");
+                m.put("content", msg.get("content"));
+                chatMessages.add(m);
             }
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("contents", contents);
-
-            if (systemPrompt != null) {
-                requestBody.put("system_instruction", Map.of(
-                    "parts", List.of(Map.of("text", systemPrompt))
-                ));
-            }
+            requestBody.put("model", "opc/deepseek-v4-flash-free");
+            requestBody.put("messages", chatMessages);
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
 
             Map<String, Object> body = response.getBody();
-            List<Map> candidates = (List<Map>) body.get("candidates");
-            Map content = (Map) candidates.get(0).get("content");
-            List<Map> parts = (List<Map>) content.get("parts");
-            String text = (String) parts.get(0).get("text");
-
+            List<Map> choices = (List<Map>) body.get("choices");
+            Map message = (Map) choices.get(0).get("message");
+            String text = (String) message.get("content");
             return new ResponseEntity<>(Map.of("text", text), HttpStatus.OK);
+
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

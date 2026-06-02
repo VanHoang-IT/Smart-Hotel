@@ -26,5 +26,6 @@ public interface ReservationService {
     ReservationDetailDTO getReservationDetailById(long id);
 
     void updateStatus(long id, String status);
+
     void deleteReservation(long id);
 }

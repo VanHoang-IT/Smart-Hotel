@@ -66,7 +66,12 @@ public class ReservationRepositoryImpl implements ReservationRepository{
 
             String fromDate = params.get("fromDate");
             if (fromDate != null && !fromDate.isEmpty()) {
-                predicates.add(b.greaterThanOrEqualTo(root.get("checkIn"), fromDate));
+                predicates.add(b.greaterThanOrEqualTo(root.get("checkIn"), java.sql.Date.valueOf(fromDate)));
+            }
+
+            String toDate = params.get("toDate");
+            if (toDate != null && !toDate.isEmpty()) {
+                predicates.add(b.lessThanOrEqualTo(root.get("checkIn"), java.sql.Date.valueOf(toDate)));
             }
 
             q.where(predicates.toArray(Predicate[]::new));
